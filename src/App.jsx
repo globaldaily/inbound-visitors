@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Line, Cell, PieChart, Pie, LineChart, Legend, LabelList
+  ResponsiveContainer, LineChart, Line, Cell
 } from 'recharts';
 
 // ============================================================
@@ -10,45 +10,38 @@ import {
 const SHEET_ID = '1hF1Z-3LLgzzzFwc66xVqEXszNm3qSH8Xwl6DT01dQRs';
 const API_KEY = 'AIzaSyAs_UERCv_a4ZCfrZI2XvThGMFPFRkStO0';
 
-const COUNTRIES = ['韓国', '中国', '台湾', '香港', 'タイ', 'シンガポール', 'マレーシア', 'インドネシア', 'フィリピン', 'ベトナム', 'インド', '豪州', '米国', 'カナダ', 'メキシコ', '英国', 'フランス', 'ドイツ', 'イタリア', 'スペイン', 'ロシア', '北欧', '中東', 'その他'];
-
 const COUNTRY_FLAGS = {
   '韓国': '🇰🇷', '中国': '🇨🇳', '台湾': '🇹🇼', '香港': '🇭🇰',
   'タイ': '🇹🇭', 'シンガポール': '🇸🇬', 'マレーシア': '🇲🇾', 'インドネシア': '🇮🇩',
   'フィリピン': '🇵🇭', 'ベトナム': '🇻🇳', 'インド': '🇮🇳', '豪州': '🇦🇺',
   '米国': '🇺🇸', 'カナダ': '🇨🇦', 'メキシコ': '🇲🇽', '英国': '🇬🇧',
   'フランス': '🇫🇷', 'ドイツ': '🇩🇪', 'イタリア': '🇮🇹', 'スペイン': '🇪🇸',
-  'ロシア': '🇷🇺', '北欧': '🇸🇪', '中東': '🇦🇪', 'その他': '🌐'
+  'ロシア': '🇷🇺', '北欧地域': '🇸🇪', '中東地域': '🇦🇪', 'その他': '🌐'
 };
 
-const PIE_COLORS = [
-  '#1e40af', '#3b82f6', '#60a5fa', '#93c5fd',
-  '#059669', '#10b981', '#34d399', '#6ee7b7',
-  '#dc2626', '#f87171', '#fca5a5',
-  '#d97706', '#fbbf24', '#fcd34d',
-  '#7c3aed', '#a78bfa',
-  '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'
+const COUNTRY_COLORS = [
+  'linear-gradient(90deg, #0369a1, #0ea5e9)',
+  'linear-gradient(90deg, #0ea5e9, #38bdf8)',
+  'linear-gradient(90deg, #6366f1, #818cf8)',
+  '#8b5cf6', '#a855f7', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#84cc16'
 ];
 
-// 연도별 색상 (PHP와 동일하게)
 const YEAR_COLORS = {
-  '2019年': '#60a5fa',  // 하늘색
-  '2020年': '#8b5cf6',  // 보라
-  '2021年': '#22c55e',  // 초록
-  '2022年': '#f97316',  // 주황
-  '2023年': '#06b6d4',  // 시안
-  '2024年': '#a855f7',  // 연보라
-  '2025年': '#3b82f6',  // 파랑 (굵게)
-  '2026年': '#1e40af'   // 진한 파랑
+  '2026': '#dc2626',
+  '2025': '#1e40af',
+  '2024': '#f97316',
+  '2023': '#eab308',
+  '2019': '#9ca3af',
+  '2018': '#22c55e',
+  '2017': '#3b82f6'
 };
 
-// 장기 추이 단계별 색상
 const PHASE_COLORS = {
-  '初期成長期': '#3b82f6',    // 파랑
-  '本格成長期': '#22c55e',    // 초록
-  'ピーク期': '#f59e0b',      // 주황/노랑
-  'コロナ影響期': '#ef4444',  // 빨강
-  '回復・成長期': '#8b5cf6'   // 보라
+  '初期成長期': '#93c5fd',
+  '本格成長期': '#86efac',
+  'ピーク期': '#fcd34d',
+  'コロナ影響期': '#fca5a5',
+  '回復・成長期': '#c4b5fd'
 };
 
 // ============================================================
@@ -68,7 +61,7 @@ const formatNumber = (num, decimals = 1) => {
 
 const formatMan = (num) => {
   if (!num) return '—';
-  return formatNumber(num / 10000, 1) + '万人';
+  return formatNumber(num / 10000, 1) + '万';
 };
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -91,9 +84,9 @@ const fetchSheetData = async (sheetName, retries = 2) => {
 };
 
 // ============================================================
-// 월간 하이라이트
+// Hero KPI
 // ============================================================
-const MonthlyHighlight = ({ data, special }) => {
+const HeroSection = ({ data, special }) => {
   if (!data || data.length === 0) return null;
   const latest = data[0];
   if (!latest) return null;
@@ -103,337 +96,335 @@ const MonthlyHighlight = ({ data, special }) => {
   const momChange = parseFloat(latest.mom) || 0;
 
   return (
-    <div style={styles.highlightSection}>
-      <div style={styles.highlightHeader}>
-        <div>
-          <p style={styles.highlightLabel}>{monthLabel} 訪日外客数</p>
-          <div style={styles.highlightNumber}>
-            <span style={styles.highlightDigits}>{formatNumber(latest.total / 10000, 1)}</span>
-            <span style={styles.highlightUnit}>万人</span>
+    <section style={styles.hero}>
+      <div style={styles.heroEyebrow}>
+        <span style={styles.heroDate}>{monthLabel} 訪日外客数</span>
+        <span style={styles.heroBadge}>速報</span>
+      </div>
+      <div style={styles.heroNumber}>
+        <span style={styles.heroDigits}>{formatNumber(latest.total / 10000, 1)}</span>
+        <span style={styles.heroUnit}>万人</span>
+      </div>
+      <div style={styles.heroCompare}>
+        <div style={styles.compareItem}>
+          <span style={styles.compareLabel}>前年同月比</span>
+          <div style={styles.compareValue}>
+            <span style={{...styles.arrow, color: yoyChange >= 0 ? '#059669' : '#dc2626'}}>
+              {yoyChange >= 0 ? '▲' : '▼'}
+            </span>
+            <span style={{...styles.compareNum, color: yoyChange >= 0 ? '#059669' : '#dc2626'}}>
+              {Math.abs(yoyChange).toFixed(1)}%
+            </span>
           </div>
+          <span style={styles.compareSub}>2025年1月: {formatMan(latest.prevYear)}</span>
         </div>
-        <div style={styles.highlightMeta}>
-          <div style={styles.metaItem}>
-            <span style={styles.metaLabel}>前年同月比</span>
-            <span style={{ ...styles.metaValue, color: yoyChange >= 0 ? '#059669' : '#dc2626' }}>
-              {yoyChange >= 0 ? '+' : ''}{yoyChange.toFixed(1)}%
+        <div style={styles.compareItem}>
+          <span style={styles.compareLabel}>前月比</span>
+          <div style={styles.compareValue}>
+            <span style={{...styles.arrow, color: momChange >= 0 ? '#059669' : '#dc2626'}}>
+              {momChange >= 0 ? '▲' : '▼'}
+            </span>
+            <span style={{...styles.compareNum, color: momChange >= 0 ? '#059669' : '#dc2626'}}>
+              {Math.abs(momChange).toFixed(1)}%
             </span>
           </div>
-          <div style={styles.metaItem}>
-            <span style={styles.metaLabel}>前月比</span>
-            <span style={{ ...styles.metaValue, color: momChange >= 0 ? '#059669' : '#dc2626' }}>
-              {momChange >= 0 ? '+' : ''}{momChange.toFixed(1)}%
-            </span>
-          </div>
+          <span style={styles.compareSub}>2025年12月: {formatMan(latest.prevMonth)}</span>
         </div>
       </div>
       {special && special.length > 0 && (
-        <div style={styles.specialNote}>
-          {special.map((s, i) => (
-            <p key={i} style={styles.specialText}>
-              <strong>{s.country}</strong>が{formatMan(s.value)}を記録。{s.note}
-            </p>
-          ))}
+        <div style={styles.insight}>
+          <p style={styles.insightText}>
+            <strong style={styles.insightStrong}>{special[0]?.country}</strong>が
+            <mark style={styles.insightMark}>{formatMan(special[0]?.value)}</mark>を記録。
+            {special[0]?.note}
+          </p>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
 // ============================================================
-// 연도별 월간 추이 (2019-2026 멀티라인) - PHP 스타일
+// 국가별 수평 바 차트
 // ============================================================
-const YearlyMonthlyTrend = ({ data }) => {
+const CountryHorizontalBars = ({ data, total }) => {
   if (!data || data.length === 0) return null;
 
-  const years = ['2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年', '2026年'];
+  const topCountries = data.slice(0, 10);
+  const otherCountries = data.slice(10);
+  const maxValue = topCountries[0]?.value || 1;
+
+  return (
+    <section style={styles.section}>
+      <div style={styles.sectionHeader}>
+        <p style={styles.sectionNumber}>01</p>
+        <h2 style={styles.sectionTitle}>国・地域別シェア</h2>
+        <p style={styles.sectionDesc}>2026年1月の市場別構成比。バーの長さ＝シェア。</p>
+      </div>
+
+      <div style={styles.chartWrap}>
+        <div style={styles.chartTitleInline}>
+          <span>上位10市場</span>
+          <span style={styles.chartUnit}>総数: {formatMan(total)}</span>
+        </div>
+
+        <div style={styles.hbarList}>
+          {topCountries.map((country, i) => {
+            const percent = ((country.value / total) * 100).toFixed(1);
+            const width = (country.value / maxValue) * 100;
+            const yoy = country.yoy || 0;
+
+            return (
+              <div key={country.name} style={styles.hbarItem}>
+                <span style={{...styles.hbarRank, color: i < 3 ? '#0369a1' : '#94a3b8'}}>{i + 1}</span>
+                <span style={styles.hbarFlag}>{COUNTRY_FLAGS[country.name] || '🌐'}</span>
+                <span style={styles.hbarName}>{country.name}</span>
+                <div style={styles.hbarBarWrap}>
+                  <div style={styles.hbarBar}>
+                    <div style={{
+                      ...styles.hbarFill,
+                      width: `${Math.max(width, 15)}%`,
+                      background: COUNTRY_COLORS[i] || '#94a3b8'
+                    }}>
+                      <span style={styles.hbarPercent}>{percent}%</span>
+                    </div>
+                  </div>
+                </div>
+                <span style={styles.hbarValue}>{formatMan(country.value)}</span>
+                <span style={{
+                  ...styles.hbarYoy,
+                  color: yoy >= 0 ? '#059669' : '#dc2626'
+                }}>
+                  {yoy >= 0 ? '▲' : '▼'}{Math.abs(yoy).toFixed(1)}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {otherCountries.length > 0 && (
+          <div style={styles.otherMarkets}>
+            <p style={styles.otherTitle}>その他の市場（11位以下）</p>
+            <div style={styles.otherGrid}>
+              {otherCountries.slice(0, 8).map(country => {
+                const yoy = country.yoy || 0;
+                return (
+                  <div key={country.name} style={styles.otherItem}>
+                    <span style={styles.otherFlag}>{COUNTRY_FLAGS[country.name] || '🌐'}</span>
+                    <span style={styles.otherName}>{country.name}</span>
+                    <div style={styles.otherBar}>
+                      <div style={{
+                        ...styles.otherFill,
+                        width: `${Math.min((country.value / (topCountries[topCountries.length - 1]?.value || 1)) * 100, 100)}%`
+                      }} />
+                    </div>
+                    <span style={styles.otherValue}>{formatMan(country.value)}</span>
+                    <span style={{
+                      ...styles.otherYoy,
+                      color: yoy >= 0 ? '#059669' : '#dc2626'
+                    }}>
+                      {yoy >= 0 ? '+' : ''}{yoy.toFixed(1)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年1月推計値）</p>
+      </div>
+    </section>
+  );
+};
+
+// ============================================================
+// 월별 추이 차트 (다년도)
+// ============================================================
+const MonthlyTrendChart = ({ data }) => {
+  if (!data || data.length === 0) return null;
+
+  const years = ['2026', '2025', '2024', '2023', '2019', '2018', '2017'];
   
-  // 월별로 데이터 재구성
   const chartData = [];
   for (let m = 1; m <= 12; m++) {
     const row = { month: `${m}月` };
     years.forEach(year => {
-      const found = data.find(d => d.month === m && d.year === year);
-      if (found && found.value > 0) row[year] = found.value;
+      const found = data.find(d => d.month === m && d.year === year + '年');
+      if (found && found.value > 0) {
+        row[year] = found.value / 10000;
+      }
     });
     chartData.push(row);
   }
 
-  return (
-    <div style={styles.chartSection}>
-      <h3 style={styles.chartTitle}>月別訪日外客数の推移（2019-2026年）</h3>
-      <p style={styles.chartSubtitle}>コロナ禍からの回復と過去最高への軌跡</p>
-      <ResponsiveContainer width="100%" height={420}>
-        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} />
-          <YAxis 
-            tick={{ fontSize: 12, fill: '#6b7280' }} 
-            tickFormatter={v => `${(v/10000).toFixed(0)}`} 
-            domain={[0, 'auto']}
-            label={{ value: '万人', position: 'top', offset: 10, fontSize: 11 }} 
-          />
-          <Tooltip 
-            formatter={(value) => value ? [`${formatNumber(value/10000, 1)}万人`] : ['—']} 
-            contentStyle={{ fontSize: 13 }}
-          />
-          <Legend 
-            wrapperStyle={{ paddingTop: 20 }}
-            formatter={(value) => <span style={{ color: YEAR_COLORS[value], fontWeight: 500 }}>{value}</span>}
-          />
-          {years.map(year => (
-            <Line 
-              key={year}
-              type="monotone" 
-              dataKey={year} 
-              stroke={YEAR_COLORS[year]} 
-              strokeWidth={year === '2025年' || year === '2026年' ? 3 : 2}
-              dot={{ r: 4, fill: YEAR_COLORS[year], strokeWidth: 0 }}
-              activeDot={{ r: 6 }}
-              connectNulls
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-// ============================================================
-// 국별 구성비 파이 차트
-// ============================================================
-const CountryPieChart = ({ data }) => {
-  if (!data || Object.keys(data).length === 0) return null;
-
-  const total = Object.entries(data)
-    .filter(([k]) => COUNTRIES.includes(k))
-    .reduce((sum, [, v]) => sum + (v || 0), 0);
-
-  const pieData = Object.entries(data)
-    .filter(([k]) => COUNTRIES.includes(k) && data[k] > 0)
-    .map(([country, value]) => ({
-      name: country,
-      value: value,
-      percent: ((value / total) * 100).toFixed(1)
-    }))
-    .sort((a, b) => b.value - a.value);
-
-  return (
-    <div style={styles.chartSection}>
-      <h3 style={styles.chartTitle}>国別構成比</h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <PieChart>
-          <Pie
-            data={pieData}
-            cx="50%"
-            cy="50%"
-            innerRadius={80}
-            outerRadius={150}
-            paddingAngle={1}
-            dataKey="value"
-            label={({ name, percent }) => `${name}: ${percent}%`}
-            labelLine={{ stroke: '#6b7280', strokeWidth: 1 }}
-          >
-            {pieData.map((entry, index) => (
-              <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip formatter={(value) => formatMan(value)} />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-// ============================================================
-// 국가별 카드 (6개국, 3년 비교 바차트)
-// ============================================================
-const CountryCards = ({ countryMonthlyData }) => {
-  if (!countryMonthlyData || countryMonthlyData.length === 0) return null;
-
-  const countries = ['韓国', '中国', '台湾', '香港', '米国', 'タイ'];
-  
-  return (
-    <div style={styles.cardsSection}>
-      <h3 style={styles.chartTitle}>主要国・地域別 訪日客数（月別）</h3>
-      <p style={styles.chartSubtitle}>2019・2024・2025年比較</p>
-      <div style={styles.cardsGrid}>
-        {countries.map(country => {
-          const countryData = countryMonthlyData.filter(d => d.country === country);
-          if (countryData.length === 0) return null;
-
-          const jan2026 = countryData.find(d => d.month === 1 && d.year === '2026年');
-          const latestValue = jan2026?.value || 0;
-          
-          // 12개월 데이터로 바차트 구성
-          const chartData = [];
-          for (let m = 1; m <= 12; m++) {
-            const row = { month: m };
-            ['2019年', '2024年', '2025年'].forEach(year => {
-              const found = countryData.find(d => d.month === m && d.year === year);
-              row[year] = found ? found.value / 10000 : 0;
-            });
-            chartData.push(row);
-          }
-
-          // 전년비 계산
-          const jan2025 = countryData.find(d => d.month === 1 && d.year === '2025年');
-          const yoy = jan2025?.value ? ((latestValue - jan2025.value) / jan2025.value * 100).toFixed(1) : 0;
-
-          return (
-            <div key={country} style={styles.countryCard}>
-              <div style={styles.cardHeader}>
-                <span style={styles.cardFlag}>{COUNTRY_FLAGS[country]}</span>
-                <span style={styles.cardCountry}>{country}</span>
-                {jan2026 && (
-                  <span style={{ 
-                    ...styles.cardYoy, 
-                    color: parseFloat(yoy) >= 0 ? '#059669' : '#dc2626' 
-                  }}>
-                    前年同月比 {parseFloat(yoy) >= 0 ? '+' : ''}{yoy}%
-                  </span>
-                )}
-              </div>
-              {jan2026 && (
-                <div style={styles.cardLatest}>
-                  2026年1月: {formatMan(latestValue)}
-                </div>
-              )}
-              <ResponsiveContainer width="100%" height={150}>
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} tickFormatter={v => v > 0 ? `${v.toFixed(0)}` : ''} />
-                  <Tooltip formatter={(value) => [`${value.toFixed(1)}万人`]} />
-                  <Bar dataKey="2019年" fill="#d1d5db" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="2024年" fill="#9ca3af" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="2025年" fill="#3b82f6" radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-              <div style={styles.cardLegend}>
-                <span><span style={{...styles.legendDot, backgroundColor: '#d1d5db'}}></span>2019年</span>
-                <span><span style={{...styles.legendDot, backgroundColor: '#9ca3af'}}></span>2024年</span>
-                <span><span style={{...styles.legendDot, backgroundColor: '#3b82f6'}}></span>2025年</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-// ============================================================
-// 국가별 순위
-// ============================================================
-const CountryRanking = ({ data, month }) => {
-  if (!data || Object.keys(data).length === 0) return null;
-
-  const sortedCountries = Object.entries(data)
-    .filter(([k]) => COUNTRIES.includes(k) && data[k] > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 15);
-
-  const maxValue = sortedCountries[0]?.[1] || 1;
-
-  return (
-    <div style={styles.rankingSection}>
-      <h3 style={styles.chartTitle}>{month} 国・地域別 訪日客数ランキング</h3>
-      <div style={styles.countryList}>
-        {sortedCountries.map(([country, value], i) => (
-          <div key={country} style={styles.countryRow}>
-            <div style={styles.countryLeft}>
-              <span style={{ ...styles.countryRank, backgroundColor: i < 3 ? '#1a1a1a' : '#f3f4f6', color: i < 3 ? '#fff' : '#6b7280' }}>{i + 1}</span>
-              <span style={styles.countryFlag}>{COUNTRY_FLAGS[country] || '🌐'}</span>
-              <span style={styles.countryName}>{country}</span>
-            </div>
-            <div style={styles.countryRight}>
-              <div style={styles.countryBar}>
-                <div style={{ ...styles.countryBarFill, width: `${(value / maxValue) * 100}%`, backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-              </div>
-              <span style={styles.countryValue}>{formatMan(value)}</span>
-            </div>
-          </div>
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload) return null;
+    return (
+      <div style={styles.tooltip}>
+        <p style={styles.tooltipTitle}>{label}</p>
+        {payload.filter(p => p.value).map((p, i) => (
+          <p key={i} style={{...styles.tooltipItem, color: p.color}}>
+            {p.dataKey}年: {p.value.toFixed(1)}万人
+          </p>
         ))}
       </div>
-    </div>
-  );
-};
-
-// ============================================================
-// 12년간 히트맵 테이블
-// ============================================================
-const TwelveYearTable = ({ data }) => {
-  if (!data || data.length === 0) return null;
-
-  const years = ['2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年'];
-
-  const getGrowthColor = (current, previous, year) => {
-    if (year === '2020年' || year === '2021年') return '#fecaca';
-    if (!previous || previous === 0) return '#f9fafb';
-    const growth = (current - previous) / previous;
-    if (growth > 0.3) return '#86efac';
-    if (growth > 0.1) return '#bbf7d0';
-    if (growth > 0) return '#dcfce7';
-    if (growth > -0.1) return '#fef9c3';
-    return '#fecaca';
+    );
   };
 
   return (
-    <div style={styles.tableSection}>
-      <h3 style={styles.chartTitle}>過去12年間の軌跡</h3>
-      <p style={styles.chartSubtitle}>2014年〜2025年 国・地域別 訪日外客数の変遷（単位：万人）</p>
-      
-      <div style={styles.tableWrapper}>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={{...styles.tableHeaderCell, textAlign: 'left'}}>国・地域</th>
-              {years.map(year => (
-                <th key={year} style={{
-                  ...styles.tableHeaderCell,
-                  backgroundColor: (year === '2020年' || year === '2021年') ? '#fee2e2' : '#f9fafb'
-                }}>{year.replace('年', '')}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, i) => (
-              <tr key={row.country}>
-                <td style={styles.tableCountryCell}>
-                  <span style={styles.tableFlag}>{COUNTRY_FLAGS[row.country] || '🌐'}</span>
-                  {row.country}
-                </td>
-                {years.map((year, yi) => {
-                  const value = row[year] || 0;
-                  const prevValue = yi > 0 ? row[years[yi - 1]] : 0;
-                  const bgColor = getGrowthColor(value, prevValue, year);
-                  return (
-                    <td key={year} style={{
-                      ...styles.tableCell,
-                      backgroundColor: bgColor
-                    }}>
-                      {value > 0 ? formatNumber(value / 10000, 1) : '—'}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      <div style={styles.tableLegend}>
-        <span style={styles.tableLegendItem}><span style={{...styles.legendSquare, backgroundColor: '#86efac'}}></span>30%以上成長</span>
-        <span style={styles.tableLegendItem}><span style={{...styles.legendSquare, backgroundColor: '#bbf7d0'}}></span>10-30%成長</span>
-        <span style={styles.tableLegendItem}><span style={{...styles.legendSquare, backgroundColor: '#dcfce7'}}></span>成長</span>
-        <span style={styles.tableLegendItem}><span style={{...styles.legendSquare, backgroundColor: '#fecaca'}}></span>減少/コロナ期</span>
+    <section style={styles.section}>
+      <div style={styles.sectionHeader}>
+        <p style={styles.sectionNumber}>02</p>
+        <h2 style={styles.sectionTitle}>月別推移（2017-2026年）</h2>
+        <p style={styles.sectionDesc}>月ごとの訪日客数推移。4月・10月が繁忙期。※2020-2022年はコロナ影響で除外</p>
       </div>
 
-      <div style={styles.insightBox}>
-        <span style={styles.insightItem}>🏆 2025年: 韓国が初の年間1位（中国を逆転）</span>
-        <span style={styles.insightItem}>📈 ベトナム: 2014年比で約5.5倍成長</span>
+      <div style={styles.chartWrap}>
+        <div style={styles.chartTitleInline}>
+          <span>訪日外客数 月別推移</span>
+          <span style={styles.chartUnit}>単位: 万人</span>
+        </div>
+
+        <div style={styles.trendLegend}>
+          {years.map(year => (
+            <div key={year} style={{
+              ...styles.legendItem,
+              color: YEAR_COLORS[year],
+              fontWeight: year === '2026' || year === '2025' ? 700 : 500
+            }}>
+              <span style={{
+                ...styles.legendDot,
+                background: YEAR_COLORS[year],
+                width: year === '2026' ? 12 : 16,
+                height: year === '2026' ? 12 : 4,
+                borderRadius: year === '2026' ? '50%' : 2
+              }} />
+              {year}
+            </div>
+          ))}
+        </div>
+
+        <ResponsiveContainer width="100%" height={420}>
+          <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis 
+              dataKey="month" 
+              tick={{ fontSize: 12, fontWeight: 500 }} 
+              axisLine={{ stroke: '#e2e8f0' }}
+            />
+            <YAxis 
+              domain={[100, 450]}
+              tick={{ fontSize: 11 }}
+              tickFormatter={v => v.toLocaleString()}
+              axisLine={{ stroke: '#e2e8f0' }}
+              label={{ value: '万人', position: 'top', offset: 10, style: { fontSize: 12, fontWeight: 600 } }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            {years.slice(1).reverse().map(year => (
+              <Line
+                key={year}
+                type="monotone"
+                dataKey={year}
+                stroke={YEAR_COLORS[year]}
+                strokeWidth={year === '2025' ? 3 : year === '2024' ? 2.5 : 2}
+                dot={{ r: year === '2025' ? 5 : year === '2024' ? 4 : 3, fill: YEAR_COLORS[year] }}
+                connectNulls
+              />
+            ))}
+            <Line
+              type="monotone"
+              dataKey="2026"
+              stroke={YEAR_COLORS['2026']}
+              strokeWidth={0}
+              dot={{ r: 10, fill: YEAR_COLORS['2026'], strokeWidth: 3, stroke: '#fff' }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+
+        <p style={styles.chartSource}>出典：JNTO訪日外客統計 ※2020-2022年のデータはコロナ影響により除外</p>
       </div>
-    </div>
+    </section>
+  );
+};
+
+// ============================================================
+// 장기 추이 차트
+// ============================================================
+const LongTermChart = ({ data }) => {
+  if (!data || data.length === 0) return null;
+
+  const chartData = data.map(d => ({
+    ...d,
+    totalMan: Math.round(d.total),
+    label: d.year === '2026' ? '26.1' : String(d.year).slice(2)
+  }));
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload || !payload[0]) return null;
+    const d = payload[0].payload;
+    const isJan = d.year === '2026';
+    return (
+      <div style={styles.tooltip}>
+        <p style={styles.tooltipTitle}>{isJan ? '2026年1月' : `${d.year}年`}</p>
+        <p style={styles.tooltipItem}>
+          訪日外客数: {d.totalMan.toLocaleString()}万人{isJan ? '（1月のみ）' : ''}
+        </p>
+      </div>
+    );
+  };
+
+  return (
+    <section style={styles.section}>
+      <div style={styles.sectionHeader}>
+        <p style={styles.sectionNumber}>03</p>
+        <h2 style={styles.sectionTitle}>22年間の長期推移</h2>
+        <p style={styles.sectionDesc}>2003年ビジット・ジャパン開始から現在まで。</p>
+      </div>
+
+      <div style={styles.chartWrap}>
+        <div style={styles.chartTitleInline}>
+          <span>訪日外国人数の推移（2003-2026年）</span>
+          <span style={styles.chartUnit}>単位: 万人</span>
+        </div>
+
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={chartData} margin={{ top: 30, right: 30, left: 20, bottom: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis 
+              dataKey="label" 
+              tick={{ fontSize: 10 }}
+              axisLine={{ stroke: '#e2e8f0' }}
+            />
+            <YAxis 
+              tick={{ fontSize: 11 }}
+              tickFormatter={v => v.toLocaleString()}
+              axisLine={{ stroke: '#e2e8f0' }}
+              label={{ value: '万人', position: 'top', offset: 10, style: { fontSize: 12, fontWeight: 600 } }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar dataKey="totalMan" radius={[4, 4, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell 
+                  key={index} 
+                  fill={entry.year === '2026' ? '#dc2626' : PHASE_COLORS[entry.phase] || '#94a3b8'} 
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+
+        <p style={styles.chartSource}>出典：JNTO訪日外客統計</p>
+      </div>
+
+      <div style={styles.phaseRow}>
+        {Object.entries(PHASE_COLORS).map(([phase, color]) => (
+          <div key={phase} style={{...styles.phaseItem, borderLeftColor: color}}>
+            <p style={styles.phaseLabel}>{phase}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
 
@@ -446,99 +437,105 @@ const AnnualSummary = ({ data, year }) => {
   if (!yearData) return null;
 
   return (
-    <div style={styles.annualSection}>
+    <section style={styles.section}>
       <div style={styles.annualHero}>
         <p style={styles.annualLabel}>{year}年 訪日外国人旅行者数</p>
         <div style={styles.annualNumber}>
           <span style={styles.annualDigits}>{formatNumber(yearData.total / 10000, 0)}</span>
           <span style={styles.annualUnit}>万人</span>
         </div>
-        <div style={styles.annualGrowth}>
-          前年比 <span style={{ color: parseFloat(yearData.yoy) >= 0 ? '#059669' : '#dc2626', fontWeight: 700, marginLeft: 8 }}>
+        <p style={styles.annualGrowth}>
+          前年比 
+          <span style={{ 
+            color: parseFloat(yearData.yoy) >= 0 ? '#059669' : '#dc2626', 
+            fontWeight: 700, 
+            marginLeft: 8 
+          }}>
             {parseFloat(yearData.yoy) >= 0 ? '+' : ''}{yearData.yoy}%
           </span>
-        </div>
+        </p>
       </div>
-      <div style={styles.annualRanking}>
-        <h4 style={styles.subTitle}>国・地域別 年間ランキング TOP5</h4>
-        <div style={styles.rankingGrid}>
-          {[1, 2, 3, 4, 5].map(rank => {
-            const country = yearData[`rank${rank}`];
-            const value = yearData[`rank${rank}Value`];
-            if (!country) return null;
-            return (
-              <div key={rank} style={styles.rankCard}>
-                <span style={styles.rankBadge}>{rank}</span>
-                <span style={styles.rankFlag}>{COUNTRY_FLAGS[country] || '🌐'}</span>
-                <span style={styles.rankName}>{country}</span>
-                <span style={styles.rankValue}>{formatMan(value)}</span>
-              </div>
-            );
-          })}
-        </div>
+
+      <div style={styles.rankingSection}>
+        <h4 style={styles.rankingTitle}>国・地域別 年間ランキング TOP5</h4>
+        {[1, 2, 3, 4, 5].map(rank => {
+          const country = yearData[`rank${rank}`];
+          const value = yearData[`rank${rank}Value`];
+          if (!country) return null;
+          return (
+            <div key={rank} style={styles.rankCard}>
+              <span style={styles.rankBadge}>{rank}</span>
+              <span style={styles.rankFlag}>{COUNTRY_FLAGS[country] || '🌐'}</span>
+              <span style={styles.rankName}>{country}</span>
+              <span style={styles.rankValue}>{formatMan(value)}</span>
+            </div>
+          );
+        })}
       </div>
-    </div>
+    </section>
   );
 };
 
 // ============================================================
-// 장기 추이 - 바 위에 숫자 라벨
+// 12년 테이블
 // ============================================================
-const LongTermChart = ({ data }) => {
+const TwelveYearTable = ({ data }) => {
   if (!data || data.length === 0) return null;
 
-  // 만 단위로 변환
-  const chartData = data.map(d => ({
-    ...d,
-    totalMan: Math.round(d.total)
-  }));
+  const years = ['2014年', '2016年', '2018年', '2019年', '2020年', '2022年', '2024年', '2025年', '2026年1月'];
 
   return (
-    <div style={styles.chartSection}>
-      <h3 style={{...styles.chartTitle, textAlign: 'center', fontSize: 22}}>訪日外国人数の長期推移</h3>
-      <p style={{...styles.chartSubtitle, textAlign: 'center'}}>ビジット・ジャパン事業22年間の軌跡 (2003-2025年)</p>
-      <ResponsiveContainer width="100%" height={480}>
-        <BarChart data={chartData} margin={{ top: 40, right: 30, left: 20, bottom: 80 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis 
-            dataKey="year" 
-            tick={{ fontSize: 11, fill: '#6b7280' }} 
-            angle={-45} 
-            textAnchor="end" 
-            height={80} 
-            tickFormatter={v => `${v}年`} 
-          />
-          <YAxis 
-            tick={{ fontSize: 11, fill: '#6b7280' }} 
-            tickFormatter={v => `${v.toLocaleString()}`}
-            label={{ value: '訪日外客数（万人）', position: 'top', offset: 20, fontSize: 12 }} 
-          />
-          <Tooltip 
-            formatter={(value) => [`${formatNumber(value, 0)}万人`, '訪日客数']} 
-            labelFormatter={v => `${v}年`} 
-          />
-          <Bar dataKey="totalMan" radius={[4, 4, 0, 0]}>
-            <LabelList 
-              dataKey="totalMan" 
-              position="top" 
-              formatter={(v) => formatNumber(v, 0)}
-              style={{ fontSize: 10, fill: '#374151' }}
-            />
-            {chartData.map((entry, index) => (
-              <Cell key={index} fill={PHASE_COLORS[entry.phase] || '#6b7280'} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-      <div style={styles.legendRow}>
-        {Object.entries(PHASE_COLORS).map(([phase, color]) => (
-          <div key={phase} style={styles.legendItem}>
-            <span style={{ ...styles.legendSquare, backgroundColor: color }} />
-            <span style={styles.legendText}>{phase}</span>
-          </div>
-        ))}
+    <section style={styles.section}>
+      <div style={styles.sectionHeader}>
+        <p style={styles.sectionNumber}>04</p>
+        <h2 style={styles.sectionTitle}>過去12年間の国別推移</h2>
+        <p style={styles.sectionDesc}>主要15市場の年間訪日客数。単位：万人。</p>
       </div>
-    </div>
+
+      <div style={styles.tableWrap}>
+        <p style={styles.scrollHint}>→ スクロール</p>
+        <div style={styles.tableScroll}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={{...styles.th, ...styles.thFirst}}>国・地域</th>
+                {years.map(year => (
+                  <th key={year} style={{
+                    ...styles.th,
+                    ...(year === '2026年1月' ? styles.thCurrent : {})
+                  }}>
+                    {year.replace('年', '').replace('1月', '.1')}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.slice(0, 7).map(row => (
+                <tr key={row.country}>
+                  <td style={styles.tdFirst}>
+                    {COUNTRY_FLAGS[row.country]} {row.country}
+                  </td>
+                  {years.map(year => {
+                    const value = row[year];
+                    const isCovid = year === '2020年';
+                    const isCurrent = year === '2026年1月';
+                    return (
+                      <td key={year} style={{
+                        ...styles.td,
+                        ...(isCovid ? styles.tdCovid : {}),
+                        ...(isCurrent ? styles.tdCurrent : {})
+                      }}>
+                        {value > 0 ? formatNumber(value / 10000, 1) : '—'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   );
 };
 
@@ -551,14 +548,15 @@ export default function App() {
   const [error, setError] = useState(null);
   
   const [monthlyData, setMonthlyData] = useState([]);
-  const [countryData, setCountryData] = useState({});
+  const [countryLatestData, setCountryLatestData] = useState([]);
+  const [countryLatestTotal, setCountryLatestTotal] = useState(0);
   const [annualData, setAnnualData] = useState([]);
   const [longTermData, setLongTermData] = useState([]);
   const [specialData, setSpecialData] = useState([]);
   const [yearlyMonthlyData, setYearlyMonthlyData] = useState([]);
-  const [countryMonthlyData, setCountryMonthlyData] = useState([]);
   const [countryYearlyData, setCountryYearlyData] = useState([]);
 
+  // iframe 높이 조정
   useEffect(() => {
     const sendHeight = () => {
       requestAnimationFrame(() => {
@@ -573,6 +571,7 @@ export default function App() {
     return () => { clearTimeout(timer); window.removeEventListener('resize', sendHeight); observer.disconnect(); };
   }, [activeTab, loading]);
 
+  // 데이터 로드
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -586,15 +585,31 @@ export default function App() {
           })));
         }
         await delay(150);
-        
-        // 국가별 최신 월 데이터
-        const country = await fetchSheetData('訪日_国別');
-        if (country?.length > 1) {
-          const headers = country[0];
-          const latestRow = country[1];
-          const parsed = { month: latestRow[0] };
-          headers.forEach((h, i) => { if (i > 0 && h) parsed[h] = parseNumber(latestRow[i]); });
-          setCountryData(parsed);
+
+        // 국가별 최신 월 데이터 (2026년 1월)
+        const countryLatest = await fetchSheetData('訪日_国別');
+        if (countryLatest?.length > 1) {
+          const headers = countryLatest[0];
+          const latestRow = countryLatest[1];
+          const countries = [];
+          let total = 0;
+          
+          headers.forEach((h, i) => {
+            if (i > 0 && h && h !== '総数') {
+              const value = parseNumber(latestRow[i]);
+              const prevRow = countryLatest[2];
+              const prevValue = prevRow ? parseNumber(prevRow[i]) : 0;
+              const yoy = prevValue > 0 ? ((value - prevValue) / prevValue) * 100 : 0;
+              countries.push({ name: h, value, yoy });
+            }
+            if (h === '総数') {
+              total = parseNumber(latestRow[i]);
+            }
+          });
+          
+          countries.sort((a, b) => b.value - a.value);
+          setCountryLatestData(countries);
+          setCountryLatestTotal(total || countries.reduce((sum, c) => sum + c.value, 0));
         }
         await delay(150);
         
@@ -630,10 +645,10 @@ export default function App() {
         }
         await delay(150);
 
-        // 연도별 월간 추이 (2019-2026)
+        // 연도별 월간 추이 (2017-2026)
         const yearlyMonthly = await fetchSheetData('訪日_月別推移');
         if (yearlyMonthly?.length > 1) {
-          const headers = yearlyMonthly[0]; // 月, 2019年, 2020年, ...
+          const headers = yearlyMonthly[0];
           const parsed = [];
           yearlyMonthly.slice(1).forEach(row => {
             const monthStr = row[0];
@@ -650,27 +665,7 @@ export default function App() {
         }
         await delay(150);
 
-        // 국가별 월간 데이터
-        const countryMonthly = await fetchSheetData('訪日_国別月間');
-        if (countryMonthly?.length > 1) {
-          const headers = countryMonthly[0]; // 国, 月, 2019年, 2024年, 2025年, 2026年
-          const parsed = [];
-          countryMonthly.slice(1).forEach(row => {
-            const country = row[0];
-            const month = parseInt(row[1]);
-            if (!country || isNaN(month)) return;
-            headers.slice(2).forEach((year, i) => {
-              const value = parseNumber(row[i + 2]);
-              if (value > 0) {
-                parsed.push({ country, month, year, value });
-              }
-            });
-          });
-          setCountryMonthlyData(parsed);
-        }
-        await delay(150);
-
-        // 국가별 연간 데이터 (12년)
+        // 국가별 연간 데이터
         const countryYearly = await fetchSheetData('訪日_国別年間');
         if (countryYearly?.length > 1) {
           const headers = countryYearly[0];
@@ -693,59 +688,62 @@ export default function App() {
     loadData();
   }, []);
 
-  const latestMonth = monthlyData[0]?.month?.replace('-', '年') + '月' || '';
-
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <div style={styles.headerInner}>
           <h1 style={styles.title}>訪日外客統計</h1>
-          <p style={styles.subtitle}>JNTO公式データに基づく訪日外国人旅行者統計</p>
+          <p style={styles.tagline}>JNTO公式データに基づく訪日外国人旅行者統計</p>
         </div>
       </header>
 
-      <nav style={styles.tabNav}>
-        {[
-          { id: 'monthly', label: '最新月間' },
-          { id: 'annual', label: '年間総括' },
-          { id: 'trend', label: '長期推移' },
-          { id: 'country', label: '国・地域別' }
-        ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            style={{ ...styles.tabBtn, ...(activeTab === tab.id ? styles.tabBtnActive : {}) }}>
-            {tab.label}
-          </button>
-        ))}
+      <nav style={styles.nav}>
+        <div style={styles.navInner}>
+          {[
+            { id: 'monthly', label: '最新月間' },
+            { id: 'annual', label: '年間総括' },
+            { id: 'trend', label: '長期推移' },
+            { id: 'country', label: '国・地域別' }
+          ].map(tab => (
+            <button 
+              key={tab.id} 
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                ...styles.navLink,
+                ...(activeTab === tab.id ? styles.navLinkActive : {})
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </nav>
 
       <main style={styles.main}>
-        {error && <div style={styles.errorBox}>{error}</div>}
-        {loading ? (
-          <div style={styles.loadingBox}><div style={styles.spinner} /></div>
-        ) : (
-          <>
-            {activeTab === 'monthly' && (
-              <>
-                <MonthlyHighlight data={monthlyData} special={specialData} />
-                <YearlyMonthlyTrend data={yearlyMonthlyData} />
-                <CountryPieChart data={countryData} />
-                <CountryCards countryMonthlyData={countryMonthlyData} />
-              </>
-            )}
-            {activeTab === 'annual' && <AnnualSummary data={annualData} year="2025" />}
-            {activeTab === 'trend' && <LongTermChart data={longTermData} />}
-            {activeTab === 'country' && (
-              <>
-                <CountryPieChart data={countryData} />
-                <CountryRanking data={countryData} month={latestMonth} />
-                <TwelveYearTable data={countryYearlyData} />
-              </>
-            )}
-          </>
-        )}
+        <div style={styles.mainInner}>
+          {error && <div style={styles.errorBox}>{error}</div>}
+          {loading ? (
+            <div style={styles.loadingBox}><div style={styles.spinner} /></div>
+          ) : (
+            <>
+              {activeTab === 'monthly' && (
+                <>
+                  <HeroSection data={monthlyData} special={specialData} />
+                  <CountryHorizontalBars data={countryLatestData} total={countryLatestTotal} />
+                  <MonthlyTrendChart data={yearlyMonthlyData} />
+                </>
+              )}
+              {activeTab === 'annual' && <AnnualSummary data={annualData} year="2025" />}
+              {activeTab === 'trend' && <LongTermChart data={longTermData} />}
+              {activeTab === 'country' && <TwelveYearTable data={countryYearlyData} />}
+            </>
+          )}
+        </div>
       </main>
 
-      <footer style={styles.footer}>出典：JNTO（日本政府観光局）</footer>
+      <footer style={styles.footer}>
+        <p>出典：JNTO（日本政府観光局）訪日外客統計</p>
+      </footer>
     </div>
   );
 }
@@ -754,91 +752,226 @@ export default function App() {
 // 스타일
 // ============================================================
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: '"Noto Sans JP", sans-serif', color: '#1a1a1a', lineHeight: 1.6 },
-  header: { backgroundColor: '#1a1a1a', color: '#fff' },
-  headerInner: { maxWidth: 1100, margin: '0 auto', padding: '32px 24px' },
-  title: { margin: 0, fontSize: 28, fontWeight: 800 },
-  subtitle: { margin: '8px 0 0', fontSize: 14, opacity: 0.7 },
-  tabNav: { maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 4, backgroundColor: '#fff', borderBottom: '1px solid #e5e7eb' },
-  tabBtn: { padding: '16px 24px', fontSize: 14, fontWeight: 500, border: 'none', borderBottom: '3px solid transparent', backgroundColor: 'transparent', color: '#6b7280', cursor: 'pointer' },
-  tabBtnActive: { color: '#1a1a1a', fontWeight: 700, borderBottomColor: '#1a1a1a' },
-  main: { maxWidth: 1100, margin: '0 auto', padding: '32px 24px' },
+  container: { 
+    minHeight: '100vh', 
+    backgroundColor: '#fafbfc', 
+    fontFamily: '"Noto Sans JP", sans-serif', 
+    color: '#0f172a', 
+    lineHeight: 1.7 
+  },
   
-  highlightSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
-  highlightHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 24 },
-  highlightLabel: { fontSize: 14, color: '#6b7280', margin: '0 0 8px' },
-  highlightNumber: { display: 'flex', alignItems: 'baseline', gap: 8 },
-  highlightDigits: { fontSize: 64, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1 },
-  highlightUnit: { fontSize: 24, fontWeight: 600, color: '#6b7280' },
-  highlightMeta: { display: 'flex', gap: 32 },
-  metaItem: { textAlign: 'right' },
-  metaLabel: { display: 'block', fontSize: 12, color: '#9ca3af', marginBottom: 4 },
-  metaValue: { fontSize: 28, fontWeight: 700 },
-  specialNote: { marginTop: 24, paddingTop: 24, borderTop: '1px solid #e5e7eb' },
-  specialText: { fontSize: 15, color: '#374151', margin: '0 0 8px', lineHeight: 1.7 },
+  header: { 
+    background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)', 
+    color: 'white', 
+    padding: '48px 0' 
+  },
+  headerInner: { maxWidth: 960, margin: '0 auto', padding: '0 24px' },
+  title: { fontSize: 22, fontWeight: 700, letterSpacing: '0.04em', margin: 0 },
+  tagline: { fontSize: 12, fontWeight: 300, opacity: 0.6, marginTop: 8 },
   
-  chartSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
-  chartTitle: { fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' },
-  chartSubtitle: { fontSize: 13, color: '#6b7280', margin: '0 0 24px' },
+  nav: { 
+    background: 'white', 
+    borderBottom: '1px solid #e2e8f0', 
+    position: 'sticky', 
+    top: 0, 
+    zIndex: 100 
+  },
+  navInner: { 
+    maxWidth: 960, 
+    margin: '0 auto', 
+    padding: '0 24px', 
+    display: 'flex', 
+    gap: 40 
+  },
+  navLink: {
+    padding: '16px 0',
+    fontSize: 13,
+    fontWeight: 500,
+    color: '#64748b',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    background: 'transparent',
+    cursor: 'pointer',
+    transition: 'all 0.25s ease'
+  },
+  navLinkActive: { 
+    color: '#0369a1', 
+    borderBottomColor: '#0369a1', 
+    fontWeight: 600 
+  },
   
-  cardsSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
-  cardsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginTop: 24 },
-  countryCard: { padding: 20, backgroundColor: '#f9fafb', borderRadius: 12, border: '1px solid #e5e7eb' },
-  cardHeader: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' },
-  cardFlag: { fontSize: 28 },
-  cardCountry: { fontSize: 18, fontWeight: 700 },
-  cardYoy: { fontSize: 13, fontWeight: 600, marginLeft: 'auto' },
-  cardLatest: { fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 12 },
-  cardLegend: { display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, fontSize: 11, color: '#6b7280' },
+  main: { padding: '64px 0 80px' },
+  mainInner: { maxWidth: 960, margin: '0 auto', padding: '0 24px' },
   
-  rankingSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
-  countryList: { display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 },
-  countryRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '8px 0' },
-  countryLeft: { display: 'flex', alignItems: 'center', gap: 12, minWidth: 140 },
-  countryRank: { width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, fontSize: 13, fontWeight: 700 },
-  countryFlag: { fontSize: 22 },
-  countryName: { fontSize: 14, fontWeight: 500 },
-  countryRight: { flex: 1, display: 'flex', alignItems: 'center', gap: 16 },
-  countryBar: { flex: 1, height: 28, backgroundColor: '#f3f4f6', borderRadius: 6, overflow: 'hidden' },
-  countryBarFill: { height: '100%', borderRadius: 6 },
-  countryValue: { fontSize: 14, fontWeight: 600, minWidth: 90, textAlign: 'right' },
+  section: { marginBottom: 80 },
+  sectionHeader: { marginBottom: 32 },
+  sectionNumber: { 
+    fontFamily: 'Inter, sans-serif', 
+    fontSize: 11, 
+    fontWeight: 700, 
+    color: '#0369a1', 
+    letterSpacing: '0.1em', 
+    marginBottom: 6 
+  },
+  sectionTitle: { fontSize: 18, fontWeight: 700, marginBottom: 6, margin: 0 },
+  sectionDesc: { fontSize: 13, color: '#64748b', margin: 0 },
   
-  tableSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
-  tableWrapper: { overflowX: 'auto', marginTop: 24 },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
-  tableHeaderCell: { padding: '12px 8px', textAlign: 'right', fontWeight: 600, borderBottom: '2px solid #e5e7eb', backgroundColor: '#f9fafb', whiteSpace: 'nowrap' },
-  tableCountryCell: { padding: '12px 8px', fontWeight: 500, borderBottom: '1px solid #e5e7eb', whiteSpace: 'nowrap', position: 'sticky', left: 0, backgroundColor: '#fff', zIndex: 1 },
-  tableFlag: { marginRight: 8 },
-  tableCell: { padding: '10px 8px', textAlign: 'right', borderBottom: '1px solid #e5e7eb', whiteSpace: 'nowrap' },
-  tableLegend: { display: 'flex', gap: 16, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' },
-  tableLegendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6b7280' },
+  hero: { paddingBottom: 48, borderBottom: '1px solid #e2e8f0', marginBottom: 48 },
+  heroEyebrow: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 },
+  heroDate: { fontSize: 14, fontWeight: 500, color: '#475569' },
+  heroBadge: { 
+    fontSize: 10, fontWeight: 600, letterSpacing: '0.05em', 
+    padding: '4px 10px', borderRadius: 4, background: '#0369a1', color: 'white' 
+  },
+  heroNumber: { display: 'flex', alignItems: 'baseline', margin: '16px 0 24px' },
+  heroDigits: { 
+    fontFamily: 'Inter, sans-serif', fontSize: 96, fontWeight: 800, 
+    lineHeight: 1, letterSpacing: '-0.04em', color: '#0369a1' 
+  },
+  heroUnit: { fontSize: 28, fontWeight: 500, color: '#94a3b8', marginLeft: 8 },
+  heroCompare: { display: 'flex', gap: 48 },
+  compareItem: { display: 'flex', flexDirection: 'column', gap: 4 },
+  compareLabel: { fontSize: 11, fontWeight: 500, letterSpacing: '0.04em', color: '#94a3b8' },
+  compareValue: { display: 'flex', alignItems: 'center', gap: 6 },
+  arrow: { fontSize: 14 },
+  compareNum: { fontFamily: 'Inter, sans-serif', fontSize: 26, fontWeight: 700 },
+  compareSub: { fontSize: 12, color: '#cbd5e1' },
+  insight: { marginTop: 32, padding: 24, background: '#f1f5f9', borderRadius: 8 },
+  insightText: { fontSize: 15, lineHeight: 1.9, color: '#475569', margin: 0 },
+  insightStrong: { fontWeight: 600, color: '#0369a1' },
+  insightMark: { background: 'linear-gradient(transparent 50%, #e0f2fe 50%)', padding: '0 2px' },
   
-  annualSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
-  annualHero: { textAlign: 'center', paddingBottom: 32, borderBottom: '1px solid #e5e7eb', marginBottom: 32 },
-  annualLabel: { fontSize: 14, color: '#6b7280', margin: '0 0 12px' },
+  chartWrap: { background: 'white', border: '1px solid #e2e8f0', borderRadius: 12, padding: 32 },
+  chartTitleInline: { 
+    fontSize: 14, fontWeight: 600, marginBottom: 16, 
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
+  },
+  chartUnit: { 
+    fontSize: 12, fontWeight: 500, color: '#64748b', 
+    background: '#f1f5f9', padding: '4px 10px', borderRadius: 4 
+  },
+  chartSource: { 
+    marginTop: 16, paddingTop: 16, borderTop: '1px solid #f1f5f9', 
+    fontSize: 11, color: '#cbd5e1' 
+  },
+  
+  hbarList: { marginTop: 16 },
+  hbarItem: { 
+    display: 'flex', alignItems: 'center', padding: '12px 0', 
+    borderBottom: '1px solid #f1f5f9' 
+  },
+  hbarRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700 },
+  hbarFlag: { fontSize: 20, marginRight: 8 },
+  hbarName: { width: 90, fontSize: 14, fontWeight: 600 },
+  hbarBarWrap: { flex: 1, margin: '0 12px' },
+  hbarBar: { height: 24, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
+  hbarFill: { 
+    height: '100%', borderRadius: 4, display: 'flex', 
+    alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8, minWidth: 50 
+  },
+  hbarPercent: { 
+    fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, 
+    color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.3)' 
+  },
+  hbarValue: { 
+    width: 70, textAlign: 'right', fontFamily: 'Inter, sans-serif', 
+    fontSize: 14, fontWeight: 700 
+  },
+  hbarYoy: { 
+    width: 65, textAlign: 'right', fontFamily: 'Inter, sans-serif', 
+    fontSize: 12, fontWeight: 600 
+  },
+  
+  otherMarkets: { marginTop: 32, paddingTop: 24, borderTop: '1px solid #e2e8f0' },
+  otherTitle: { fontSize: 13, fontWeight: 600, color: '#64748b', marginBottom: 16 },
+  otherGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px 24px' },
+  otherItem: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' },
+  otherFlag: { fontSize: 16 },
+  otherName: { width: 90, fontSize: 13, fontWeight: 500, color: '#475569' },
+  otherBar: { flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
+  otherFill: { height: '100%', background: '#cbd5e1', borderRadius: 4 },
+  otherValue: { 
+    width: 50, textAlign: 'right', fontFamily: 'Inter, sans-serif', 
+    fontSize: 12, fontWeight: 600, color: '#64748b' 
+  },
+  otherYoy: { width: 50, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 10 },
+  
+  trendLegend: { display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 24, flexWrap: 'wrap' },
+  legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 },
+  legendDot: { display: 'inline-block' },
+  
+  tooltip: { 
+    background: '#0f172a', padding: 14, borderRadius: 8, 
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)' 
+  },
+  tooltipTitle: { fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 8 },
+  tooltipItem: { fontSize: 13, margin: '4px 0' },
+  
+  phaseRow: { display: 'flex', gap: 16, marginTop: 32, flexWrap: 'wrap' },
+  phaseItem: { flex: 1, minWidth: 100, padding: '16px 0 16px 16px', borderLeft: '3px solid' },
+  phaseLabel: { fontSize: 11, fontWeight: 600, color: '#64748b', margin: 0 },
+  
+  annualHero: { 
+    textAlign: 'center', padding: 48, 
+    background: 'linear-gradient(135deg, #e0f2fe 0%, white 100%)', 
+    borderRadius: 16, marginBottom: 32 
+  },
+  annualLabel: { fontSize: 14, color: '#64748b', marginBottom: 12 },
   annualNumber: { display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 },
-  annualDigits: { fontSize: 80, fontWeight: 800, lineHeight: 1 },
-  annualUnit: { fontSize: 28, fontWeight: 600, color: '#6b7280' },
-  annualGrowth: { fontSize: 18, color: '#6b7280', marginTop: 16 },
-  annualRanking: {},
-  subTitle: { fontSize: 16, fontWeight: 600, marginBottom: 20 },
-  rankingGrid: { display: 'flex', flexDirection: 'column', gap: 12 },
-  rankCard: { display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', backgroundColor: '#f9fafb', borderRadius: 8 },
-  rankBadge: { width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1a1a1a', color: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 700 },
+  annualDigits: { fontFamily: 'Inter, sans-serif', fontSize: 96, fontWeight: 800, lineHeight: 1 },
+  annualUnit: { fontSize: 32, fontWeight: 600, color: '#94a3b8' },
+  annualGrowth: { fontSize: 18, color: '#64748b', marginTop: 16 },
+  rankingSection: { marginTop: 32 },
+  rankingTitle: { fontSize: 16, fontWeight: 600, marginBottom: 16 },
+  rankCard: { 
+    display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', 
+    background: '#f8fafc', borderRadius: 8, marginBottom: 8 
+  },
+  rankBadge: { 
+    width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', 
+    background: '#0f172a', color: 'white', borderRadius: 8, fontSize: 14, fontWeight: 700 
+  },
   rankFlag: { fontSize: 28 },
   rankName: { flex: 1, fontSize: 16, fontWeight: 500 },
   rankValue: { fontSize: 16, fontWeight: 700 },
   
-  legendRow: { display: 'flex', justifyContent: 'center', gap: 20, marginTop: 24, flexWrap: 'wrap' },
-  legendItem: { display: 'flex', alignItems: 'center', gap: 6 },
-  legendDot: { width: 12, height: 12, borderRadius: 3, display: 'inline-block' },
-  legendSquare: { width: 14, height: 14, borderRadius: 3, display: 'inline-block' },
-  legendText: { fontSize: 12, color: '#6b7280' },
-  insightBox: { display: 'flex', gap: 24, marginTop: 20, padding: '16px 20px', backgroundColor: '#f0f9ff', borderRadius: 8, flexWrap: 'wrap', justifyContent: 'center' },
-  insightItem: { fontSize: 13, color: '#1e40af', fontWeight: 500 },
+  tableWrap: { marginTop: 32, position: 'relative' },
+  scrollHint: { 
+    position: 'absolute', right: 0, top: -24, 
+    fontSize: 11, color: '#cbd5e1' 
+  },
+  tableScroll: { overflowX: 'auto' },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
+  th: { 
+    padding: '12px 10px', textAlign: 'right', fontSize: 11, fontWeight: 600, 
+    letterSpacing: '0.02em', color: '#94a3b8', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap'
+  },
+  thFirst: { textAlign: 'left' },
+  thCurrent: { color: '#0369a1', background: '#e0f2fe', borderRadius: '6px 6px 0 0' },
+  td: { 
+    padding: '12px 10px', textAlign: 'right', fontFamily: 'Inter, sans-serif', 
+    color: '#64748b', borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap'
+  },
+  tdFirst: { 
+    textAlign: 'left', fontFamily: '"Noto Sans JP", sans-serif', fontWeight: 500, color: '#0f172a',
+    position: 'sticky', left: 0, background: '#fafbfc', zIndex: 1
+  },
+  tdCovid: { color: '#dc2626', opacity: 0.5 },
+  tdCurrent: { color: '#0369a1', fontWeight: 700, background: '#e0f2fe' },
   
   loadingBox: { display: 'flex', justifyContent: 'center', padding: 80 },
-  spinner: { width: 40, height: 40, border: '3px solid #e5e7eb', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
-  errorBox: { padding: 16, backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#dc2626', fontSize: 14 },
-  footer: { maxWidth: 1100, margin: '0 auto', padding: '24px', fontSize: 12, color: '#9ca3af', borderTop: '1px solid #e5e7eb', textAlign: 'center' }
+  spinner: { 
+    width: 40, height: 40, border: '3px solid #e2e8f0', 
+    borderTop: '3px solid #0369a1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' 
+  },
+  errorBox: { 
+    padding: 16, background: '#fef2f2', border: '1px solid #fecaca', 
+    borderRadius: 8, color: '#dc2626', fontSize: 14 
+  },
+  
+  footer: { 
+    maxWidth: 960, margin: '0 auto', padding: 32, 
+    borderTop: '1px solid #e2e8f0', textAlign: 'center', 
+    fontSize: 11, color: '#cbd5e1' 
+  }
 };
