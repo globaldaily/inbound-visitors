@@ -78,7 +78,7 @@ const ChartTooltip = ({ active, payload, label, suffix = '万人' }) => {
     <div style={styles.tooltip}>
       <p style={styles.tooltipTitle}>{label}</p>
       {payload.filter(p => p.value != null).map((p, i) => (
-        <p key={i} style={{ fontSize: 13, margin: '4px 0', color: p.color || '#fff' }}>
+        <p key={i} style={{ fontSize: 13, margin: '4px 0', color: p.color || '#475569', fontWeight: 600 }}>
           {p.name || p.dataKey}: {formatNum(p.value)}{suffix}
         </p>
       ))}
@@ -313,42 +313,82 @@ const TabLongTerm = ({ longTermData }) => {
     totalMan: Math.round(d.total),
     label: d.year === '2026' ? '26.1' : String(d.year).slice(2)
   }));
+  
+  // 2030년 목표 추가
+  chartData.push({ year: '2030', totalMan: 6000, label: '30目標', phase: '2030年目標' });
 
-  // 주요 마일스톤
-  const milestones = [
-    { year: '2003', event: 'ビジット・ジャパン事業開始', value: 521 },
-    { year: '2013', event: '1,000万人突破', value: 1036 },
-    { year: '2018', event: '3,000万人突破', value: 3119 },
-    { year: '2019', event: 'コロナ前ピーク', value: 3188 },
-    { year: '2024', event: '過去最高更新', value: 3687 },
-  ];
+  // 2025년 실적
+  const actual2025 = 4268;
+  const target2030 = 6000;
+  const progressPercent = Math.round((actual2025 / target2030) * 100);
 
   return (
     <section style={styles.section}>
-      <SectionHeader title="22年間の長期推移" subtitle="2003年のビジット・ジャパン事業開始から現在まで、訪日外客数の歩み" />
+      <SectionHeader title="22年間の長期推移と2030年目標" subtitle="2003年のビジット・ジャパン事業開始から現在まで、そして観光庁が掲げる2030年目標へ" />
+      
+      {/* 2030年目標 달성도 카드 */}
+      <div style={styles.targetSection}>
+        <div style={styles.targetCard}>
+          <p style={styles.targetLabel}>観光庁 2030年目標</p>
+          <div style={styles.targetRow}>
+            <div style={styles.targetItem}>
+              <p style={styles.targetItemLabel}>訪日外客数</p>
+              <p style={styles.targetItemValue}><span style={styles.targetCurrent}>4,268</span> <span style={styles.targetArrow}>→</span> <span style={styles.targetGoal}>6,000</span><span style={styles.targetUnit}>万人</span></p>
+              <div style={styles.progressBar}>
+                <div style={{...styles.progressFill, width: `${progressPercent}%`}} />
+              </div>
+              <p style={styles.progressText}>{progressPercent}% 達成</p>
+            </div>
+            <div style={styles.targetItem}>
+              <p style={styles.targetItemLabel}>旅行消費額</p>
+              <p style={styles.targetItemValue}><span style={styles.targetCurrent}>9.5</span> <span style={styles.targetArrow}>→</span> <span style={styles.targetGoal}>20</span><span style={styles.targetUnit}>兆円</span></p>
+              <div style={styles.progressBar}>
+                <div style={{...styles.progressFill, width: '47.5%', background: '#8b5cf6'}} />
+              </div>
+              <p style={styles.progressText}>47.5% 達成</p>
+            </div>
+          </div>
+          <p style={styles.targetInsight}>
+            <strong style={{ color: '#dc2626', fontSize: 20 }}>まだ半分。</strong>
+            <span style={{ color: '#64748b' }}>インバウンド市場の成長余地は、あと倍以上。</span>
+          </p>
+        </div>
+      </div>
       
       <div style={styles.chartWrap}>
         <div style={styles.chartTitleInline}>
-          <span>訪日外国人数の推移（2003-2026年）</span>
+          <span>訪日外国人数の推移（2003-2030年目標）</span>
           <span style={styles.chartUnit}>単位: 万人</span>
         </div>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={420}>
           <BarChart data={chartData} margin={{ top: 30, right: 20, left: 20, bottom: 40 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-            <YAxis tickFormatter={v => v.toLocaleString()} label={{ value: '万人', position: 'top', offset: 10 }} />
+            <YAxis domain={[0, 6500]} tickFormatter={v => v.toLocaleString()} label={{ value: '万人', position: 'top', offset: 10 }} />
             <Tooltip content={({ active, payload }) => {
               if (!active || !payload?.[0]) return null;
               const d = payload[0].payload;
+              const is2030 = d.year === '2030';
               return (
                 <div style={styles.tooltip}>
-                  <p style={styles.tooltipTitle}>{d.year === '2026' ? '2026年1月' : `${d.year}年`}</p>
-                  <p style={{ color: '#e2e8f0', fontSize: 13 }}>{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（1月のみ）' : ''}</p>
+                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年1月' : `${d.year}年`}</p>
+                  <p style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
+                    {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（1月のみ）' : ''}
+                  </p>
                 </div>
               );
             }} />
             <Bar dataKey="totalMan" radius={[4, 4, 0, 0]}>
-              {chartData.map((e, i) => <Cell key={i} fill={e.year === '2026' ? '#dc2626' : PHASE_COLORS[e.phase] || '#94a3b8'} />)}
+              {chartData.map((e, i) => (
+                <Cell 
+                  key={i} 
+                  fill={e.year === '2030' ? '#dc2626' : e.year === '2026' ? '#f97316' : PHASE_COLORS[e.phase] || '#94a3b8'} 
+                  fillOpacity={e.year === '2030' ? 0.3 : 1}
+                  stroke={e.year === '2030' ? '#dc2626' : 'none'}
+                  strokeWidth={e.year === '2030' ? 2 : 0}
+                  strokeDasharray={e.year === '2030' ? '5 5' : '0'}
+                />
+              ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -360,16 +400,25 @@ const TabLongTerm = ({ longTermData }) => {
               <p style={styles.phaseLabel}>{phase}</p>
             </div>
           ))}
+          <div style={{...styles.phaseItem, borderLeftColor: '#dc2626', borderStyle: 'dashed'}}>
+            <p style={styles.phaseLabel}>2030年目標</p>
+          </div>
         </div>
         
-        <p style={styles.chartSource}>出典：JNTO訪日外客統計</p>
+        <p style={styles.chartSource}>出典：JNTO訪日外客統計、観光庁「観光ビジョン実現プログラム」</p>
       </div>
 
       {/* 마일스톤 */}
       <div style={styles.milestoneSection}>
         <h4 style={styles.milestoneTitle}>主要マイルストーン</h4>
         <div style={styles.milestoneGrid}>
-          {milestones.map(m => (
+          {[
+            { year: '2003', event: 'ビジット・ジャパン開始', value: 521 },
+            { year: '2013', event: '1,000万人突破', value: 1036 },
+            { year: '2018', event: '3,000万人突破', value: 3119 },
+            { year: '2024', event: '過去最高更新', value: 3687 },
+            { year: '2025', event: '4,000万人突破', value: 4268 },
+          ].map(m => (
             <div key={m.year} style={styles.milestoneCard}>
               <span style={styles.milestoneYear}>{m.year}</span>
               <span style={styles.milestoneEvent}>{m.event}</span>
@@ -388,10 +437,8 @@ const TabLongTerm = ({ longTermData }) => {
 const TabCountry = ({ countryYearlyData, latestCountryData }) => {
   if (!countryYearlyData || countryYearlyData.length === 0) return <p>データ読み込み中...</p>;
 
-  // 시트에서 가져온 실제 연도들 (2014년~2025년 + 2026년)
   const allYears = ['2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年'];
   
-  // 2026년 1월 데이터 매핑
   const jan2026Map = {};
   latestCountryData?.forEach(c => { jan2026Map[c.name] = c.value; });
 
@@ -403,24 +450,44 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
     return { country: row.country, growth, v2019, v2025 };
   }).sort((a, b) => b.growth - a.growth);
 
+  // 상위 5개국 차트 데이터 + 색상
+  const top5Countries = countryYearlyData.slice(0, 5);
+  const top5Colors = ['#0369a1', '#dc2626', '#059669', '#8b5cf6', '#f97316'];
+  
+  // 라인 차트용 데이터 변환
+  const lineChartData = allYears.filter(y => y !== '2020年' && y !== '2021年').map(year => {
+    const row = { year: year.replace('年', '') };
+    top5Countries.forEach((c, i) => {
+      row[c.country] = (c[year] || 0) / 10000;
+    });
+    return row;
+  });
+
   return (
     <section style={styles.section}>
       <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年1月）" />
       
-      {/* 성장률 인사이트 */}
+      {/* 인사이트 카드 */}
       <div style={styles.insightCards}>
         <div style={styles.insightCard}>
-          <p style={styles.insightCardLabel}>2019年→2025年 成長率TOP</p>
+          <p style={styles.insightCardLabel}>🚀 2019年→2025年 成長率TOP</p>
           <p style={styles.insightCardValue}>
             {COUNTRY_FLAGS[growthData[0]?.country]} {growthData[0]?.country}
             <span style={{ color: '#059669', marginLeft: 8 }}>+{growthData[0]?.growth.toFixed(0)}%</span>
           </p>
         </div>
         <div style={styles.insightCard}>
-          <p style={styles.insightCardLabel}>2025年 訪日客数TOP</p>
+          <p style={styles.insightCardLabel}>👑 2025年 訪日客数1位</p>
           <p style={styles.insightCardValue}>
             {COUNTRY_FLAGS[countryYearlyData[0]?.country]} {countryYearlyData[0]?.country}
             <span style={{ color: '#0369a1', marginLeft: 8 }}>{formatMan(countryYearlyData[0]?.['2025年'])}</span>
+          </p>
+        </div>
+        <div style={styles.insightCard}>
+          <p style={styles.insightCardLabel}>📈 コロナ前超え市場数</p>
+          <p style={styles.insightCardValue}>
+            <span style={{ color: '#8b5cf6' }}>{countryYearlyData.filter(c => (c['2025年'] || 0) > (c['2019年'] || 0)).length}</span>
+            <span style={{ color: '#64748b', fontSize: 14 }}> / 15市場</span>
           </p>
         </div>
       </div>
@@ -459,33 +526,81 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
         </div>
       </div>
 
-      {/* 국가별 트렌드 차트 (상위 5개국) */}
+      {/* 주요 5개국 트렌드 차트 - 범례 포함 */}
       <div style={{ marginTop: 48 }}>
         <h4 style={styles.chartSubtitle}>主要5市場の推移（2014-2025年）</h4>
         <div style={styles.chartWrap}>
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          {/* 범례 */}
+          <div style={styles.countryLegend}>
+            {top5Countries.map((c, i) => (
+              <div key={c.country} style={styles.countryLegendItem}>
+                <span style={{...styles.countryLegendDot, background: top5Colors[i]}} />
+                <span style={styles.countryLegendFlag}>{COUNTRY_FLAGS[c.country]}</span>
+                <span style={styles.countryLegendName}>{c.country}</span>
+              </div>
+            ))}
+          </div>
+          
+          <ResponsiveContainer width="100%" height={380}>
+            <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="year" type="category" allowDuplicatedCategory={false} tick={{ fontSize: 11 }} />
-              <YAxis tickFormatter={v => (v / 10000).toFixed(0)} label={{ value: '万人', position: 'top', offset: 10 }} />
+              <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+              <YAxis tickFormatter={v => v.toFixed(0)} label={{ value: '万人', position: 'top', offset: 10 }} />
               <Tooltip content={({ active, payload, label }) => {
                 if (!active || !payload) return null;
                 return (
                   <div style={styles.tooltip}>
-                    <p style={styles.tooltipTitle}>{label}</p>
+                    <p style={styles.tooltipTitle}>{label}年</p>
                     {payload.map((p, i) => (
-                      <p key={i} style={{ color: p.color, fontSize: 13, margin: '4px 0' }}>{p.name}: {formatMan(p.value)}</p>
+                      <p key={i} style={{ color: p.color, fontSize: 13, margin: '4px 0', fontWeight: 600 }}>
+                        {COUNTRY_FLAGS[p.name]} {p.name}: {p.value.toFixed(1)}万人
+                      </p>
                     ))}
                   </div>
                 );
               }} />
-              {countryYearlyData.slice(0, 5).map((row, i) => {
-                const data = allYears.filter(y => y !== '2020年' && y !== '2021年').map(y => ({ year: y.replace('年', ''), [row.country]: row[y] }));
-                return <Line key={row.country} data={data} type="monotone" dataKey={row.country} name={row.country} stroke={COUNTRY_COLORS[i]} strokeWidth={2} dot={{ r: 3 }} />;
-              })}
+              {top5Countries.map((c, i) => (
+                <Line 
+                  key={c.country} 
+                  type="monotone" 
+                  dataKey={c.country} 
+                  stroke={top5Colors[i]} 
+                  strokeWidth={2.5} 
+                  dot={{ r: 4, fill: top5Colors[i] }}
+                  activeDot={{ r: 6 }}
+                />
+              ))}
             </LineChart>
           </ResponsiveContainer>
+          
           <p style={styles.chartSource}>出典：JNTO ※2020-2021年はコロナ影響により除外</p>
+        </div>
+      </div>
+      
+      {/* 시장별 성장률 비교 */}
+      <div style={{ marginTop: 48 }}>
+        <h4 style={styles.chartSubtitle}>コロナ前比 成長率ランキング（2019年→2025年）</h4>
+        <div style={styles.chartWrap}>
+          <div style={styles.growthList}>
+            {growthData.slice(0, 10).map((item, i) => (
+              <div key={item.country} style={styles.growthItem}>
+                <span style={styles.growthRank}>{i + 1}</span>
+                <span style={styles.growthFlag}>{COUNTRY_FLAGS[item.country]}</span>
+                <span style={styles.growthName}>{item.country}</span>
+                <div style={styles.growthBarWrap}>
+                  <div style={{
+                    ...styles.growthBar,
+                    width: `${Math.min(Math.max(item.growth, 0) / growthData[0].growth * 100, 100)}%`,
+                    background: item.growth >= 0 ? '#059669' : '#dc2626'
+                  }} />
+                </div>
+                <span style={{...styles.growthValue, color: item.growth >= 0 ? '#059669' : '#dc2626'}}>
+                  {item.growth >= 0 ? '+' : ''}{item.growth.toFixed(0)}%
+                </span>
+              </div>
+            ))}
+          </div>
+          <p style={styles.chartSource}>※コロナ前(2019年)と2025年の訪日客数を比較</p>
         </div>
       </div>
     </section>
@@ -740,8 +855,8 @@ const styles = {
   legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 },
   legendDot: { display: 'inline-block' },
   
-  tooltip: { background: '#0f172a', padding: 12, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
-  tooltipTitle: { fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 6 },
+  tooltip: { background: '#ffffff', padding: 14, borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.15)', border: '1px solid #e2e8f0' },
+  tooltipTitle: { fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 8 },
   
   phaseRow: { display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' },
   phaseItem: { flex: 1, minWidth: 90, padding: '12px 0 12px 12px', borderLeft: '3px solid' },
@@ -773,10 +888,44 @@ const styles = {
   rankName: { flex: 1, fontSize: 15, fontWeight: 500 },
   rankValue: { fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700 },
   
-  insightCards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 32 },
+  insightCards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 },
   insightCard: { padding: 20, background: 'linear-gradient(135deg, #f0f9ff 0%, #fff 100%)', borderRadius: 12, border: '1px solid #e0f2fe' },
   insightCardLabel: { fontSize: 12, color: '#64748b', marginBottom: 8 },
   insightCardValue: { fontSize: 18, fontWeight: 700 },
+  
+  // 2030 Target Section
+  targetSection: { marginBottom: 32 },
+  targetCard: { padding: 32, background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: 16, color: 'white' },
+  targetLabel: { fontSize: 14, color: '#94a3b8', marginBottom: 20, textAlign: 'center' },
+  targetRow: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 32, marginBottom: 24 },
+  targetItem: { textAlign: 'center' },
+  targetItemLabel: { fontSize: 13, color: '#94a3b8', marginBottom: 8 },
+  targetItemValue: { fontSize: 18, marginBottom: 12 },
+  targetCurrent: { fontSize: 36, fontWeight: 800, color: '#f97316' },
+  targetArrow: { color: '#64748b', margin: '0 8px' },
+  targetGoal: { fontSize: 36, fontWeight: 800, color: '#22c55e' },
+  targetUnit: { fontSize: 16, color: '#94a3b8', marginLeft: 4 },
+  progressBar: { height: 8, background: '#334155', borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
+  progressFill: { height: '100%', background: 'linear-gradient(90deg, #f97316, #22c55e)', borderRadius: 4, transition: 'width 1s ease' },
+  progressText: { fontSize: 13, color: '#94a3b8' },
+  targetInsight: { textAlign: 'center', marginTop: 20, paddingTop: 20, borderTop: '1px solid #334155' },
+  
+  // Country Legend
+  countryLegend: { display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20, flexWrap: 'wrap' },
+  countryLegendItem: { display: 'flex', alignItems: 'center', gap: 6 },
+  countryLegendDot: { width: 12, height: 12, borderRadius: '50%' },
+  countryLegendFlag: { fontSize: 16 },
+  countryLegendName: { fontSize: 13, fontWeight: 500, color: '#475569' },
+  
+  // Growth List
+  growthList: { display: 'flex', flexDirection: 'column', gap: 8 },
+  growthItem: { display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' },
+  growthRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#94a3b8' },
+  growthFlag: { fontSize: 18, marginRight: 8 },
+  growthName: { width: 100, fontSize: 14, fontWeight: 500 },
+  growthBarWrap: { flex: 1, height: 20, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden', marginRight: 12 },
+  growthBar: { height: '100%', borderRadius: 4, transition: 'width 0.5s ease' },
+  growthValue: { width: 60, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700 },
   
   tableWrap: { marginTop: 24 },
   tableScroll: { overflowX: 'auto', WebkitOverflowScrolling: 'touch' },
