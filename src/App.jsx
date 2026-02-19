@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ComposedChart, Line, Cell, PieChart, Pie, LineChart, Legend
+  ResponsiveContainer, Line, Cell, PieChart, Pie, LineChart, Legend, LabelList
 } from 'recharts';
 
 // ============================================================
@@ -30,23 +30,25 @@ const PIE_COLORS = [
   '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'
 ];
 
+// 연도별 색상 (PHP와 동일하게)
 const YEAR_COLORS = {
-  '2019年': '#60a5fa',
-  '2020年': '#f87171',
-  '2021年': '#fca5a5',
-  '2022年': '#fbbf24',
-  '2023年': '#34d399',
-  '2024年': '#a78bfa',
-  '2025年': '#3b82f6',
-  '2026年': '#1e40af'
+  '2019年': '#60a5fa',  // 하늘색
+  '2020年': '#8b5cf6',  // 보라
+  '2021年': '#22c55e',  // 초록
+  '2022年': '#f97316',  // 주황
+  '2023年': '#06b6d4',  // 시안
+  '2024年': '#a855f7',  // 연보라
+  '2025年': '#3b82f6',  // 파랑 (굵게)
+  '2026年': '#1e40af'   // 진한 파랑
 };
 
+// 장기 추이 단계별 색상
 const PHASE_COLORS = {
-  '初期成長期': '#94a3b8',
-  '本格成長期': '#64748b',
-  'ピーク期': '#1e40af',
-  'コロナ影響期': '#dc2626',
-  '回復・成長期': '#1a1a1a'
+  '初期成長期': '#3b82f6',    // 파랑
+  '本格成長期': '#22c55e',    // 초록
+  'ピーク期': '#f59e0b',      // 주황/노랑
+  'コロナ影響期': '#ef4444',  // 빨강
+  '回復・成長期': '#8b5cf6'   // 보라
 };
 
 // ============================================================
@@ -139,38 +141,7 @@ const MonthlyHighlight = ({ data, special }) => {
 };
 
 // ============================================================
-// 월별 추이 (최근 13개월)
-// ============================================================
-const MonthlyTrendChart = ({ data }) => {
-  if (!data || data.length === 0) return null;
-
-  const chartData = data.slice(0, 13).reverse().map(d => ({
-    ...d,
-    totalMan: d.total / 10000,
-    prevYearMan: d.prevYear / 10000,
-    label: d.month?.split('-')[1] || ''
-  }));
-
-  return (
-    <div style={styles.chartSection}>
-      <h3 style={styles.chartTitle}>月別訪日外客数の推移</h3>
-      <p style={styles.chartSubtitle}>実線: 当年 / 点線: 前年同月</p>
-      <ResponsiveContainer width="100%" height={320}>
-        <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#6b7280' }} />
-          <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={v => `${v.toFixed(0)}`} label={{ value: '万人', position: 'top', offset: 10, fontSize: 11 }} />
-          <Tooltip formatter={(value) => [`${value.toFixed(1)}万人`]} />
-          <Bar dataKey="totalMan" fill="#1a1a1a" radius={[4, 4, 0, 0]} name="当年" />
-          <Line type="monotone" dataKey="prevYearMan" stroke="#9ca3af" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 3 }} name="前年同月" />
-        </ComposedChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-// ============================================================
-// 연도별 월간 추이 (2019-2026 멀티라인)
+// 연도별 월간 추이 (2019-2026 멀티라인) - PHP 스타일
 // ============================================================
 const YearlyMonthlyTrend = ({ data }) => {
   if (!data || data.length === 0) return null;
@@ -183,7 +154,7 @@ const YearlyMonthlyTrend = ({ data }) => {
     const row = { month: `${m}月` };
     years.forEach(year => {
       const found = data.find(d => d.month === m && d.year === year);
-      if (found) row[year] = found.value / 10000; // 만명 단위
+      if (found && found.value > 0) row[year] = found.value;
     });
     chartData.push(row);
   }
@@ -192,32 +163,38 @@ const YearlyMonthlyTrend = ({ data }) => {
     <div style={styles.chartSection}>
       <h3 style={styles.chartTitle}>月別訪日外客数の推移（2019-2026年）</h3>
       <p style={styles.chartSubtitle}>コロナ禍からの回復と過去最高への軌跡</p>
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={420}>
         <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} />
-          <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={v => `${v.toFixed(0)}`} label={{ value: '万人', position: 'top', offset: 10, fontSize: 11 }} />
-          <Tooltip formatter={(value) => value ? [`${value.toFixed(1)}万人`] : ['—']} />
-          <Legend />
+          <YAxis 
+            tick={{ fontSize: 12, fill: '#6b7280' }} 
+            tickFormatter={v => `${(v/10000).toFixed(0)}`} 
+            domain={[0, 'auto']}
+            label={{ value: '万人', position: 'top', offset: 10, fontSize: 11 }} 
+          />
+          <Tooltip 
+            formatter={(value) => value ? [`${formatNumber(value/10000, 1)}万人`] : ['—']} 
+            contentStyle={{ fontSize: 13 }}
+          />
+          <Legend 
+            wrapperStyle={{ paddingTop: 20 }}
+            formatter={(value) => <span style={{ color: YEAR_COLORS[value], fontWeight: 500 }}>{value}</span>}
+          />
           {years.map(year => (
             <Line 
               key={year}
               type="monotone" 
               dataKey={year} 
               stroke={YEAR_COLORS[year]} 
-              strokeWidth={year === '2025年' || year === '2019年' ? 3 : 2}
-              dot={{ r: year === '2026年' ? 5 : 3 }}
-              strokeDasharray={year === '2020年' || year === '2021年' ? '3 3' : '0'}
+              strokeWidth={year === '2025年' || year === '2026年' ? 3 : 2}
+              dot={{ r: 4, fill: YEAR_COLORS[year], strokeWidth: 0 }}
+              activeDot={{ r: 6 }}
               connectNulls
             />
           ))}
         </LineChart>
       </ResponsiveContainer>
-      <div style={styles.insightBox}>
-        <span style={styles.insightItem}>📈 2025年: 過去最高を更新</span>
-        <span style={styles.insightItem}>📉 2020-21年: コロナ禍で激減</span>
-        <span style={styles.insightItem}>🔄 2022年〜: 急速回復</span>
-      </div>
     </div>
   );
 };
@@ -271,7 +248,7 @@ const CountryPieChart = ({ data }) => {
 // ============================================================
 // 국가별 카드 (6개국, 3년 비교 바차트)
 // ============================================================
-const CountryCards = ({ countryMonthlyData, latestMonth }) => {
+const CountryCards = ({ countryMonthlyData }) => {
   if (!countryMonthlyData || countryMonthlyData.length === 0) return null;
 
   const countries = ['韓国', '中国', '台湾', '香港', '米国', 'タイ'];
@@ -319,7 +296,7 @@ const CountryCards = ({ countryMonthlyData, latestMonth }) => {
               </div>
               {jan2026 && (
                 <div style={styles.cardLatest}>
-                  1月: {formatMan(latestValue)}
+                  2026年1月: {formatMan(latestValue)}
                 </div>
               )}
               <ResponsiveContainer width="100%" height={150}>
@@ -390,28 +367,27 @@ const TwelveYearTable = ({ data }) => {
 
   const years = ['2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年'];
 
-  // 성장률 계산 및 색상 결정
   const getGrowthColor = (current, previous, year) => {
-    if (year === '2020年' || year === '2021年') return '#fecaca'; // 코로나 시기 빨강
+    if (year === '2020年' || year === '2021年') return '#fecaca';
     if (!previous || previous === 0) return '#f9fafb';
     const growth = (current - previous) / previous;
-    if (growth > 0.3) return '#86efac'; // 30% 이상 성장 - 진한 초록
-    if (growth > 0.1) return '#bbf7d0'; // 10% 이상 성장 - 연한 초록
-    if (growth > 0) return '#dcfce7'; // 성장 - 아주 연한 초록
-    if (growth > -0.1) return '#fef9c3'; // 10% 미만 감소 - 노랑
-    return '#fecaca'; // 10% 이상 감소 - 빨강
+    if (growth > 0.3) return '#86efac';
+    if (growth > 0.1) return '#bbf7d0';
+    if (growth > 0) return '#dcfce7';
+    if (growth > -0.1) return '#fef9c3';
+    return '#fecaca';
   };
 
   return (
     <div style={styles.tableSection}>
       <h3 style={styles.chartTitle}>過去12年間の軌跡</h3>
-      <p style={styles.chartSubtitle}>2014年〜2025年 国・地域別 訪日外客数の変遷 — インバウンド急成長 → コロナ禍 → 史上最高更新への道のり</p>
+      <p style={styles.chartSubtitle}>2014年〜2025年 国・地域別 訪日外客数の変遷（単位：万人）</p>
       
       <div style={styles.tableWrapper}>
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.tableHeaderCell}>国・地域</th>
+              <th style={{...styles.tableHeaderCell, textAlign: 'left'}}>国・地域</th>
               {years.map(year => (
                 <th key={year} style={{
                   ...styles.tableHeaderCell,
@@ -506,23 +482,49 @@ const AnnualSummary = ({ data, year }) => {
 };
 
 // ============================================================
-// 장기 추이
+// 장기 추이 - 바 위에 숫자 라벨
 // ============================================================
 const LongTermChart = ({ data }) => {
   if (!data || data.length === 0) return null;
 
+  // 만 단위로 변환
+  const chartData = data.map(d => ({
+    ...d,
+    totalMan: Math.round(d.total)
+  }));
+
   return (
     <div style={styles.chartSection}>
-      <h3 style={styles.chartTitle}>訪日外国人数の長期推移</h3>
-      <p style={styles.chartSubtitle}>2003年〜2025年 ビジット・ジャパン事業の軌跡</p>
-      <ResponsiveContainer width="100%" height={420}>
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
+      <h3 style={{...styles.chartTitle, textAlign: 'center', fontSize: 22}}>訪日外国人数の長期推移</h3>
+      <p style={{...styles.chartSubtitle, textAlign: 'center'}}>ビジット・ジャパン事業22年間の軌跡 (2003-2025年)</p>
+      <ResponsiveContainer width="100%" height={480}>
+        <BarChart data={chartData} margin={{ top: 40, right: 30, left: 20, bottom: 80 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#6b7280' }} angle={-45} textAnchor="end" height={80} tickFormatter={v => `${v}年`} />
-          <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} label={{ value: '万人', position: 'top', offset: 10, fontSize: 11 }} />
-          <Tooltip formatter={(value) => [`${formatNumber(value, 0)}万人`, '訪日客数']} labelFormatter={v => `${v}年`} />
-          <Bar dataKey="total" radius={[3, 3, 0, 0]}>
-            {data.map((entry, index) => (
+          <XAxis 
+            dataKey="year" 
+            tick={{ fontSize: 11, fill: '#6b7280' }} 
+            angle={-45} 
+            textAnchor="end" 
+            height={80} 
+            tickFormatter={v => `${v}年`} 
+          />
+          <YAxis 
+            tick={{ fontSize: 11, fill: '#6b7280' }} 
+            tickFormatter={v => `${v.toLocaleString()}`}
+            label={{ value: '訪日外客数（万人）', position: 'top', offset: 20, fontSize: 12 }} 
+          />
+          <Tooltip 
+            formatter={(value) => [`${formatNumber(value, 0)}万人`, '訪日客数']} 
+            labelFormatter={v => `${v}年`} 
+          />
+          <Bar dataKey="totalMan" radius={[4, 4, 0, 0]}>
+            <LabelList 
+              dataKey="totalMan" 
+              position="top" 
+              formatter={(v) => formatNumber(v, 0)}
+              style={{ fontSize: 10, fill: '#374151' }}
+            />
+            {chartData.map((entry, index) => (
               <Cell key={index} fill={PHASE_COLORS[entry.phase] || '#6b7280'} />
             ))}
           </Bar>
@@ -531,7 +533,7 @@ const LongTermChart = ({ data }) => {
       <div style={styles.legendRow}>
         {Object.entries(PHASE_COLORS).map(([phase, color]) => (
           <div key={phase} style={styles.legendItem}>
-            <span style={{ ...styles.legendDot, backgroundColor: color }} />
+            <span style={{ ...styles.legendSquare, backgroundColor: color }} />
             <span style={styles.legendText}>{phase}</span>
           </div>
         ))}
@@ -631,13 +633,16 @@ export default function App() {
         // 연도별 월간 추이 (2019-2026)
         const yearlyMonthly = await fetchSheetData('訪日_月別推移');
         if (yearlyMonthly?.length > 1) {
-          const headers = yearlyMonthly[0];
+          const headers = yearlyMonthly[0]; // 月, 2019年, 2020年, ...
           const parsed = [];
           yearlyMonthly.slice(1).forEach(row => {
-            const month = parseInt(row[0]);
+            const monthStr = row[0];
+            const month = parseInt(monthStr);
+            if (isNaN(month)) return;
             headers.slice(1).forEach((year, i) => {
-              if (row[i + 1]) {
-                parsed.push({ month, year, value: parseNumber(row[i + 1]) });
+              const value = parseNumber(row[i + 1]);
+              if (value > 0) {
+                parsed.push({ month, year, value });
               }
             });
           });
@@ -653,9 +658,11 @@ export default function App() {
           countryMonthly.slice(1).forEach(row => {
             const country = row[0];
             const month = parseInt(row[1]);
+            if (!country || isNaN(month)) return;
             headers.slice(2).forEach((year, i) => {
-              if (row[i + 2]) {
-                parsed.push({ country, month, year, value: parseNumber(row[i + 2]) });
+              const value = parseNumber(row[i + 2]);
+              if (value > 0) {
+                parsed.push({ country, month, year, value });
               }
             });
           });
@@ -720,10 +727,9 @@ export default function App() {
             {activeTab === 'monthly' && (
               <>
                 <MonthlyHighlight data={monthlyData} special={specialData} />
-                <MonthlyTrendChart data={monthlyData} />
-                <CountryPieChart data={countryData} />
-                <CountryCards countryMonthlyData={countryMonthlyData} latestMonth={latestMonth} />
                 <YearlyMonthlyTrend data={yearlyMonthlyData} />
+                <CountryPieChart data={countryData} />
+                <CountryCards countryMonthlyData={countryMonthlyData} />
               </>
             )}
             {activeTab === 'annual' && <AnnualSummary data={annualData} year="2025" />}
@@ -758,7 +764,6 @@ const styles = {
   tabBtnActive: { color: '#1a1a1a', fontWeight: 700, borderBottomColor: '#1a1a1a' },
   main: { maxWidth: 1100, margin: '0 auto', padding: '32px 24px' },
   
-  // Highlight
   highlightSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   highlightHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 24 },
   highlightLabel: { fontSize: 14, color: '#6b7280', margin: '0 0 8px' },
@@ -772,12 +777,10 @@ const styles = {
   specialNote: { marginTop: 24, paddingTop: 24, borderTop: '1px solid #e5e7eb' },
   specialText: { fontSize: 15, color: '#374151', margin: '0 0 8px', lineHeight: 1.7 },
   
-  // Chart
   chartSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   chartTitle: { fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' },
   chartSubtitle: { fontSize: 13, color: '#6b7280', margin: '0 0 24px' },
   
-  // Cards
   cardsSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   cardsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginTop: 24 },
   countryCard: { padding: 20, backgroundColor: '#f9fafb', borderRadius: 12, border: '1px solid #e5e7eb' },
@@ -788,7 +791,6 @@ const styles = {
   cardLatest: { fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 12 },
   cardLegend: { display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, fontSize: 11, color: '#6b7280' },
   
-  // Ranking
   rankingSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   countryList: { display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 },
   countryRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '8px 0' },
@@ -801,7 +803,6 @@ const styles = {
   countryBarFill: { height: '100%', borderRadius: 6 },
   countryValue: { fontSize: 14, fontWeight: 600, minWidth: 90, textAlign: 'right' },
   
-  // Table
   tableSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   tableWrapper: { overflowX: 'auto', marginTop: 24 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
@@ -811,9 +812,7 @@ const styles = {
   tableCell: { padding: '10px 8px', textAlign: 'right', borderBottom: '1px solid #e5e7eb', whiteSpace: 'nowrap' },
   tableLegend: { display: 'flex', gap: 16, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' },
   tableLegendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6b7280' },
-  legendSquare: { width: 14, height: 14, borderRadius: 3 },
   
-  // Annual
   annualSection: { backgroundColor: '#fff', borderRadius: 12, padding: 32, border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   annualHero: { textAlign: 'center', paddingBottom: 32, borderBottom: '1px solid #e5e7eb', marginBottom: 32 },
   annualLabel: { fontSize: 14, color: '#6b7280', margin: '0 0 12px' },
@@ -830,15 +829,14 @@ const styles = {
   rankName: { flex: 1, fontSize: 16, fontWeight: 500 },
   rankValue: { fontSize: 16, fontWeight: 700 },
   
-  // Legend & Insights
   legendRow: { display: 'flex', justifyContent: 'center', gap: 20, marginTop: 24, flexWrap: 'wrap' },
   legendItem: { display: 'flex', alignItems: 'center', gap: 6 },
   legendDot: { width: 12, height: 12, borderRadius: 3, display: 'inline-block' },
+  legendSquare: { width: 14, height: 14, borderRadius: 3, display: 'inline-block' },
   legendText: { fontSize: 12, color: '#6b7280' },
   insightBox: { display: 'flex', gap: 24, marginTop: 20, padding: '16px 20px', backgroundColor: '#f0f9ff', borderRadius: 8, flexWrap: 'wrap', justifyContent: 'center' },
   insightItem: { fontSize: 13, color: '#1e40af', fontWeight: 500 },
   
-  // Utility
   loadingBox: { display: 'flex', justifyContent: 'center', padding: 80 },
   spinner: { width: 40, height: 40, border: '3px solid #e5e7eb', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
   errorBox: { padding: 16, backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#dc2626', fontSize: 14 },
