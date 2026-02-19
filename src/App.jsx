@@ -690,7 +690,21 @@ export default function App() {
     window.addEventListener('resize', sendHeight);
     const observer = new MutationObserver(() => setTimeout(sendHeight, 300));
     observer.observe(document.body, { childList: true, subtree: true });
-    return () => { clearTimeout(timer); window.removeEventListener('resize', sendHeight); observer.disconnect(); };
+    
+    // WordPress에서 높이 요청 받으면 응답
+    const handleMessage = (e) => {
+      if (e.data && e.data.type === 'requestHeight') {
+        sendHeight();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    
+    return () => { 
+      clearTimeout(timer); 
+      window.removeEventListener('resize', sendHeight); 
+      window.removeEventListener('message', handleMessage);
+      observer.disconnect(); 
+    };
   }, [activeTab, loading]);
 
   useEffect(() => {
