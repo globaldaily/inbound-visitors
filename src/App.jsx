@@ -20,18 +20,26 @@ const COUNTRY_FLAGS = {
 };
 
 const COUNTRY_COLORS = [
-  '#0369a1', '#0ea5e9', '#6366f1', '#8b5cf6', '#a855f7', 
-  '#ec4899', '#f43f5e', '#f97316', '#eab308', '#84cc16'
+  '#1a1a1a', '#333333', '#4a4a4a', '#666666', '#808080', 
+  '#999999', '#b3b3b3', '#cccccc', '#e0e0e0', '#f0f0f0'
 ];
 
 const YEAR_COLORS = {
-  '2026': '#dc2626', '2025': '#1e40af', '2024': '#f97316',
-  '2023': '#eab308', '2019': '#9ca3af', '2018': '#22c55e', '2017': '#3b82f6'
+  '2026': '#e53935',  // 레드 (현재년도 강조)
+  '2025': '#1a1a1a',  // 블랙
+  '2024': '#4a4a4a',  // 다크그레이
+  '2023': '#808080',  // 그레이
+  '2019': '#b3b3b3',  // 라이트그레이
+  '2018': '#cccccc', 
+  '2017': '#e0e0e0'
 };
 
 const PHASE_COLORS = {
-  '初期成長期': '#93c5fd', '本格成長期': '#86efac', 'ピーク期': '#fcd34d',
-  'コロナ影響期': '#fca5a5', '回復・成長期': '#c4b5fd'
+  '初期成長期': '#e0e0e0',    // 라이트그레이
+  '本格成長期': '#b3b3b3',    // 그레이
+  'ピーク期': '#666666',      // 다크그레이
+  'コロナ影響期': '#ffcdd2',  // 연한 레드 (특별)
+  '回復・成長期': '#1a1a1a'   // 블랙
 };
 
 // ============================================================
@@ -781,167 +789,167 @@ export default function App() {
 }
 
 // ============================================================
-// 스타일
+// 스타일 - 그레이스케일 + 레드 포인트 (소비대시보드 톤)
 // ============================================================
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#fafbfc', fontFamily: '"Noto Sans JP", sans-serif', color: '#0f172a', lineHeight: 1.7 },
+  container: { minHeight: '100vh', backgroundColor: '#f5f5f5', fontFamily: '"Noto Sans JP", sans-serif', color: '#1a1a1a', lineHeight: 1.7 },
   
-  header: { background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)', color: 'white', padding: '40px 0' },
+  header: { background: '#1a1a1a', color: 'white', padding: '28px 0' },
   headerInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px' },
-  title: { fontSize: 24, fontWeight: 700, letterSpacing: '0.02em', margin: 0 },
-  tagline: { fontSize: 13, fontWeight: 300, opacity: 0.6, marginTop: 8 },
+  title: { fontSize: 22, fontWeight: 700, letterSpacing: '0.02em', margin: 0 },
+  tagline: { fontSize: 13, fontWeight: 400, color: '#999', marginTop: 4 },
   
-  nav: { background: 'white', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 100, overflowX: 'auto' },
+  nav: { background: 'white', borderBottom: '1px solid #e0e0e0', position: 'sticky', top: 0, zIndex: 100, overflowX: 'auto' },
   navInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 8 },
-  navLink: { padding: '14px 16px', fontSize: 13, fontWeight: 500, color: '#64748b', border: 'none', borderBottom: '2px solid transparent', background: 'transparent', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' },
-  navLinkActive: { color: '#0369a1', borderBottomColor: '#0369a1', fontWeight: 600 },
+  navLink: { padding: '14px 16px', fontSize: 13, fontWeight: 500, color: '#666', border: 'none', borderBottom: '2px solid transparent', background: 'transparent', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' },
+  navLinkActive: { color: '#1a1a1a', borderBottomColor: '#e53935', fontWeight: 600 },
   
   main: { padding: '48px 0 80px' },
   mainInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px' },
   
   section: { marginBottom: 64 },
   sectionHeader: { marginBottom: 24 },
-  sectionNumber: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#0369a1', letterSpacing: '0.1em', marginBottom: 4 },
-  sectionTitle: { fontSize: 20, fontWeight: 700, margin: '0 0 6px 0' },
-  sectionDesc: { fontSize: 14, color: '#64748b', margin: 0 },
+  sectionNumber: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#e53935', letterSpacing: '0.1em', marginBottom: 4 },
+  sectionTitle: { fontSize: 20, fontWeight: 700, margin: '0 0 6px 0', color: '#1a1a1a' },
+  sectionDesc: { fontSize: 14, color: '#666', margin: 0 },
   
-  hero: { paddingBottom: 40, borderBottom: '1px solid #e2e8f0', marginBottom: 40 },
+  hero: { paddingBottom: 40, borderBottom: '1px solid #e0e0e0', marginBottom: 40 },
   heroEyebrow: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 },
-  heroDate: { fontSize: 15, fontWeight: 500, color: '#475569' },
-  heroBadge: { fontSize: 10, fontWeight: 600, padding: '4px 10px', borderRadius: 4, background: '#0369a1', color: 'white' },
+  heroDate: { fontSize: 15, fontWeight: 500, color: '#666' },
+  heroBadge: { fontSize: 10, fontWeight: 600, padding: '4px 10px', borderRadius: 4, background: '#e53935', color: 'white' },
   heroNumber: { display: 'flex', alignItems: 'baseline', margin: '12px 0 20px' },
-  heroDigits: { fontFamily: 'Inter, sans-serif', fontSize: 80, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em', color: '#0369a1' },
-  heroUnit: { fontSize: 24, fontWeight: 500, color: '#94a3b8', marginLeft: 8 },
+  heroDigits: { fontFamily: 'Inter, sans-serif', fontSize: 80, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em', color: '#1a1a1a' },
+  heroUnit: { fontSize: 24, fontWeight: 500, color: '#999', marginLeft: 8 },
   heroCompare: { display: 'flex', gap: 40 },
   compareItem: { display: 'flex', flexDirection: 'column', gap: 4 },
-  compareLabel: { fontSize: 11, fontWeight: 500, color: '#94a3b8' },
+  compareLabel: { fontSize: 11, fontWeight: 500, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em' },
   compareValue: { display: 'flex', alignItems: 'center', gap: 4 },
   arrow: { fontSize: 12 },
   compareNum: { fontFamily: 'Inter, sans-serif', fontSize: 22, fontWeight: 700 },
-  compareSub: { fontSize: 12, color: '#cbd5e1' },
-  insight: { marginTop: 24, padding: 20, background: '#f1f5f9', borderRadius: 8 },
-  insightText: { fontSize: 15, lineHeight: 1.8, color: '#475569', margin: 0 },
-  insightStrong: { fontWeight: 600, color: '#0369a1' },
-  insightMark: { background: 'linear-gradient(transparent 50%, #e0f2fe 50%)', padding: '0 2px' },
+  compareSub: { fontSize: 12, color: '#999' },
+  insight: { marginTop: 24, padding: 20, background: '#f5f5f5', borderLeft: '3px solid #e53935', borderRadius: 0 },
+  insightText: { fontSize: 15, lineHeight: 1.8, color: '#333', margin: 0 },
+  insightStrong: { fontWeight: 600, color: '#e53935' },
+  insightMark: { background: 'linear-gradient(transparent 50%, #ffebee 50%)', padding: '0 2px' },
   
-  chartWrap: { background: 'white', border: '1px solid #e2e8f0', borderRadius: 12, padding: 24 },
-  chartTitleInline: { fontSize: 14, fontWeight: 600, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  chartUnit: { fontSize: 12, fontWeight: 500, color: '#64748b', background: '#f1f5f9', padding: '4px 10px', borderRadius: 4 },
-  chartSubtitle: { fontSize: 16, fontWeight: 600, marginBottom: 16 },
-  chartSource: { marginTop: 16, paddingTop: 12, borderTop: '1px solid #f1f5f9', fontSize: 11, color: '#94a3b8' },
+  chartWrap: { background: 'white', border: '1px solid #e0e0e0', borderRadius: 8, padding: 24 },
+  chartTitleInline: { fontSize: 14, fontWeight: 600, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#1a1a1a' },
+  chartUnit: { fontSize: 12, fontWeight: 500, color: '#666', background: '#f5f5f5', padding: '4px 10px', borderRadius: 4 },
+  chartSubtitle: { fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#1a1a1a' },
+  chartSource: { marginTop: 16, paddingTop: 12, borderTop: '1px solid #e0e0e0', fontSize: 11, color: '#999' },
   
   hbarList: { marginTop: 12 },
-  hbarItem: { display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' },
-  hbarRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700 },
+  hbarItem: { display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e0e0e0' },
+  hbarRank: { width: 28, fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700 },
   hbarFlag: { fontSize: 18, marginRight: 8 },
-  hbarName: { width: 100, fontSize: 14, fontWeight: 600 },
+  hbarName: { width: 100, fontSize: 14, fontWeight: 600, color: '#1a1a1a' },
   hbarBarWrap: { flex: 1, margin: '0 12px' },
-  hbarBar: { height: 22, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
+  hbarBar: { height: 24, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden' },
   hbarFill: { height: '100%', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8, minWidth: 40 },
   hbarPercent: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.3)' },
-  hbarValue: { width: 65, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700 },
-  hbarYoy: { width: 60, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600 },
+  hbarValue: { width: 70, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: '#1a1a1a' },
+  hbarYoy: { width: 65, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600 },
   
-  otherMarkets: { marginTop: 24, paddingTop: 20, borderTop: '1px solid #e2e8f0' },
-  otherTitle: { fontSize: 13, fontWeight: 600, color: '#64748b', marginBottom: 12 },
+  otherMarkets: { marginTop: 24, paddingTop: 20, borderTop: '1px solid #e0e0e0' },
+  otherTitle: { fontSize: 13, fontWeight: 600, color: '#666', marginBottom: 12 },
   otherGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 },
-  otherItem: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' },
+  otherItem: { display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: '#f5f5f5', borderRadius: 4 },
   otherFlag: { fontSize: 16 },
-  otherName: { flex: 1, fontSize: 13, fontWeight: 500, color: '#475569' },
-  otherValue: { fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#64748b' },
-  otherYoy: { fontFamily: 'Inter, sans-serif', fontSize: 11 },
+  otherName: { flex: 1, fontSize: 13, fontWeight: 500, color: '#333' },
+  otherValue: { fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#1a1a1a' },
+  otherYoy: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 },
   
   trendLegend: { display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20, flexWrap: 'wrap' },
-  legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 },
+  legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#666' },
   legendDot: { display: 'inline-block' },
   
-  tooltip: { background: '#ffffff', padding: 14, borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.15)', border: '1px solid #e2e8f0' },
-  tooltipTitle: { fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 8 },
+  tooltip: { background: '#ffffff', padding: 14, borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.15)', border: '1px solid #e0e0e0' },
+  tooltipTitle: { fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 },
   
   phaseRow: { display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' },
   phaseItem: { flex: 1, minWidth: 90, padding: '12px 0 12px 12px', borderLeft: '3px solid' },
-  phaseLabel: { fontSize: 11, fontWeight: 600, color: '#64748b', margin: 0 },
+  phaseLabel: { fontSize: 11, fontWeight: 600, color: '#666', margin: 0 },
   
   milestoneSection: { marginTop: 40 },
-  milestoneTitle: { fontSize: 16, fontWeight: 600, marginBottom: 16 },
+  milestoneTitle: { fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#1a1a1a' },
   milestoneGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 },
-  milestoneCard: { padding: 16, background: '#f8fafc', borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 4 },
-  milestoneYear: { fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, color: '#0369a1' },
-  milestoneEvent: { fontSize: 13, color: '#64748b' },
-  milestoneValue: { fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600, color: '#0f172a' },
+  milestoneCard: { padding: 16, background: '#f5f5f5', borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 4 },
+  milestoneYear: { fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, color: '#1a1a1a' },
+  milestoneEvent: { fontSize: 13, color: '#666' },
+  milestoneValue: { fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600, color: '#1a1a1a' },
   
   yearSelector: { display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' },
-  yearBtn: { padding: '8px 16px', fontSize: 13, fontWeight: 500, border: '1px solid #e2e8f0', borderRadius: 6, background: 'white', cursor: 'pointer', transition: 'all 0.2s' },
-  yearBtnActive: { background: '#0369a1', color: 'white', borderColor: '#0369a1' },
+  yearBtn: { padding: '8px 16px', fontSize: 13, fontWeight: 500, border: '1px solid #e0e0e0', borderRadius: 4, background: 'white', cursor: 'pointer', transition: 'all 0.2s', color: '#666' },
+  yearBtnActive: { background: '#1a1a1a', color: 'white', borderColor: '#1a1a1a' },
   
-  annualHero: { textAlign: 'center', padding: 40, background: 'linear-gradient(135deg, #e0f2fe 0%, white 100%)', borderRadius: 16, marginBottom: 32 },
-  annualLabel: { fontSize: 14, color: '#64748b', marginBottom: 8 },
+  annualHero: { textAlign: 'center', padding: 40, background: '#f5f5f5', borderRadius: 8, marginBottom: 32 },
+  annualLabel: { fontSize: 14, color: '#666', marginBottom: 8 },
   annualNumber: { display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 },
-  annualDigits: { fontFamily: 'Inter, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1 },
-  annualUnit: { fontSize: 28, fontWeight: 600, color: '#94a3b8' },
-  annualGrowth: { fontSize: 16, color: '#64748b', marginTop: 12 },
+  annualDigits: { fontFamily: 'Inter, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: '#1a1a1a' },
+  annualUnit: { fontSize: 28, fontWeight: 600, color: '#999' },
+  annualGrowth: { fontSize: 16, color: '#666', marginTop: 12 },
   rankingSection: { marginTop: 24 },
-  rankingTitle: { fontSize: 16, fontWeight: 600, marginBottom: 12 },
-  rankCard: { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#f8fafc', borderRadius: 8, marginBottom: 6 },
-  rankBadge: { width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', borderRadius: 6, fontSize: 13, fontWeight: 700 },
+  rankingTitle: { fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#1a1a1a' },
+  rankCard: { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#f5f5f5', borderRadius: 8, marginBottom: 6 },
+  rankBadge: { width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', borderRadius: 4, fontSize: 13, fontWeight: 700 },
   rankFlag: { fontSize: 24 },
-  rankName: { flex: 1, fontSize: 15, fontWeight: 500 },
-  rankValue: { fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700 },
+  rankName: { flex: 1, fontSize: 15, fontWeight: 500, color: '#1a1a1a' },
+  rankValue: { fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700, color: '#1a1a1a' },
   
   insightCards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 },
-  insightCard: { padding: 20, background: 'linear-gradient(135deg, #f0f9ff 0%, #fff 100%)', borderRadius: 12, border: '1px solid #e0f2fe' },
-  insightCardLabel: { fontSize: 12, color: '#64748b', marginBottom: 8 },
-  insightCardValue: { fontSize: 18, fontWeight: 700 },
+  insightCard: { padding: 20, background: '#fff', borderRadius: 8, border: '1px solid #e0e0e0' },
+  insightCardLabel: { fontSize: 12, color: '#666', marginBottom: 8 },
+  insightCardValue: { fontSize: 18, fontWeight: 700, color: '#1a1a1a' },
   
   // 2030 Target Section
   targetSection: { marginBottom: 32 },
-  targetCard: { padding: 32, background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: 16, color: 'white' },
-  targetLabel: { fontSize: 14, color: '#94a3b8', marginBottom: 20, textAlign: 'center' },
+  targetCard: { padding: 32, background: '#1a1a1a', borderRadius: 8, color: 'white' },
+  targetLabel: { fontSize: 14, color: '#999', marginBottom: 20, textAlign: 'center' },
   targetRow: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 32, marginBottom: 24 },
   targetItem: { textAlign: 'center' },
-  targetItemLabel: { fontSize: 13, color: '#94a3b8', marginBottom: 8 },
+  targetItemLabel: { fontSize: 13, color: '#999', marginBottom: 8 },
   targetItemValue: { fontSize: 18, marginBottom: 12 },
-  targetCurrent: { fontSize: 36, fontWeight: 800, color: '#f97316' },
-  targetArrow: { color: '#64748b', margin: '0 8px' },
-  targetGoal: { fontSize: 36, fontWeight: 800, color: '#22c55e' },
-  targetUnit: { fontSize: 16, color: '#94a3b8', marginLeft: 4 },
-  progressBar: { height: 8, background: '#334155', borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
-  progressFill: { height: '100%', background: 'linear-gradient(90deg, #f97316, #22c55e)', borderRadius: 4, transition: 'width 1s ease' },
-  progressText: { fontSize: 13, color: '#94a3b8' },
-  targetInsight: { textAlign: 'center', marginTop: 20, paddingTop: 20, borderTop: '1px solid #334155' },
+  targetCurrent: { fontSize: 36, fontWeight: 800, color: '#ff9800' },
+  targetArrow: { color: '#666', margin: '0 8px' },
+  targetGoal: { fontSize: 36, fontWeight: 800, color: '#4caf50' },
+  targetUnit: { fontSize: 16, color: '#999', marginLeft: 4 },
+  progressBar: { height: 6, background: '#333', borderRadius: 3, overflow: 'hidden', marginBottom: 8 },
+  progressFill: { height: '100%', background: 'linear-gradient(90deg, #ff9800, #4caf50)', borderRadius: 3, transition: 'width 1s ease' },
+  progressText: { fontSize: 13, color: '#999' },
+  targetInsight: { textAlign: 'center', marginTop: 20, paddingTop: 20, borderTop: '1px solid #333' },
   
   // Country Legend
   countryLegend: { display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20, flexWrap: 'wrap' },
   countryLegendItem: { display: 'flex', alignItems: 'center', gap: 6 },
   countryLegendDot: { width: 12, height: 12, borderRadius: '50%' },
   countryLegendFlag: { fontSize: 16 },
-  countryLegendName: { fontSize: 13, fontWeight: 500, color: '#475569' },
+  countryLegendName: { fontSize: 13, fontWeight: 500, color: '#666' },
   
   // Growth List
   growthList: { display: 'flex', flexDirection: 'column', gap: 8 },
-  growthItem: { display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' },
-  growthRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#94a3b8' },
+  growthItem: { display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e0e0e0' },
+  growthRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#999' },
   growthFlag: { fontSize: 18, marginRight: 8 },
-  growthName: { width: 100, fontSize: 14, fontWeight: 500 },
-  growthBarWrap: { flex: 1, height: 20, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden', marginRight: 12 },
+  growthName: { width: 100, fontSize: 14, fontWeight: 500, color: '#1a1a1a' },
+  growthBarWrap: { flex: 1, height: 20, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden', marginRight: 12 },
   growthBar: { height: '100%', borderRadius: 4, transition: 'width 0.5s ease' },
   growthValue: { width: 60, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700 },
   
   tableWrap: { marginTop: 24 },
   tableScroll: { overflowX: 'auto', WebkitOverflowScrolling: 'touch' },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
-  th: { padding: '10px 8px', textAlign: 'right', fontSize: 11, fontWeight: 600, color: '#64748b', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap', background: '#fafbfc' },
-  thFirst: { textAlign: 'left', position: 'sticky', left: 0, background: '#fafbfc', zIndex: 2 },
-  thCovid: { color: '#dc2626', opacity: 0.6 },
-  thCurrent: { color: 'white', background: '#0369a1' },
-  td: { padding: '10px 8px', textAlign: 'right', fontFamily: 'Inter, sans-serif', color: '#475569', borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' },
-  tdFirst: { textAlign: 'left', fontFamily: '"Noto Sans JP", sans-serif', fontWeight: 500, color: '#0f172a', position: 'sticky', left: 0, background: '#fff', zIndex: 1 },
-  tdCovid: { color: '#dc2626', opacity: 0.5 },
-  tdCurrent: { color: '#0369a1', fontWeight: 700, background: '#e0f2fe' },
+  th: { padding: '12px 10px', textAlign: 'right', fontSize: 11, fontWeight: 600, color: '#666', borderBottom: '2px solid #e0e0e0', whiteSpace: 'nowrap', background: '#f5f5f5' },
+  thFirst: { textAlign: 'left', position: 'sticky', left: 0, background: '#f5f5f5', zIndex: 2 },
+  thCovid: { color: '#e53935', opacity: 0.5 },
+  thCurrent: { color: 'white', background: '#1a1a1a' },
+  td: { padding: '12px 10px', textAlign: 'right', fontFamily: 'Inter, sans-serif', color: '#333', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
+  tdFirst: { textAlign: 'left', fontFamily: '"Noto Sans JP", sans-serif', fontWeight: 500, color: '#1a1a1a', position: 'sticky', left: 0, background: '#fff', zIndex: 1 },
+  tdCovid: { color: '#e53935', opacity: 0.4 },
+  tdCurrent: { color: '#e53935', fontWeight: 700, background: '#ffebee' },
   
   loadingBox: { display: 'flex', justifyContent: 'center', padding: 80 },
-  spinner: { width: 40, height: 40, border: '3px solid #e2e8f0', borderTop: '3px solid #0369a1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
-  errorBox: { padding: 16, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#dc2626', fontSize: 14 },
+  spinner: { width: 40, height: 40, border: '3px solid #e0e0e0', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
+  errorBox: { padding: 16, background: '#ffebee', border: '1px solid #ffcdd2', borderRadius: 8, color: '#c62828', fontSize: 14 },
   
-  footer: { maxWidth: 1100, margin: '0 auto', padding: 24, borderTop: '1px solid #e2e8f0', textAlign: 'center', fontSize: 11, color: '#94a3b8' }
+  footer: { maxWidth: 1100, margin: '0 auto', padding: 24, borderTop: '1px solid #e0e0e0', textAlign: 'center', fontSize: 11, color: '#999' }
 };
