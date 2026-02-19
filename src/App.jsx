@@ -25,21 +25,19 @@ const COUNTRY_COLORS = [
 ];
 
 const YEAR_COLORS = {
-  '2026': '#e53935',  // 레드 (현재년도 강조)
-  '2025': '#1a1a1a',  // 블랙
-  '2024': '#4a4a4a',  // 다크그레이
-  '2023': '#808080',  // 그레이
-  '2019': '#b3b3b3',  // 라이트그레이
-  '2018': '#cccccc', 
-  '2017': '#e0e0e0'
+  '2026': '#e53935',  // 레드 (현재 강조)
+  '2025': '#1a1a1a',  // 블랙 (최신 완료 연도)
+  '2024': '#546e7a',  // 블루그레이 (구별 가능)
+  '2023': '#90a4ae',  // 라이트 블루그레이
+  '2019': '#ff8f00',  // 앰버/오렌지 (코로나 전 비교 강조)
 };
 
 const PHASE_COLORS = {
-  '初期成長期': '#e0e0e0',    // 라이트그레이
-  '本格成長期': '#b3b3b3',    // 그레이
-  'ピーク期': '#666666',      // 다크그레이
-  'コロナ影響期': '#ffcdd2',  // 연한 레드 (특별)
-  '回復・成長期': '#1a1a1a'   // 블랙
+  '初期成長期': '#b0bec5',    // 블루그레이 라이트
+  '本格成長期': '#78909c',    // 블루그레이 미디엄
+  'ピーク期': '#455a64',      // 블루그레이 다크
+  'コロナ影響期': '#ef5350',  // 레드 (특별 강조)
+  '回復・成長期': '#1a1a1a'   // 블랙 (최신)
 };
 
 // ============================================================
@@ -104,8 +102,8 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
   const yoy = parseFloat(latest.yoy) || 0;
   const mom = parseFloat(latest.mom) || 0;
 
-  // 월별 추이 차트 데이터
-  const years = ['2026', '2025', '2024', '2023', '2019', '2018', '2017'];
+  // 월별 추이 차트 데이터 - 2017/2018 제거
+  const years = ['2026', '2025', '2024', '2023', '2019'];
   const chartData = [];
   for (let m = 1; m <= 12; m++) {
     const row = { month: `${m}月` };
@@ -249,14 +247,26 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
 };
 
 // ============================================================
-// 탭2: 年間総括
+// 탭2: 年間総括 - 연도별 비교 + 분기별 추이
 // ============================================================
-const TabAnnual = ({ annualData }) => {
+const TabAnnual = ({ annualData, countryYearlyData }) => {
   const [selectedYear, setSelectedYear] = useState('2025');
   if (!annualData || annualData.length === 0) return <p>データ読み込み中...</p>;
   
   const yearData = annualData.find(d => d.year === selectedYear);
-  const availableYears = annualData.map(d => d.year).filter(y => parseInt(y) >= 2014);
+  const availableYears = annualData.map(d => d.year).filter(y => parseInt(y) >= 2019 && parseInt(y) <= 2025);
+
+  // 연도별 비교 데이터 (2019, 2023, 2024, 2025)
+  const comparisonYears = ['2019', '2023', '2024', '2025'];
+  const comparisonData = comparisonYears.map(y => {
+    const data = annualData.find(d => d.year === y);
+    return {
+      year: y,
+      total: data ? data.total / 10000 : 0,
+      isCovidPre: y === '2019'
+    };
+  });
+  const maxTotal = Math.max(...comparisonData.map(d => d.total));
 
   return (
     <section style={styles.section}>
@@ -264,7 +274,7 @@ const TabAnnual = ({ annualData }) => {
       
       {/* 연도 선택 */}
       <div style={styles.yearSelector}>
-        {availableYears.slice(0, 8).map(y => (
+        {availableYears.map(y => (
           <button key={y} onClick={() => setSelectedYear(y)} style={{...styles.yearBtn, ...(selectedYear === y ? styles.yearBtnActive : {})}}>
             {y}年
           </button>
@@ -281,28 +291,68 @@ const TabAnnual = ({ annualData }) => {
             </div>
             {yearData.yoy && (
               <p style={styles.annualGrowth}>
-                前年比 <span style={{ color: parseFloat(yearData.yoy) >= 0 ? '#059669' : '#dc2626', fontWeight: 700 }}>
+                前年比 <span style={{ color: parseFloat(yearData.yoy) >= 0 ? '#43a047' : '#e53935', fontWeight: 700 }}>
                   {parseFloat(yearData.yoy) >= 0 ? '+' : ''}{yearData.yoy}%
                 </span>
               </p>
             )}
           </div>
 
-          <div style={styles.rankingSection}>
-            <h4 style={styles.rankingTitle}>国・地域別 TOP5</h4>
-            {[1, 2, 3, 4, 5].map(rank => {
-              const country = yearData[`rank${rank}`];
-              const value = yearData[`rank${rank}Value`];
-              if (!country) return null;
-              return (
-                <div key={rank} style={styles.rankCard}>
-                  <span style={{...styles.rankBadge, background: rank <= 3 ? ['#fbbf24', '#9ca3af', '#cd7f32'][rank-1] : '#64748b'}}>{rank}</span>
-                  <span style={styles.rankFlag}>{COUNTRY_FLAGS[country] || '🌐'}</span>
-                  <span style={styles.rankName}>{country}</span>
-                  <span style={styles.rankValue}>{formatMan(value)}</span>
+          {/* 연도별 비교 바 차트 */}
+          <div style={styles.chartWrap}>
+            <div style={styles.chartTitleInline}>
+              <span>年間推移比較</span>
+              <span style={styles.chartUnit}>単位: 万人</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24, height: 200, padding: '20px 0' }}>
+              {comparisonData.map((d, i) => (
+                <div key={d.year} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, marginBottom: 8, color: d.year === selectedYear ? '#e53935' : '#1a1a1a' }}>
+                    {formatNum(d.total, 0)}
+                  </span>
+                  <div style={{
+                    width: '100%',
+                    height: `${(d.total / maxTotal) * 160}px`,
+                    background: d.year === selectedYear ? '#1a1a1a' : d.isCovidPre ? '#ff8f00' : '#90a4ae',
+                    borderRadius: '4px 4px 0 0',
+                    transition: 'all 0.3s'
+                  }} />
+                  <span style={{ marginTop: 12, fontSize: 13, fontWeight: d.year === selectedYear ? 700 : 500, color: d.year === selectedYear ? '#1a1a1a' : '#666' }}>
+                    {d.year}年
+                  </span>
+                  {d.isCovidPre && <span style={{ fontSize: 10, color: '#ff8f00' }}>コロナ前</span>}
                 </div>
-              );
-            })}
+              ))}
+            </div>
+            <p style={styles.chartSource}>※2020-2022年はコロナ影響により除外</p>
+          </div>
+
+          {/* TOP5 랭킹 - 바 차트 형태로 */}
+          <div style={{ marginTop: 32 }}>
+            <h4 style={styles.rankingTitle}>国・地域別 TOP5（{selectedYear}年）</h4>
+            <div style={styles.chartWrap}>
+              {[1, 2, 3, 4, 5].map(rank => {
+                const country = yearData[`rank${rank}`];
+                const value = yearData[`rank${rank}Value`];
+                const maxValue = yearData.rank1Value;
+                if (!country) return null;
+                const barWidth = (value / maxValue) * 100;
+                const barColors = ['#1a1a1a', '#455a64', '#607d8b', '#78909c', '#90a4ae'];
+                return (
+                  <div key={rank} style={{ display: 'flex', alignItems: 'center', padding: '14px 0', borderBottom: rank < 5 ? '1px solid #e0e0e0' : 'none' }}>
+                    <span style={{ width: 28, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: rank === 1 ? '#e53935' : '#999' }}>{rank}</span>
+                    <span style={{ fontSize: 20, marginRight: 12 }}>{COUNTRY_FLAGS[country] || '🌐'}</span>
+                    <span style={{ width: 80, fontSize: 14, fontWeight: 600 }}>{country}</span>
+                    <div style={{ flex: 1, height: 24, background: '#f0f0f0', borderRadius: 4, margin: '0 16px', overflow: 'hidden' }}>
+                      <div style={{ width: `${barWidth}%`, height: '100%', background: barColors[rank-1], borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8, minWidth: 50 }}>
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: 'white' }}>{((value / yearData.total) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700, width: 80, textAlign: 'right' }}>{formatMan(value)}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </>
       )}
