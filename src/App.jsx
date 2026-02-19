@@ -10,6 +10,8 @@ import {
 const SHEET_ID = '1hF1Z-3LLgzzzFwc66xVqEXszNm3qSH8Xwl6DT01dQRs';
 const API_KEY = 'AIzaSyAs_UERCv_a4ZCfrZI2XvThGMFPFRkStO0';
 
+const COUNTRIES = ['韓国', '中国', '台湾', '香港', 'タイ', 'シンガポール', 'マレーシア', 'インドネシア', 'フィリピン', 'ベトナム', 'インド', '豪州', '米国', 'カナダ', 'メキシコ', '英国', 'フランス', 'ドイツ', 'イタリア', 'スペイン', 'ロシア', '北欧地域', '中東地域', 'その他'];
+
 const COUNTRY_FLAGS = {
   '韓国': '🇰🇷', '中国': '🇨🇳', '台湾': '🇹🇼', '香港': '🇭🇰',
   'タイ': '🇹🇭', 'シンガポール': '🇸🇬', 'マレーシア': '🇲🇾', 'インドネシア': '🇮🇩',
@@ -145,7 +147,7 @@ const HeroSection = ({ data, special }) => {
 };
 
 // ============================================================
-// 국가별 수평 바 차트
+// 국가별 수평 바 차트 (訪日_国別_202601 시트 사용)
 // ============================================================
 const CountryHorizontalBars = ({ data, total }) => {
   if (!data || data.length === 0) return null;
@@ -170,7 +172,7 @@ const CountryHorizontalBars = ({ data, total }) => {
 
         <div style={styles.hbarList}>
           {topCountries.map((country, i) => {
-            const percent = ((country.value / total) * 100).toFixed(1);
+            const percent = total > 0 ? ((country.value / total) * 100).toFixed(1) : 0;
             const width = (country.value / maxValue) * 100;
             const yoy = country.yoy || 0;
 
@@ -258,6 +260,7 @@ const MonthlyTrendChart = ({ data }) => {
     chartData.push(row);
   }
 
+  // 커스텀 툴팁 - 흰색 텍스트
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload) return null;
     return (
@@ -367,7 +370,7 @@ const LongTermChart = ({ data }) => {
     return (
       <div style={styles.tooltip}>
         <p style={styles.tooltipTitle}>{isJan ? '2026年1月' : `${d.year}年`}</p>
-        <p style={styles.tooltipItem}>
+        <p style={styles.tooltipItemWhite}>
           訪日外客数: {d.totalMan.toLocaleString()}万人{isJan ? '（1月のみ）' : ''}
         </p>
       </div>
@@ -477,12 +480,23 @@ const AnnualSummary = ({ data, year }) => {
 };
 
 // ============================================================
-// 12년 테이블
+// 12년 테이블 - 2026年1月 열 수정
 // ============================================================
 const TwelveYearTable = ({ data }) => {
   if (!data || data.length === 0) return null;
 
-  const years = ['2014年', '2016年', '2018年', '2019年', '2020年', '2022年', '2024年', '2025年', '2026年1月'];
+  // 실제 시트 헤더와 매칭
+  const displayYears = [
+    { key: '2014年', label: '2014' },
+    { key: '2016年', label: '2016' },
+    { key: '2018年', label: '2018' },
+    { key: '2019年', label: '2019' },
+    { key: '2020年', label: '2020' },
+    { key: '2022年', label: '2022' },
+    { key: '2024年', label: '2024' },
+    { key: '2025年', label: '2025' },
+    { key: '2026年1月', label: '2026.1' }
+  ];
 
   return (
     <section style={styles.section}>
@@ -499,12 +513,12 @@ const TwelveYearTable = ({ data }) => {
             <thead>
               <tr>
                 <th style={{...styles.th, ...styles.thFirst}}>国・地域</th>
-                {years.map(year => (
-                  <th key={year} style={{
+                {displayYears.map(y => (
+                  <th key={y.key} style={{
                     ...styles.th,
-                    ...(year === '2026年1月' ? styles.thCurrent : {})
+                    ...(y.key === '2026年1月' ? styles.thCurrent : {})
                   }}>
-                    {year.replace('年', '').replace('1月', '.1')}
+                    {y.label}
                   </th>
                 ))}
               </tr>
@@ -515,12 +529,12 @@ const TwelveYearTable = ({ data }) => {
                   <td style={styles.tdFirst}>
                     {COUNTRY_FLAGS[row.country]} {row.country}
                   </td>
-                  {years.map(year => {
-                    const value = row[year];
-                    const isCovid = year === '2020年';
-                    const isCurrent = year === '2026年1月';
+                  {displayYears.map(y => {
+                    const value = row[y.key];
+                    const isCovid = y.key === '2020年';
+                    const isCurrent = y.key === '2026年1月';
                     return (
-                      <td key={year} style={{
+                      <td key={y.key} style={{
                         ...styles.td,
                         ...(isCovid ? styles.tdCovid : {}),
                         ...(isCurrent ? styles.tdCurrent : {})
@@ -586,24 +600,23 @@ export default function App() {
         }
         await delay(150);
 
-        // 국가별 최신 월 데이터 (2026년 1월)
-        const countryLatest = await fetchSheetData('訪日_国別');
-        if (countryLatest?.length > 1) {
-          const headers = countryLatest[0];
-          const latestRow = countryLatest[1];
+        // 국가별 최신 월 데이터 - 訪日_国別_202601 시트 사용
+        const country202601 = await fetchSheetData('訪日_国別_202601');
+        if (country202601?.length > 1) {
+          const headers = country202601[0]; // 国・地域, 2025年1月, 2026年1月, 伸率
           const countries = [];
           let total = 0;
           
-          headers.forEach((h, i) => {
-            if (i > 0 && h && h !== '総数') {
-              const value = parseNumber(latestRow[i]);
-              const prevRow = countryLatest[2];
-              const prevValue = prevRow ? parseNumber(prevRow[i]) : 0;
-              const yoy = prevValue > 0 ? ((value - prevValue) / prevValue) * 100 : 0;
-              countries.push({ name: h, value, yoy });
-            }
-            if (h === '総数') {
-              total = parseNumber(latestRow[i]);
+          country202601.slice(1).forEach(row => {
+            const name = row[0];
+            if (name === '総数') {
+              total = parseNumber(row[2]); // 2026年1月 열
+            } else if (name && COUNTRIES.includes(name)) {
+              countries.push({
+                name: name,
+                value: parseNumber(row[2]), // 2026年1月
+                yoy: parseNumber(row[3])    // 伸率
+              });
             }
           });
           
@@ -669,6 +682,7 @@ export default function App() {
         const countryYearly = await fetchSheetData('訪日_国別年間');
         if (countryYearly?.length > 1) {
           const headers = countryYearly[0];
+          console.log('訪日_国別年間 headers:', headers);
           const parsed = countryYearly.slice(1).map(row => {
             const obj = { country: row[0] };
             headers.slice(1).forEach((year, i) => {
@@ -676,11 +690,13 @@ export default function App() {
             });
             return obj;
           });
+          console.log('Parsed country yearly:', parsed[0]);
           setCountryYearlyData(parsed);
         }
 
       } catch (err) {
         setError('データの読み込みに失敗しました');
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -900,12 +916,14 @@ const styles = {
   legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 },
   legendDot: { display: 'inline-block' },
   
+  // 툴팁 - 흰색 텍스트
   tooltip: { 
     background: '#0f172a', padding: 14, borderRadius: 8, 
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)' 
   },
-  tooltipTitle: { fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 8 },
+  tooltipTitle: { fontSize: 14, fontWeight: 700, color: '#ffffff', marginBottom: 8 },
   tooltipItem: { fontSize: 13, margin: '4px 0' },
+  tooltipItemWhite: { fontSize: 13, margin: '4px 0', color: '#e2e8f0' },
   
   phaseRow: { display: 'flex', gap: 16, marginTop: 32, flexWrap: 'wrap' },
   phaseItem: { flex: 1, minWidth: 100, padding: '16px 0 16px 16px', borderLeft: '3px solid' },
