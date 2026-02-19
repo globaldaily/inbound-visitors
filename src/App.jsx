@@ -10,8 +10,6 @@ import {
 const SHEET_ID = '1hF1Z-3LLgzzzFwc66xVqEXszNm3qSH8Xwl6DT01dQRs';
 const API_KEY = 'AIzaSyAs_UERCv_a4ZCfrZI2XvThGMFPFRkStO0';
 
-const COUNTRIES = ['韓国', '中国', '台湾', '香港', 'タイ', 'シンガポール', 'マレーシア', 'インドネシア', 'フィリピン', 'ベトナム', 'インド', '豪州', '米国', 'カナダ', 'メキシコ', '英国', 'フランス', 'ドイツ', 'イタリア', 'スペイン', 'ロシア', '北欧地域', '中東地域', 'その他'];
-
 const COUNTRY_FLAGS = {
   '韓国': '🇰🇷', '中国': '🇨🇳', '台湾': '🇹🇼', '香港': '🇭🇰',
   'タイ': '🇹🇭', 'シンガポール': '🇸🇬', 'マレーシア': '🇲🇾', 'インドネシア': '🇮🇩',
@@ -93,14 +91,13 @@ const HeroSection = ({ data, special }) => {
   const latest = data[0];
   if (!latest) return null;
 
-  const monthLabel = latest.month?.replace('2026-', '2026年').replace('2025-', '2025年').replace('-', '月') || '';
   const yoyChange = parseFloat(latest.yoy) || 0;
   const momChange = parseFloat(latest.mom) || 0;
 
   return (
     <section style={styles.hero}>
       <div style={styles.heroEyebrow}>
-        <span style={styles.heroDate}>{monthLabel} 訪日外客数</span>
+        <span style={styles.heroDate}>2026年1月 訪日外客数</span>
         <span style={styles.heroBadge}>速報</span>
       </div>
       <div style={styles.heroNumber}>
@@ -147,10 +144,20 @@ const HeroSection = ({ data, special }) => {
 };
 
 // ============================================================
-// 국가별 수평 바 차트 (訪日_国別_202601 시트 사용)
+// 국가별 수평 바 차트
 // ============================================================
 const CountryHorizontalBars = ({ data, total }) => {
-  if (!data || data.length === 0) return null;
+  if (!data || data.length === 0) {
+    return (
+      <section style={styles.section}>
+        <div style={styles.sectionHeader}>
+          <p style={styles.sectionNumber}>01</p>
+          <h2 style={styles.sectionTitle}>国・地域別シェア</h2>
+          <p style={styles.sectionDesc}>データを読み込み中...</p>
+        </div>
+      </section>
+    );
+  }
 
   const topCountries = data.slice(0, 10);
   const otherCountries = data.slice(10);
@@ -241,7 +248,7 @@ const CountryHorizontalBars = ({ data, total }) => {
 };
 
 // ============================================================
-// 월별 추이 차트 (다년도)
+// 월별 추이 차트
 // ============================================================
 const MonthlyTrendChart = ({ data }) => {
   if (!data || data.length === 0) return null;
@@ -260,14 +267,13 @@ const MonthlyTrendChart = ({ data }) => {
     chartData.push(row);
   }
 
-  // 커스텀 툴팁 - 흰색 텍스트
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload) return null;
     return (
       <div style={styles.tooltip}>
         <p style={styles.tooltipTitle}>{label}</p>
         {payload.filter(p => p.value).map((p, i) => (
-          <p key={i} style={{...styles.tooltipItem, color: p.color}}>
+          <p key={i} style={{fontSize: 13, margin: '4px 0', color: p.color || '#fff'}}>
             {p.dataKey}年: {p.value.toFixed(1)}万人
           </p>
         ))}
@@ -311,11 +317,7 @@ const MonthlyTrendChart = ({ data }) => {
         <ResponsiveContainer width="100%" height={420}>
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis 
-              dataKey="month" 
-              tick={{ fontSize: 12, fontWeight: 500 }} 
-              axisLine={{ stroke: '#e2e8f0' }}
-            />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fontWeight: 500 }} axisLine={{ stroke: '#e2e8f0' }} />
             <YAxis 
               domain={[100, 450]}
               tick={{ fontSize: 11 }}
@@ -370,7 +372,7 @@ const LongTermChart = ({ data }) => {
     return (
       <div style={styles.tooltip}>
         <p style={styles.tooltipTitle}>{isJan ? '2026年1月' : `${d.year}年`}</p>
-        <p style={styles.tooltipItemWhite}>
+        <p style={{fontSize: 13, margin: '4px 0', color: '#e2e8f0'}}>
           訪日外客数: {d.totalMan.toLocaleString()}万人{isJan ? '（1月のみ）' : ''}
         </p>
       </div>
@@ -380,7 +382,7 @@ const LongTermChart = ({ data }) => {
   return (
     <section style={styles.section}>
       <div style={styles.sectionHeader}>
-        <p style={styles.sectionNumber}>03</p>
+        <p style={styles.sectionNumber}>01</p>
         <h2 style={styles.sectionTitle}>22年間の長期推移</h2>
         <p style={styles.sectionDesc}>2003年ビジット・ジャパン開始から現在まで。</p>
       </div>
@@ -394,11 +396,7 @@ const LongTermChart = ({ data }) => {
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={chartData} margin={{ top: 30, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis 
-              dataKey="label" 
-              tick={{ fontSize: 10 }}
-              axisLine={{ stroke: '#e2e8f0' }}
-            />
+            <XAxis dataKey="label" tick={{ fontSize: 10 }} axisLine={{ stroke: '#e2e8f0' }} />
             <YAxis 
               tick={{ fontSize: 11 }}
               tickFormatter={v => v.toLocaleString()}
@@ -408,10 +406,7 @@ const LongTermChart = ({ data }) => {
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="totalMan" radius={[4, 4, 0, 0]}>
               {chartData.map((entry, index) => (
-                <Cell 
-                  key={index} 
-                  fill={entry.year === '2026' ? '#dc2626' : PHASE_COLORS[entry.phase] || '#94a3b8'} 
-                />
+                <Cell key={index} fill={entry.year === '2026' ? '#dc2626' : PHASE_COLORS[entry.phase] || '#94a3b8'} />
               ))}
             </Bar>
           </BarChart>
@@ -449,11 +444,7 @@ const AnnualSummary = ({ data, year }) => {
         </div>
         <p style={styles.annualGrowth}>
           前年比 
-          <span style={{ 
-            color: parseFloat(yearData.yoy) >= 0 ? '#059669' : '#dc2626', 
-            fontWeight: 700, 
-            marginLeft: 8 
-          }}>
+          <span style={{ color: parseFloat(yearData.yoy) >= 0 ? '#059669' : '#dc2626', fontWeight: 700, marginLeft: 8 }}>
             {parseFloat(yearData.yoy) >= 0 ? '+' : ''}{yearData.yoy}%
           </span>
         </p>
@@ -480,69 +471,57 @@ const AnnualSummary = ({ data, year }) => {
 };
 
 // ============================================================
-// 12년 테이블 - 2026年1月 열 수정
+// 12년 테이블
 // ============================================================
-const TwelveYearTable = ({ data }) => {
+const TwelveYearTable = ({ data, latestCountryData }) => {
   if (!data || data.length === 0) return null;
 
-  // 실제 시트 헤더와 매칭
-  const displayYears = [
-    { key: '2014年', label: '2014' },
-    { key: '2016年', label: '2016' },
-    { key: '2018年', label: '2018' },
-    { key: '2019年', label: '2019' },
-    { key: '2020年', label: '2020' },
-    { key: '2022年', label: '2022' },
-    { key: '2024年', label: '2024' },
-    { key: '2025年', label: '2025' },
-    { key: '2026年1月', label: '2026.1' }
-  ];
+  const displayYears = ['2014年', '2016年', '2018年', '2019年', '2020年', '2022年', '2024年', '2025年'];
+
+  const jan2026Map = {};
+  if (latestCountryData && latestCountryData.length > 0) {
+    latestCountryData.forEach(c => {
+      jan2026Map[c.name] = c.value;
+    });
+  }
 
   return (
     <section style={styles.section}>
       <div style={styles.sectionHeader}>
-        <p style={styles.sectionNumber}>04</p>
+        <p style={styles.sectionNumber}>01</p>
         <h2 style={styles.sectionTitle}>過去12年間の国別推移</h2>
         <p style={styles.sectionDesc}>主要15市場の年間訪日客数。単位：万人。</p>
       </div>
 
       <div style={styles.tableWrap}>
-        <p style={styles.scrollHint}>→ スクロール</p>
+        <p style={styles.scrollHint}>← 横スクロール →</p>
         <div style={styles.tableScroll}>
           <table style={styles.table}>
             <thead>
               <tr>
                 <th style={{...styles.th, ...styles.thFirst}}>国・地域</th>
                 {displayYears.map(y => (
-                  <th key={y.key} style={{
-                    ...styles.th,
-                    ...(y.key === '2026年1月' ? styles.thCurrent : {})
-                  }}>
-                    {y.label}
-                  </th>
+                  <th key={y} style={styles.th}>{y.replace('年', '')}</th>
                 ))}
+                <th style={{...styles.th, ...styles.thCurrent}}>2026.1</th>
               </tr>
             </thead>
             <tbody>
-              {data.slice(0, 7).map(row => (
+              {data.slice(0, 10).map(row => (
                 <tr key={row.country}>
-                  <td style={styles.tdFirst}>
-                    {COUNTRY_FLAGS[row.country]} {row.country}
-                  </td>
+                  <td style={styles.tdFirst}>{COUNTRY_FLAGS[row.country] || '🌐'} {row.country}</td>
                   {displayYears.map(y => {
-                    const value = row[y.key];
-                    const isCovid = y.key === '2020年';
-                    const isCurrent = y.key === '2026年1月';
+                    const value = row[y];
+                    const isCovid = y === '2020年';
                     return (
-                      <td key={y.key} style={{
-                        ...styles.td,
-                        ...(isCovid ? styles.tdCovid : {}),
-                        ...(isCurrent ? styles.tdCurrent : {})
-                      }}>
+                      <td key={y} style={{...styles.td, ...(isCovid ? styles.tdCovid : {})}}>
                         {value > 0 ? formatNumber(value / 10000, 1) : '—'}
                       </td>
                     );
                   })}
+                  <td style={styles.tdCurrent}>
+                    {jan2026Map[row.country] ? formatNumber(jan2026Map[row.country] / 10000, 1) : '—'}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -570,7 +549,6 @@ export default function App() {
   const [yearlyMonthlyData, setYearlyMonthlyData] = useState([]);
   const [countryYearlyData, setCountryYearlyData] = useState([]);
 
-  // iframe 높이 조정
   useEffect(() => {
     const sendHeight = () => {
       requestAnimationFrame(() => {
@@ -585,7 +563,6 @@ export default function App() {
     return () => { clearTimeout(timer); window.removeEventListener('resize', sendHeight); observer.disconnect(); };
   }, [activeTab, loading]);
 
-  // 데이터 로드
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -600,23 +577,21 @@ export default function App() {
         }
         await delay(150);
 
-        // 국가별 최신 월 데이터 - 訪日_国別_202601 시트 사용
+        // 국가별 2026년 1월 - A:国・地域, B:2025年1月, C:2026年1月, D:伸率
         const country202601 = await fetchSheetData('訪日_国別_202601');
         if (country202601?.length > 1) {
-          const headers = country202601[0]; // 国・地域, 2025年1月, 2026年1月, 伸率
           const countries = [];
           let total = 0;
           
           country202601.slice(1).forEach(row => {
             const name = row[0];
+            const value2026 = parseNumber(row[2]);
+            const yoy = parseNumber(row[3]);
+            
             if (name === '総数') {
-              total = parseNumber(row[2]); // 2026年1月 열
-            } else if (name && COUNTRIES.includes(name)) {
-              countries.push({
-                name: name,
-                value: parseNumber(row[2]), // 2026年1月
-                yoy: parseNumber(row[3])    // 伸率
-              });
+              total = value2026;
+            } else if (name) {
+              countries.push({ name, value: value2026, yoy });
             }
           });
           
@@ -658,31 +633,27 @@ export default function App() {
         }
         await delay(150);
 
-        // 연도별 월간 추이 (2017-2026)
+        // 월별 추이
         const yearlyMonthly = await fetchSheetData('訪日_月別推移');
         if (yearlyMonthly?.length > 1) {
           const headers = yearlyMonthly[0];
           const parsed = [];
           yearlyMonthly.slice(1).forEach(row => {
-            const monthStr = row[0];
-            const month = parseInt(monthStr);
+            const month = parseInt(row[0]);
             if (isNaN(month)) return;
             headers.slice(1).forEach((year, i) => {
               const value = parseNumber(row[i + 1]);
-              if (value > 0) {
-                parsed.push({ month, year, value });
-              }
+              if (value > 0) parsed.push({ month, year, value });
             });
           });
           setYearlyMonthlyData(parsed);
         }
         await delay(150);
 
-        // 국가별 연간 데이터
+        // 국가별 연간
         const countryYearly = await fetchSheetData('訪日_国別年間');
         if (countryYearly?.length > 1) {
           const headers = countryYearly[0];
-          console.log('訪日_国別年間 headers:', headers);
           const parsed = countryYearly.slice(1).map(row => {
             const obj = { country: row[0] };
             headers.slice(1).forEach((year, i) => {
@@ -690,13 +661,11 @@ export default function App() {
             });
             return obj;
           });
-          console.log('Parsed country yearly:', parsed[0]);
           setCountryYearlyData(parsed);
         }
 
       } catch (err) {
         setError('データの読み込みに失敗しました');
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -724,10 +693,7 @@ export default function App() {
             <button 
               key={tab.id} 
               onClick={() => setActiveTab(tab.id)}
-              style={{
-                ...styles.navLink,
-                ...(activeTab === tab.id ? styles.navLinkActive : {})
-              }}
+              style={{...styles.navLink, ...(activeTab === tab.id ? styles.navLinkActive : {})}}
             >
               {tab.label}
             </button>
@@ -751,7 +717,7 @@ export default function App() {
               )}
               {activeTab === 'annual' && <AnnualSummary data={annualData} year="2025" />}
               {activeTab === 'trend' && <LongTermChart data={longTermData} />}
-              {activeTab === 'country' && <TwelveYearTable data={countryYearlyData} />}
+              {activeTab === 'country' && <TwelveYearTable data={countryYearlyData} latestCountryData={countryLatestData} />}
             </>
           )}
         </div>
@@ -768,82 +734,33 @@ export default function App() {
 // 스타일
 // ============================================================
 const styles = {
-  container: { 
-    minHeight: '100vh', 
-    backgroundColor: '#fafbfc', 
-    fontFamily: '"Noto Sans JP", sans-serif', 
-    color: '#0f172a', 
-    lineHeight: 1.7 
-  },
+  container: { minHeight: '100vh', backgroundColor: '#fafbfc', fontFamily: '"Noto Sans JP", sans-serif', color: '#0f172a', lineHeight: 1.7 },
   
-  header: { 
-    background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)', 
-    color: 'white', 
-    padding: '48px 0' 
-  },
+  header: { background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)', color: 'white', padding: '48px 0' },
   headerInner: { maxWidth: 960, margin: '0 auto', padding: '0 24px' },
   title: { fontSize: 22, fontWeight: 700, letterSpacing: '0.04em', margin: 0 },
   tagline: { fontSize: 12, fontWeight: 300, opacity: 0.6, marginTop: 8 },
   
-  nav: { 
-    background: 'white', 
-    borderBottom: '1px solid #e2e8f0', 
-    position: 'sticky', 
-    top: 0, 
-    zIndex: 100 
-  },
-  navInner: { 
-    maxWidth: 960, 
-    margin: '0 auto', 
-    padding: '0 24px', 
-    display: 'flex', 
-    gap: 40 
-  },
-  navLink: {
-    padding: '16px 0',
-    fontSize: 13,
-    fontWeight: 500,
-    color: '#64748b',
-    border: 'none',
-    borderBottom: '2px solid transparent',
-    background: 'transparent',
-    cursor: 'pointer',
-    transition: 'all 0.25s ease'
-  },
-  navLinkActive: { 
-    color: '#0369a1', 
-    borderBottomColor: '#0369a1', 
-    fontWeight: 600 
-  },
+  nav: { background: 'white', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 100 },
+  navInner: { maxWidth: 960, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 40 },
+  navLink: { padding: '16px 0', fontSize: 13, fontWeight: 500, color: '#64748b', border: 'none', borderBottom: '2px solid transparent', background: 'transparent', cursor: 'pointer', transition: 'all 0.25s ease' },
+  navLinkActive: { color: '#0369a1', borderBottomColor: '#0369a1', fontWeight: 600 },
   
   main: { padding: '64px 0 80px' },
   mainInner: { maxWidth: 960, margin: '0 auto', padding: '0 24px' },
   
   section: { marginBottom: 80 },
   sectionHeader: { marginBottom: 32 },
-  sectionNumber: { 
-    fontFamily: 'Inter, sans-serif', 
-    fontSize: 11, 
-    fontWeight: 700, 
-    color: '#0369a1', 
-    letterSpacing: '0.1em', 
-    marginBottom: 6 
-  },
+  sectionNumber: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#0369a1', letterSpacing: '0.1em', marginBottom: 6 },
   sectionTitle: { fontSize: 18, fontWeight: 700, marginBottom: 6, margin: 0 },
   sectionDesc: { fontSize: 13, color: '#64748b', margin: 0 },
   
   hero: { paddingBottom: 48, borderBottom: '1px solid #e2e8f0', marginBottom: 48 },
   heroEyebrow: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 },
   heroDate: { fontSize: 14, fontWeight: 500, color: '#475569' },
-  heroBadge: { 
-    fontSize: 10, fontWeight: 600, letterSpacing: '0.05em', 
-    padding: '4px 10px', borderRadius: 4, background: '#0369a1', color: 'white' 
-  },
+  heroBadge: { fontSize: 10, fontWeight: 600, letterSpacing: '0.05em', padding: '4px 10px', borderRadius: 4, background: '#0369a1', color: 'white' },
   heroNumber: { display: 'flex', alignItems: 'baseline', margin: '16px 0 24px' },
-  heroDigits: { 
-    fontFamily: 'Inter, sans-serif', fontSize: 96, fontWeight: 800, 
-    lineHeight: 1, letterSpacing: '-0.04em', color: '#0369a1' 
-  },
+  heroDigits: { fontFamily: 'Inter, sans-serif', fontSize: 96, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.04em', color: '#0369a1' },
   heroUnit: { fontSize: 28, fontWeight: 500, color: '#94a3b8', marginLeft: 8 },
   heroCompare: { display: 'flex', gap: 48 },
   compareItem: { display: 'flex', flexDirection: 'column', gap: 4 },
@@ -858,45 +775,21 @@ const styles = {
   insightMark: { background: 'linear-gradient(transparent 50%, #e0f2fe 50%)', padding: '0 2px' },
   
   chartWrap: { background: 'white', border: '1px solid #e2e8f0', borderRadius: 12, padding: 32 },
-  chartTitleInline: { 
-    fontSize: 14, fontWeight: 600, marginBottom: 16, 
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
-  },
-  chartUnit: { 
-    fontSize: 12, fontWeight: 500, color: '#64748b', 
-    background: '#f1f5f9', padding: '4px 10px', borderRadius: 4 
-  },
-  chartSource: { 
-    marginTop: 16, paddingTop: 16, borderTop: '1px solid #f1f5f9', 
-    fontSize: 11, color: '#cbd5e1' 
-  },
+  chartTitleInline: { fontSize: 14, fontWeight: 600, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  chartUnit: { fontSize: 12, fontWeight: 500, color: '#64748b', background: '#f1f5f9', padding: '4px 10px', borderRadius: 4 },
+  chartSource: { marginTop: 16, paddingTop: 16, borderTop: '1px solid #f1f5f9', fontSize: 11, color: '#cbd5e1' },
   
   hbarList: { marginTop: 16 },
-  hbarItem: { 
-    display: 'flex', alignItems: 'center', padding: '12px 0', 
-    borderBottom: '1px solid #f1f5f9' 
-  },
+  hbarItem: { display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' },
   hbarRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700 },
   hbarFlag: { fontSize: 20, marginRight: 8 },
   hbarName: { width: 90, fontSize: 14, fontWeight: 600 },
   hbarBarWrap: { flex: 1, margin: '0 12px' },
   hbarBar: { height: 24, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
-  hbarFill: { 
-    height: '100%', borderRadius: 4, display: 'flex', 
-    alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8, minWidth: 50 
-  },
-  hbarPercent: { 
-    fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, 
-    color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.3)' 
-  },
-  hbarValue: { 
-    width: 70, textAlign: 'right', fontFamily: 'Inter, sans-serif', 
-    fontSize: 14, fontWeight: 700 
-  },
-  hbarYoy: { 
-    width: 65, textAlign: 'right', fontFamily: 'Inter, sans-serif', 
-    fontSize: 12, fontWeight: 600 
-  },
+  hbarFill: { height: '100%', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8, minWidth: 50 },
+  hbarPercent: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.3)' },
+  hbarValue: { width: 70, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700 },
+  hbarYoy: { width: 65, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600 },
   
   otherMarkets: { marginTop: 32, paddingTop: 24, borderTop: '1px solid #e2e8f0' },
   otherTitle: { fontSize: 13, fontWeight: 600, color: '#64748b', marginBottom: 16 },
@@ -906,34 +799,21 @@ const styles = {
   otherName: { width: 90, fontSize: 13, fontWeight: 500, color: '#475569' },
   otherBar: { flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
   otherFill: { height: '100%', background: '#cbd5e1', borderRadius: 4 },
-  otherValue: { 
-    width: 50, textAlign: 'right', fontFamily: 'Inter, sans-serif', 
-    fontSize: 12, fontWeight: 600, color: '#64748b' 
-  },
+  otherValue: { width: 50, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#64748b' },
   otherYoy: { width: 50, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 10 },
   
   trendLegend: { display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 24, flexWrap: 'wrap' },
   legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 },
   legendDot: { display: 'inline-block' },
   
-  // 툴팁 - 흰색 텍스트
-  tooltip: { 
-    background: '#0f172a', padding: 14, borderRadius: 8, 
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)' 
-  },
+  tooltip: { background: '#0f172a', padding: 14, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
   tooltipTitle: { fontSize: 14, fontWeight: 700, color: '#ffffff', marginBottom: 8 },
-  tooltipItem: { fontSize: 13, margin: '4px 0' },
-  tooltipItemWhite: { fontSize: 13, margin: '4px 0', color: '#e2e8f0' },
   
   phaseRow: { display: 'flex', gap: 16, marginTop: 32, flexWrap: 'wrap' },
   phaseItem: { flex: 1, minWidth: 100, padding: '16px 0 16px 16px', borderLeft: '3px solid' },
   phaseLabel: { fontSize: 11, fontWeight: 600, color: '#64748b', margin: 0 },
   
-  annualHero: { 
-    textAlign: 'center', padding: 48, 
-    background: 'linear-gradient(135deg, #e0f2fe 0%, white 100%)', 
-    borderRadius: 16, marginBottom: 32 
-  },
+  annualHero: { textAlign: 'center', padding: 48, background: 'linear-gradient(135deg, #e0f2fe 0%, white 100%)', borderRadius: 16, marginBottom: 32 },
   annualLabel: { fontSize: 14, color: '#64748b', marginBottom: 12 },
   annualNumber: { display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 },
   annualDigits: { fontFamily: 'Inter, sans-serif', fontSize: 96, fontWeight: 800, lineHeight: 1 },
@@ -941,55 +821,27 @@ const styles = {
   annualGrowth: { fontSize: 18, color: '#64748b', marginTop: 16 },
   rankingSection: { marginTop: 32 },
   rankingTitle: { fontSize: 16, fontWeight: 600, marginBottom: 16 },
-  rankCard: { 
-    display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', 
-    background: '#f8fafc', borderRadius: 8, marginBottom: 8 
-  },
-  rankBadge: { 
-    width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', 
-    background: '#0f172a', color: 'white', borderRadius: 8, fontSize: 14, fontWeight: 700 
-  },
+  rankCard: { display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', background: '#f8fafc', borderRadius: 8, marginBottom: 8 },
+  rankBadge: { width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white', borderRadius: 8, fontSize: 14, fontWeight: 700 },
   rankFlag: { fontSize: 28 },
   rankName: { flex: 1, fontSize: 16, fontWeight: 500 },
   rankValue: { fontSize: 16, fontWeight: 700 },
   
   tableWrap: { marginTop: 32, position: 'relative' },
-  scrollHint: { 
-    position: 'absolute', right: 0, top: -24, 
-    fontSize: 11, color: '#cbd5e1' 
-  },
-  tableScroll: { overflowX: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
-  th: { 
-    padding: '12px 10px', textAlign: 'right', fontSize: 11, fontWeight: 600, 
-    letterSpacing: '0.02em', color: '#94a3b8', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap'
-  },
-  thFirst: { textAlign: 'left' },
-  thCurrent: { color: '#0369a1', background: '#e0f2fe', borderRadius: '6px 6px 0 0' },
-  td: { 
-    padding: '12px 10px', textAlign: 'right', fontFamily: 'Inter, sans-serif', 
-    color: '#64748b', borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap'
-  },
-  tdFirst: { 
-    textAlign: 'left', fontFamily: '"Noto Sans JP", sans-serif', fontWeight: 500, color: '#0f172a',
-    position: 'sticky', left: 0, background: '#fafbfc', zIndex: 1
-  },
+  scrollHint: { textAlign: 'center', fontSize: 11, color: '#94a3b8', marginBottom: 8 },
+  tableScroll: { overflowX: 'auto', WebkitOverflowScrolling: 'touch' },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 800 },
+  th: { padding: '12px 10px', textAlign: 'right', fontSize: 11, fontWeight: 600, letterSpacing: '0.02em', color: '#94a3b8', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' },
+  thFirst: { textAlign: 'left', position: 'sticky', left: 0, background: 'white', zIndex: 2 },
+  thCurrent: { color: '#0369a1', background: '#e0f2fe' },
+  td: { padding: '12px 10px', textAlign: 'right', fontFamily: 'Inter, sans-serif', color: '#64748b', borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' },
+  tdFirst: { textAlign: 'left', fontFamily: '"Noto Sans JP", sans-serif', fontWeight: 500, color: '#0f172a', position: 'sticky', left: 0, background: '#fafbfc', zIndex: 1 },
   tdCovid: { color: '#dc2626', opacity: 0.5 },
   tdCurrent: { color: '#0369a1', fontWeight: 700, background: '#e0f2fe' },
   
   loadingBox: { display: 'flex', justifyContent: 'center', padding: 80 },
-  spinner: { 
-    width: 40, height: 40, border: '3px solid #e2e8f0', 
-    borderTop: '3px solid #0369a1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' 
-  },
-  errorBox: { 
-    padding: 16, background: '#fef2f2', border: '1px solid #fecaca', 
-    borderRadius: 8, color: '#dc2626', fontSize: 14 
-  },
+  spinner: { width: 40, height: 40, border: '3px solid #e2e8f0', borderTop: '3px solid #0369a1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
+  errorBox: { padding: 16, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#dc2626', fontSize: 14 },
   
-  footer: { 
-    maxWidth: 960, margin: '0 auto', padding: 32, 
-    borderTop: '1px solid #e2e8f0', textAlign: 'center', 
-    fontSize: 11, color: '#cbd5e1' 
-  }
+  footer: { maxWidth: 960, margin: '0 auto', padding: 32, borderTop: '1px solid #e2e8f0', textAlign: 'center', fontSize: 11, color: '#cbd5e1' }
 };
