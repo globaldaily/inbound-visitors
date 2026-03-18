@@ -133,7 +133,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
               <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '▲' : '▼'}</span>
               <span style={{...styles.compareNum, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(yoy).toFixed(1)}%</span>
             </div>
-            <span style={styles.compareSub}>2025年1月: {formatMan(latest.prevYear)}</span>
+            <span style={styles.compareSub}>2025年2月: {formatMan(latest.prevYear)}</span>
           </div>
           <div style={styles.compareItem}>
             <span style={styles.compareLabel}>前月比</span>
@@ -431,7 +431,7 @@ const TabLongTerm = ({ longTermData }) => {
                 <div style={styles.tooltip}>
                   <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年2月' : `${d.year}年`}</p>
                   <p style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
-                    {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（1月のみ）' : ''}
+                    {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（2月のみ）' : ''}
                   </p>
                 </div>
               );
@@ -560,7 +560,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
                 {allYears.map(y => (
                   <th key={y} style={{...styles.th, ...(y === '2020年' || y === '2021年' ? styles.thCovid : {})}}>{y.replace('年', '')}</th>
                 ))}
-                <th style={{...styles.th, ...styles.thCurrent}}>2026.1</th>
+                <th style={{...styles.th, ...styles.thCurrent}}>2026.2</th>
               </tr>
             </thead>
             <tbody>
@@ -761,7 +761,7 @@ export default function App() {
         if (special?.length > 1) {
           setSpecialData(special.slice(1).map(r => ({
             month: r[0], content: r[1], country: r[2], value: parseNumber(r[3]), note: r[4]
-          })).filter(s => s.month === '2026-01'));
+          })).filter(s => s.month === '2026-02'));
         }
         await delay(100);
 
