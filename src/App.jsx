@@ -119,7 +119,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
       {/* Hero Section */}
       <section style={styles.hero}>
         <div style={styles.heroEyebrow}>
-          <span style={styles.heroDate}>2026年1月 訪日外客数</span>
+          <span style={styles.heroDate}>2026年2月 訪日外客数</span>
           <span style={styles.heroBadge}>速報</span>
         </div>
         <div style={styles.heroNumber}>
@@ -141,7 +141,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
               <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '▲' : '▼'}</span>
               <span style={{...styles.compareNum, color: mom >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(mom).toFixed(1)}%</span>
             </div>
-            <span style={styles.compareSub}>2025年12月: {formatMan(latest.prevMonth)}</span>
+            <span style={styles.compareSub}>2026年1月: {formatMan(latest.prevMonth)}</span>
           </div>
         </div>
         {specialData?.[0] && (
@@ -157,7 +157,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
       {/* 국가별 수평 바 */}
       {countryData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年1月の市場別構成比。韓国が3割超で圧倒的1位。" />
+          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年2月の市場別構成比。韓国が3割超で圧倒的1位。" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
               <span>上位10市場</span>
@@ -204,7 +204,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
                 </div>
               </div>
             )}
-            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年1月推計値）</p>
+            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年2月推計値）</p>
           </div>
         </section>
       )}
@@ -429,7 +429,7 @@ const TabLongTerm = ({ longTermData }) => {
               const is2030 = d.year === '2030';
               return (
                 <div style={styles.tooltip}>
-                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年1月' : `${d.year}年`}</p>
+                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年2月' : `${d.year}年`}</p>
                   <p style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
                     {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（1月のみ）' : ''}
                   </p>
@@ -523,7 +523,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
 
   return (
     <section style={styles.section}>
-      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年1月）" />
+      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年2月）" />
       
       {/* 인사이트 카드 */}
       <div style={styles.insightCards}>
@@ -722,7 +722,7 @@ export default function App() {
         await delay(100);
 
         // 국가별 2026년 1월
-        const country202601 = await fetchSheet('訪日_国別_202601');
+        const country202601 = await fetchSheet('訪日_国別_202602');
         if (country202601?.length > 1) {
           const countries = [];
           let total = 0;
@@ -804,7 +804,7 @@ export default function App() {
   }, []);
 
   const tabs = [
-    { id: 'monthly', label: '最新月間（2026年1月）' },
+    { id: 'monthly', label: '最新月間（2026年2月）' },
     { id: 'annual', label: '年間総括' },
     { id: 'trend', label: '長期推移（2003-2026）' },
     { id: 'country', label: '国・地域別データ' }
