@@ -235,7 +235,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
                 {years.slice(1).reverse().map(y => (
                   <Line key={y} type="monotone" dataKey={y} stroke={YEAR_COLORS[y]} strokeWidth={y === '2025' ? 3 : 2} dot={{ r: y === '2025' ? 5 : 3, fill: YEAR_COLORS[y] }} connectNulls />
                 ))}
-                <Line type="monotone" dataKey="2026" stroke={YEAR_COLORS['2026']} strokeWidth={0} dot={{ r: 10, fill: '#dc2626', strokeWidth: 3, stroke: '#fff' }} />
+                <Line type="monotone" dataKey="2026" stroke={YEAR_COLORS['2026']} strokeWidth={3} dot={{ r: 10, fill: '#dc2626', strokeWidth: 3, stroke: '#fff' }} connectNulls />
               </LineChart>
             </ResponsiveContainer>
             <p style={styles.chartSource}>出典：JNTO ※2020-2022年はコロナ影響により除外</p>
@@ -498,7 +498,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
   const allYears = ['2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年'];
   
   const jan2026Map = {};
-  latestCountryData?.forEach(c => { jan2026Map[c.name] = c.value; });
+  countryYearlyData?.forEach(c => { jan2026Map[c.country] = c['2026年']; });
 
   // 성장률 계산 (2019 vs 2025)
   const growthData = countryYearlyData.slice(0, 15).map(row => {
