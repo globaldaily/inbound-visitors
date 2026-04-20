@@ -486,10 +486,7 @@ const TabLongTerm = ({ longTermData }) => {
 const TabCountry = ({ countryYearlyData, latestCountryData }) => {
   if (!countryYearlyData || countryYearlyData.length === 0) return <p>データ読み込み中...</p>;
 
-  const allYears = ['2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年'];
-  
-  const jan2026Map = {};
-  latestCountryData?.forEach(c => { jan2026Map[c.name] = c.value; });
+  const allYears = ['2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年', '2026年'];
 
   // 성장률 계산 (2019 vs 2025)
   const growthData = countryYearlyData.slice(0, 15).map(row => {
@@ -548,10 +545,15 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
             <thead>
               <tr>
                 <th style={{...styles.th, ...styles.thFirst}}>国・地域</th>
-                {allYears.map(y => (
-                  <th key={y} style={{...styles.th, ...(y === '2020年' || y === '2021年' ? styles.thCovid : {})}}>{y.replace('年', '')}</th>
-                ))}
-                <th style={{...styles.th, ...styles.thCurrent}}>26累計</th>
+                {allYears.map(y => {
+                  const isCovid = y === '2020年' || y === '2021年';
+                  const is2026 = y === '2026年';
+                  return (
+                    <th key={y} style={{...styles.th, ...(isCovid ? styles.thCovid : {}), ...(is2026 ? styles.thCurrent : {})}}>
+                      {is2026 ? '26累計' : y.replace('年', '')}
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
@@ -561,13 +563,13 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
                   {allYears.map(y => {
                     const val = row[y];
                     const isCovid = y === '2020年' || y === '2021年';
+                    const is2026 = y === '2026年';
                     return (
-                      <td key={y} style={{...styles.td, ...(isCovid ? styles.tdCovid : {})}}>
+                      <td key={y} style={{...styles.td, ...(isCovid ? styles.tdCovid : {}), ...(is2026 ? styles.tdCurrent : {})}}>
                         {val > 0 ? formatNum(val / 10000, 1) : '—'}
                       </td>
                     );
                   })}
-                  <td style={styles.tdCurrent}>{jan2026Map[row.country] ? formatNum(jan2026Map[row.country] / 10000, 1) : '—'}</td>
                 </tr>
               ))}
             </tbody>
