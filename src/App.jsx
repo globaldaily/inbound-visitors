@@ -93,7 +93,7 @@ const ChartTooltip = ({ active, payload, label, suffix = '万人' }) => {
 };
 
 // ============================================================
-// 탭1: 最新月間 (2026년 1월)
+// 탭1: 最新月間 (2026년 3월)
 // ============================================================
 const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, specialData }) => {
   if (!monthlyData || monthlyData.length === 0) return <p>データ読み込み中...</p>;
@@ -119,7 +119,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
       {/* Hero Section */}
       <section style={styles.hero}>
         <div style={styles.heroEyebrow}>
-          <span style={styles.heroDate}>2026年2月 訪日外客数</span>
+          <span style={styles.heroDate}>2026年3月 訪日外客数</span>
           <span style={styles.heroBadge}>速報</span>
         </div>
         <div style={styles.heroNumber}>
@@ -133,7 +133,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
               <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '▲' : '▼'}</span>
               <span style={{...styles.compareNum, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(yoy).toFixed(1)}%</span>
             </div>
-            <span style={styles.compareSub}>2025年2月: {formatMan(latest.prevYear)}</span>
+            <span style={styles.compareSub}>2025年3月: {formatMan(latest.prevYear)}</span>
           </div>
           <div style={styles.compareItem}>
             <span style={styles.compareLabel}>前月比</span>
@@ -141,7 +141,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
               <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '▲' : '▼'}</span>
               <span style={{...styles.compareNum, color: mom >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(mom).toFixed(1)}%</span>
             </div>
-            <span style={styles.compareSub}>2026年1月: {formatMan(latest.prevMonth)}</span>
+            <span style={styles.compareSub}>2026年2月: {formatMan(latest.prevMonth)}</span>
           </div>
         </div>
         {specialData?.[0] && (
@@ -157,7 +157,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
       {/* 국가별 수평 바 */}
       {countryData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年2月の市場別構成比。韓国が3割超で圧倒的1位。" />
+          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年3月の市場別構成比。韓国が2割超で1位。" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
               <span>上位10市場</span>
@@ -204,7 +204,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
                 </div>
               </div>
             )}
-            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年2月推計値）</p>
+            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年3月推計値）</p>
           </div>
         </section>
       )}
@@ -235,7 +235,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
                 {years.slice(1).reverse().map(y => (
                   <Line key={y} type="monotone" dataKey={y} stroke={YEAR_COLORS[y]} strokeWidth={y === '2025' ? 3 : 2} dot={{ r: y === '2025' ? 5 : 3, fill: YEAR_COLORS[y] }} connectNulls />
                 ))}
-                <Line type="monotone" dataKey="2026" stroke={YEAR_COLORS['2026']} strokeWidth={3} dot={{ r: 10, fill: '#dc2626', strokeWidth: 3, stroke: '#fff' }} connectNulls />
+                <Line type="monotone" dataKey="2026" stroke={YEAR_COLORS['2026']} strokeWidth={0} dot={{ r: 10, fill: '#dc2626', strokeWidth: 3, stroke: '#fff' }} />
               </LineChart>
             </ResponsiveContainer>
             <p style={styles.chartSource}>出典：JNTO ※2020-2022年はコロナ影響により除外</p>
@@ -429,9 +429,9 @@ const TabLongTerm = ({ longTermData }) => {
               const is2030 = d.year === '2030';
               return (
                 <div style={styles.tooltip}>
-                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年2月' : `${d.year}年`}</p>
+                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年1月' : `${d.year}年`}</p>
                   <p style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
-                    {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（2月のみ）' : ''}
+                    {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（1月のみ）' : ''}
                   </p>
                 </div>
               );
@@ -498,7 +498,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
   const allYears = ['2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年', '2025年'];
   
   const jan2026Map = {};
-  countryYearlyData?.forEach(c => { jan2026Map[c.country] = c['2026年']; });
+  latestCountryData?.forEach(c => { jan2026Map[c.name] = c.value; });
 
   // 성장률 계산 (2019 vs 2025)
   const growthData = countryYearlyData.slice(0, 15).map(row => {
@@ -523,7 +523,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
 
   return (
     <section style={styles.section}>
-      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年2月）" />
+      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年1月）" />
       
       {/* 인사이트 카드 */}
       <div style={styles.insightCards}>
@@ -560,7 +560,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
                 {allYears.map(y => (
                   <th key={y} style={{...styles.th, ...(y === '2020年' || y === '2021年' ? styles.thCovid : {})}}>{y.replace('年', '')}</th>
                 ))}
-                <th style={{...styles.th, ...styles.thCurrent}}>2026.2</th>
+                <th style={{...styles.th, ...styles.thCurrent}}>2026.1</th>
               </tr>
             </thead>
             <tbody>
@@ -721,12 +721,12 @@ export default function App() {
         }
         await delay(100);
 
-        // 국가별 2026년 1월
-        const country202601 = await fetchSheet('訪日_国別_202602');
-        if (country202601?.length > 1) {
+        // 국가별 2026년 3월
+        const country202603 = await fetchSheet('訪日_国別_202603');
+        if (country202603?.length > 1) {
           const countries = [];
           let total = 0;
-          country202601.slice(1).forEach(r => {
+          country202603.slice(1).forEach(r => {
             const name = r[0], val = parseNumber(r[2]), yoy = parseNumber(r[3]);
             if (name === '総数') total = val;
             else if (name) countries.push({ name, value: val, yoy });
@@ -761,7 +761,7 @@ export default function App() {
         if (special?.length > 1) {
           setSpecialData(special.slice(1).map(r => ({
             month: r[0], content: r[1], country: r[2], value: parseNumber(r[3]), note: r[4]
-          })).filter(s => s.month === '2026-02'));
+          })).filter(s => s.month === '2026-03'));
         }
         await delay(100);
 
@@ -804,7 +804,7 @@ export default function App() {
   }, []);
 
   const tabs = [
-    { id: 'monthly', label: '最新月間（2026年2月）' },
+    { id: 'monthly', label: '最新月間（2026年3月）' },
     { id: 'annual', label: '年間総括' },
     { id: 'trend', label: '長期推移（2003-2026）' },
     { id: 'country', label: '国・地域別データ' }
