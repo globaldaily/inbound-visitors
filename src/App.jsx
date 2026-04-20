@@ -96,6 +96,8 @@ const ChartTooltip = ({ active, payload, label, suffix = '万人' }) => {
 // 탭1: 最新月間 (2026년 3월)
 // ============================================================
 const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, specialData }) => {
+  const [showAllCountries, setShowAllCountries] = useState(false);
+  
   if (!monthlyData || monthlyData.length === 0) return <p>データ読み込み中...</p>;
   
   const latest = monthlyData[0];
@@ -157,14 +159,14 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
       {/* 국가별 수평 바 */}
       {countryData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年3月の市場別構成比。韓国が2割超で1位。" />
+          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年3月の市場別構成比" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
-              <span>上位10市場</span>
+              <span>{showAllCountries ? '全市場' : 'TOP 5'}</span>
               <span style={styles.chartUnit}>総数: {formatMan(countryTotal)}</span>
             </div>
             <div style={styles.hbarList}>
-              {countryData.slice(0, 10).map((c, i) => {
+              {countryData.slice(0, showAllCountries ? 10 : 5).map((c, i) => {
                 const pct = countryTotal > 0 ? ((c.value / countryTotal) * 100).toFixed(1) : 0;
                 const w = (c.value / countryData[0].value) * 100;
                 return (
@@ -187,23 +189,12 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
                 );
               })}
             </div>
-            {countryData.length > 10 && (
-              <div style={styles.otherMarkets}>
-                <p style={styles.otherTitle}>その他の市場</p>
-                <div style={styles.otherGrid}>
-                  {countryData.slice(10, 18).map(c => (
-                    <div key={c.name} style={styles.otherItem}>
-                      <span style={styles.otherFlag}>{COUNTRY_FLAGS[c.name] || '🌐'}</span>
-                      <span style={styles.otherName}>{c.name}</span>
-                      <span style={styles.otherValue}>{formatMan(c.value)}</span>
-                      <span style={{...styles.otherYoy, color: c.yoy >= 0 ? '#059669' : '#dc2626'}}>
-                        {c.yoy >= 0 ? '+' : ''}{c.yoy.toFixed(1)}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <button 
+              onClick={() => setShowAllCountries(!showAllCountries)} 
+              style={styles.expandBtn}
+            >
+              {showAllCountries ? '閉じる' : '6位以下を表示'}
+            </button>
             <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年3月推計値）</p>
           </div>
         </section>
@@ -235,7 +226,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
                 {years.slice(1).reverse().map(y => (
                   <Line key={y} type="monotone" dataKey={y} stroke={YEAR_COLORS[y]} strokeWidth={y === '2025' ? 3 : 2} dot={{ r: y === '2025' ? 5 : 3, fill: YEAR_COLORS[y] }} connectNulls />
                 ))}
-                <Line type="monotone" dataKey="2026" stroke={YEAR_COLORS['2026']} strokeWidth={0} dot={{ r: 10, fill: '#dc2626', strokeWidth: 3, stroke: '#fff' }} />
+                <Line type="monotone" dataKey="2026" stroke={YEAR_COLORS['2026']} strokeWidth={3} dot={{ r: 8, fill: '#dc2626', strokeWidth: 3, stroke: '#fff' }} connectNulls />
               </LineChart>
             </ResponsiveContainer>
             <p style={styles.chartSource}>出典：JNTO ※2020-2022年はコロナ影響により除外</p>
@@ -429,9 +420,9 @@ const TabLongTerm = ({ longTermData }) => {
               const is2030 = d.year === '2030';
               return (
                 <div style={styles.tooltip}>
-                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年1月' : `${d.year}年`}</p>
+                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年1-3月' : `${d.year}年`}</p>
                   <p style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
-                    {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（1月のみ）' : ''}
+                    {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（累計）' : ''}
                   </p>
                 </div>
               );
@@ -523,7 +514,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
 
   return (
     <section style={styles.section}>
-      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年1月）" />
+      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年3月）" />
       
       {/* 인사이트 카드 */}
       <div style={styles.insightCards}>
@@ -560,7 +551,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
                 {allYears.map(y => (
                   <th key={y} style={{...styles.th, ...(y === '2020年' || y === '2021年' ? styles.thCovid : {})}}>{y.replace('年', '')}</th>
                 ))}
-                <th style={{...styles.th, ...styles.thCurrent}}>2026.1</th>
+                <th style={{...styles.th, ...styles.thCurrent}}>26累計</th>
               </tr>
             </thead>
             <tbody>
@@ -804,10 +795,8 @@ export default function App() {
   }, []);
 
   const tabs = [
-    { id: 'monthly', label: '最新月間（2026年3月）' },
-    { id: 'annual', label: '年間総括' },
-    { id: 'trend', label: '長期推移（2003-2026）' },
-    { id: 'country', label: '国・地域別データ' }
+    { id: 'monthly', label: '最新速報' },
+    { id: 'detail', label: '詳細データ' }
   ];
 
   return (
@@ -837,9 +826,13 @@ export default function App() {
           ) : (
             <>
               {activeTab === 'monthly' && <TabMonthly monthlyData={monthlyData} countryData={countryLatestData} countryTotal={countryLatestTotal} trendData={yearlyMonthlyData} specialData={specialData} />}
-              {activeTab === 'annual' && <TabAnnual annualData={annualData} />}
-              {activeTab === 'trend' && <TabLongTerm longTermData={longTermData} />}
-              {activeTab === 'country' && <TabCountry countryYearlyData={countryYearlyData} latestCountryData={countryLatestData} />}
+              {activeTab === 'detail' && (
+                <>
+                  <TabAnnual annualData={annualData} />
+                  <TabLongTerm longTermData={longTermData} />
+                  <TabCountry countryYearlyData={countryYearlyData} latestCountryData={countryLatestData} />
+                </>
+              )}
             </>
           )}
         </div>
@@ -913,6 +906,8 @@ const styles = {
   hbarPercent: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.3)' },
   hbarValue: { width: 70, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: '#1a1a1a' },
   hbarYoy: { width: 65, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600 },
+  
+  expandBtn: { width: '100%', marginTop: 16, padding: '12px 0', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: 6, fontSize: 13, fontWeight: 500, color: '#666', cursor: 'pointer', transition: 'all 0.2s' },
   
   otherMarkets: { marginTop: 24, paddingTop: 20, borderTop: '1px solid #e0e0e0' },
   otherTitle: { fontSize: 13, fontWeight: 600, color: '#666', marginBottom: 12 },
