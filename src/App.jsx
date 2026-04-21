@@ -679,6 +679,155 @@ const navStyles = {
 // ============================================================
 // TAB 1: 概観 (Overview) - Big picture, 1-screen summary
 // ============================================================
+// Highlight item — editorial kicker + big number + label
+const HighlightItem = ({ kicker, value, label, note, valueColor }) => (
+  <div style={{ flex: 1, minWidth: 140 }}>
+    <div style={{
+      fontSize: 10,
+      fontWeight: 600,
+      color: T.muted,
+      textTransform: 'uppercase',
+      letterSpacing: '0.12em',
+      marginBottom: 10,
+      paddingBottom: 8,
+      borderBottom: `1px solid ${T.line}`,
+    }}>
+      {kicker}
+    </div>
+    <div style={{
+      fontSize: 28,
+      fontWeight: 700,
+      color: valueColor || T.inkDark,
+      fontVariantNumeric: 'tabular-nums',
+      letterSpacing: '-0.02em',
+      lineHeight: 1.05,
+      marginBottom: 6,
+    }}>
+      {value}
+    </div>
+    <div style={{
+      fontSize: 13,
+      fontWeight: 600,
+      color: T.inkDark,
+      marginBottom: 2,
+    }}>
+      {label}
+    </div>
+    {note && (
+      <div style={{ fontSize: 11, color: T.muted, letterSpacing: '0.01em' }}>
+        {note}
+      </div>
+    )}
+  </div>
+);
+
+// Auto-generated highlights from data — editorial summary
+const HighlightsSection = ({ data, prev, sheets }) => {
+  const hl = useMemo(() => {
+    if (!data?.length || !prev?.length) return null;
+    const prevMap = {};
+    prev.forEach(p => { prevMap[p.country] = p; });
+
+    const totalCur  = data.find(d => d.country === '全国籍・地域')?.total || 0;
+    const totalPrev = prev.find(d => d.country === '全国籍・地域')?.total || 0;
+    const totalChg  = totalPrev ? ((totalCur - totalPrev) / totalPrev) * 100 : null;
+
+    const withGrowth = data
+      .filter(d => d.country !== '全国籍・地域' && d.country !== 'その他' && d.total > 100)
+      .map(d => {
+        const pv = prevMap[d.country]?.total || 0;
+        return {
+          country: d.country,
+          total: d.total,
+          growth: pv ? ((d.total - pv) / pv) * 100 : null,
+        };
+      })
+      .filter(d => d.growth !== null);
+
+    const topGrowth  = [...withGrowth].sort((a, b) => b.growth - a.growth)[0];
+    const topDecline = [...withGrowth].sort((a, b) => a.growth - b.growth)[0];
+
+    // Rank changes within top 5
+    const rank = (arr) => {
+      const m = {};
+      arr.filter(d => d.country !== '全国籍・地域' && d.country !== 'その他' && d.total > 0)
+         .sort((a, b) => b.total - a.total)
+         .forEach((d, i) => { m[d.country] = i + 1; });
+      return m;
+    };
+    const curRanks = rank(data);
+    const prvRanks = rank(prev);
+    const top5Now = data
+      .filter(d => d.country !== '全国籍・地域' && d.country !== 'その他' && d.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+    const moves = top5Now
+      .filter(d => prvRanks[d.country])
+      .map(d => ({
+        country: d.country,
+        cur: curRanks[d.country],
+        prev: prvRanks[d.country],
+        diff: prvRanks[d.country] - curRanks[d.country],
+      }))
+      .filter(m => m.diff !== 0);
+    const topMover = moves.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))[0];
+
+    return { totalChg, topGrowth, topDecline, topMover };
+  }, [data, prev]);
+
+  if (!hl) return null;
+
+  const { totalChg, topGrowth, topDecline, topMover } = hl;
+
+  return (
+    <Card>
+      <SectionTitle
+        kicker="Highlights"
+        title="今期のハイライト"
+        subtitle={`${sheets?.periodLabel} · 前年同期比較の主要指標`}
+      />
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 28,
+      }} className="hl-grid">
+        <HighlightItem
+          kicker="最大成長"
+          value={topGrowth ? `+${topGrowth.growth.toFixed(1)}%` : '—'}
+          label={topGrowth?.country || '—'}
+          note={topGrowth ? `消費額 ${formatOku(topGrowth.total)}億円` : ''}
+          valueColor={T.positive}
+        />
+        <HighlightItem
+          kicker="最大減少"
+          value={topDecline ? `${topDecline.growth.toFixed(1)}%` : '—'}
+          label={topDecline?.country || '—'}
+          note={topDecline ? `消費額 ${formatOku(topDecline.total)}億円` : ''}
+          valueColor={topDecline?.growth < 0 ? T.negative : T.inkDark}
+        />
+        <HighlightItem
+          kicker="順位変動"
+          value={
+            topMover
+              ? `${topMover.diff > 0 ? '↑' : '↓'}${Math.abs(topMover.diff)}`
+              : '変動なし'
+          }
+          label={topMover?.country || '—'}
+          note={topMover ? `前期 ${topMover.prev}位 → 今期 ${topMover.cur}位` : ''}
+          valueColor={topMover ? (topMover.diff > 0 ? T.positive : T.negative) : T.muted}
+        />
+        <HighlightItem
+          kicker="全体動向"
+          value={totalChg !== null ? `${totalChg >= 0 ? '+' : ''}${totalChg.toFixed(1)}%` : '—'}
+          label="市場全体"
+          note="前年同期比 消費額"
+          valueColor={totalChg !== null ? (totalChg >= 0 ? T.positive : T.negative) : T.inkDark}
+        />
+      </div>
+    </Card>
+  );
+};
+
 // Country color palette for pie chart - editorial tone, region-based hues
 const COUNTRY_COLORS = {
   // 東アジア (dark warm grays)
@@ -932,6 +1081,9 @@ const OverviewTab = ({ data, prev, sheets }) => {
 
   return (
     <div style={{ display: 'grid', gap: 24 }}>
+      {/* HIGHLIGHTS - editorial summary at top */}
+      <HighlightsSection data={data} prev={prev} sheets={sheets} />
+
       {/* TREND CHART - Full width */}
       <Card>
         <SectionTitle
@@ -1382,6 +1534,17 @@ const CountryRow = ({ country, rank, prev, expanded, onToggle, salesData, loadin
   const change = prevC ? pctChange(country.total, prevC.total) : null;
   const region = getRegion(country.country);
 
+  // Compute rank delta from prev-year ranking
+  const prevRank = useMemo(() => {
+    if (!prev?.length) return null;
+    const sorted = prev
+      .filter(p => p.country !== '全国籍・地域' && p.country !== 'その他' && p.total > 0)
+      .sort((a, b) => b.total - a.total);
+    const idx = sorted.findIndex(p => p.country === country.country);
+    return idx >= 0 ? idx + 1 : null;
+  }, [prev, country.country]);
+  const rankDiff = prevRank ? prevRank - rank : 0;
+
   return (
     <div style={{ borderBottom: `1px solid ${T.lineSoft}` }}>
       <div
@@ -1393,6 +1556,23 @@ const CountryRow = ({ country, rank, prev, expanded, onToggle, salesData, loadin
         className="country-row"
       >
         <span style={ctryStyles.rowRank}>{String(rank).padStart(2, '0')}</span>
+        {prevRank && rankDiff !== 0 && (
+          <span
+            title={`前期 ${prevRank}位 → 今期 ${rank}位`}
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              fontFamily: T.mono,
+              color: rankDiff > 0 ? T.positive : T.negative,
+              marginLeft: -4,
+              marginRight: 4,
+              letterSpacing: '-0.02em',
+              minWidth: 20,
+            }}
+          >
+            {rankDiff > 0 ? '↑' : '↓'}{Math.abs(rankDiff)}
+          </span>
+        )}
         <span style={ctryStyles.rowFlag}>{COUNTRY_FLAGS[country.country]}</span>
         <span style={{
           width: 2, height: 18, backgroundColor: T.region[region], marginRight: 6,
@@ -2506,6 +2686,263 @@ const csStyles = {
 // ============================================================
 // MAIN APP
 // ============================================================
+// Social share card (1080x1080 snapshot-friendly layout)
+// ============================================================
+const SocialCardView = ({ data, prev, sheets, loading }) => {
+  const stats = useMemo(() => {
+    if (!data?.length) return null;
+    const cur = data.find(d => d.country === '全国籍・地域')?.total || 0;
+    const prv = prev?.find(d => d.country === '全国籍・地域')?.total || 0;
+    const chg = prv ? ((cur - prv) / prv) * 100 : null;
+
+    const rankArr = (arr) => arr
+      .filter(d => d.country !== '全国籍・地域' && d.country !== 'その他' && d.total > 0)
+      .sort((a, b) => b.total - a.total);
+    const curSorted = rankArr(data);
+    const prvSorted = rankArr(prev || []);
+    const prvRanks = {};
+    prvSorted.forEach((d, i) => { prvRanks[d.country] = i + 1; });
+
+    const top5 = curSorted.slice(0, 5).map((d, i) => ({
+      rank: i + 1,
+      country: d.country,
+      total: d.total,
+      prevRank: prvRanks[d.country] || null,
+      diff: prvRanks[d.country] ? prvRanks[d.country] - (i + 1) : 0,
+    }));
+
+    return { cur, prv, chg, top5 };
+  }, [data, prev]);
+
+  if (loading || !stats) {
+    return (
+      <div style={cardStyles.wrap}>
+        <div style={{ color: T.muted }}>読み込み中...</div>
+      </div>
+    );
+  }
+
+  const { cur, chg, top5 } = stats;
+
+  return (
+    <div style={cardStyles.wrap}>
+      <div style={cardStyles.card}>
+        {/* Header */}
+        <div style={cardStyles.header}>
+          <div style={cardStyles.eyebrow}>INBOUND TOURISM CONSUMPTION</div>
+          <div style={cardStyles.periodLine}>
+            <span style={cardStyles.periodText}>{sheets?.periodLabel}</span>
+            {sheets?.period?.type === 'quarter' && (
+              <span style={cardStyles.periodBadge}>速報</span>
+            )}
+          </div>
+        </div>
+
+        {/* Hero number */}
+        <div style={cardStyles.heroBlock}>
+          <div style={cardStyles.heroLabel}>訪日外国人 旅行消費額</div>
+          <div style={cardStyles.heroValue}>
+            {formatOku(cur)}
+            <span style={cardStyles.heroUnit}>億円</span>
+          </div>
+          {chg !== null && (
+            <div style={{
+              ...cardStyles.heroDelta,
+              color: chg >= 0 ? T.positive : T.negative,
+            }}>
+              前年同期比 {chg >= 0 ? '+' : ''}{chg.toFixed(1)}%
+            </div>
+          )}
+        </div>
+
+        {/* Top 5 */}
+        <div style={cardStyles.topBlock}>
+          <div style={cardStyles.topHeader}>
+            <span>上位5市場</span>
+            <span style={cardStyles.topHeaderRight}>消費額（億円）</span>
+          </div>
+          {top5.map(t => (
+            <div key={t.country} style={cardStyles.topRow}>
+              <span style={cardStyles.topRank}>{String(t.rank).padStart(2, '0')}</span>
+              <span style={cardStyles.topCountry}>{t.country}</span>
+              {t.diff !== 0 && t.prevRank && (
+                <span style={{
+                  ...cardStyles.topMove,
+                  color: t.diff > 0 ? T.positive : T.negative,
+                }}>
+                  {t.diff > 0 ? '↑' : '↓'}{Math.abs(t.diff)}
+                </span>
+              )}
+              <span style={cardStyles.topValue}>{formatOku(t.total)}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div style={cardStyles.footer}>
+          <div>出典：観光庁「インバウンド消費動向調査」</div>
+          <div style={{ color: T.faint }}>gldaily.com / inbound_statistics</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const cardStyles = {
+  wrap: {
+    minHeight: '100vh',
+    backgroundColor: T.bg,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    fontFamily: T.sans,
+  },
+  card: {
+    width: 1080,
+    height: 1080,
+    maxWidth: '100%',
+    aspectRatio: '1 / 1',
+    backgroundColor: T.surface,
+    padding: '72px 80px',
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: '0 4px 32px rgba(0,0,0,0.06)',
+    border: `1px solid ${T.line}`,
+  },
+  header: {
+    paddingBottom: 28,
+    marginBottom: 48,
+    borderBottom: `2px solid ${T.inkDark}`,
+  },
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: T.accent,
+    textTransform: 'uppercase',
+    letterSpacing: '0.2em',
+    marginBottom: 16,
+  },
+  periodLine: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 16,
+  },
+  periodText: {
+    fontSize: 44,
+    fontWeight: 700,
+    color: T.inkDark,
+    letterSpacing: '-0.02em',
+  },
+  periodBadge: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: T.accent,
+    border: `1px solid ${T.accent}`,
+    padding: '3px 10px',
+    letterSpacing: '0.1em',
+  },
+  heroBlock: {
+    marginBottom: 56,
+  },
+  heroLabel: {
+    fontSize: 16,
+    fontWeight: 500,
+    color: T.muted,
+    marginBottom: 18,
+    letterSpacing: '0.04em',
+  },
+  heroValue: {
+    fontSize: 140,
+    fontWeight: 800,
+    color: T.inkDark,
+    lineHeight: 0.95,
+    letterSpacing: '-0.04em',
+    fontVariantNumeric: 'tabular-nums',
+  },
+  heroUnit: {
+    fontSize: 36,
+    fontWeight: 500,
+    color: T.muted,
+    marginLeft: 12,
+    letterSpacing: '-0.01em',
+  },
+  heroDelta: {
+    fontSize: 22,
+    fontWeight: 600,
+    marginTop: 14,
+    fontFamily: T.mono,
+    fontVariantNumeric: 'tabular-nums',
+  },
+  topBlock: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+  },
+  topHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: 12,
+    fontWeight: 600,
+    color: T.muted,
+    textTransform: 'uppercase',
+    letterSpacing: '0.12em',
+    paddingBottom: 12,
+    borderBottom: `1px solid ${T.line}`,
+    marginBottom: 4,
+  },
+  topHeaderRight: {
+    textAlign: 'right',
+  },
+  topRow: {
+    display: 'grid',
+    gridTemplateColumns: '44px 1fr auto auto',
+    alignItems: 'baseline',
+    padding: '14px 0',
+    borderBottom: `1px solid ${T.lineSoft}`,
+    gap: 16,
+  },
+  topRank: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: T.faint,
+    fontFamily: T.mono,
+    fontVariantNumeric: 'tabular-nums',
+  },
+  topCountry: {
+    fontSize: 24,
+    fontWeight: 700,
+    color: T.inkDark,
+    letterSpacing: '-0.01em',
+  },
+  topMove: {
+    fontSize: 14,
+    fontWeight: 700,
+    fontFamily: T.mono,
+    letterSpacing: '-0.02em',
+  },
+  topValue: {
+    fontSize: 28,
+    fontWeight: 700,
+    color: T.inkDark,
+    fontVariantNumeric: 'tabular-nums',
+    letterSpacing: '-0.02em',
+    textAlign: 'right',
+    minWidth: 160,
+  },
+  footer: {
+    marginTop: 40,
+    paddingTop: 20,
+    borderTop: `1px solid ${T.line}`,
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: 11,
+    color: T.muted,
+    letterSpacing: '0.04em',
+  },
+};
+
 export default function App() {
   const [period, setPeriod] = useState('2026Q1');
   const [activeTab, setActiveTab] = useState('overview');
@@ -2519,11 +2956,55 @@ export default function App() {
 
   const sheets = useMemo(() => resolveSheets(period), [period]);
 
+  // URL-based card mode (for Instagram/SNS share screenshot)
+  const cardMode = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return new URLSearchParams(window.location.search).get('card') === '1';
+  }, []);
+
   // Ref on root element for accurate height measurement
   const rootRef = useRef(null);
 
   // Stable iframe height with explicit re-broadcast on tab/period change
   useIframeHeight(rootRef, activeTab, period, loading, expanded);
+
+  // CSV download — current period's full dataset
+  const downloadCSV = () => {
+    if (!data?.length) return;
+    const header = [
+      '国籍・地域', '総額(億円)', '宿泊費', '飲食費', '交通費',
+      '娯楽等サービス費', '買物代', 'その他',
+      '訪日者数(人)', '1人当たり旅行支出(円)', '平均泊数'
+    ];
+    const rows = [header];
+    data.forEach(d => {
+      rows.push([
+        d.country,
+        d.total || 0,
+        d.accommodation || 0,
+        d.food || 0,
+        d.transport || 0,
+        d.entertainment || 0,
+        d.shopping || 0,
+        d.other || 0,
+        d.visitors || 0,
+        d.perPerson || 0,
+        d.avgNights || 0,
+      ]);
+    });
+    const csv = '\uFEFF' + rows.map(r => r.map(c => {
+      const s = String(c);
+      return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    }).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `inbound_consumption_${sheets?.period?.key || 'data'}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  };
 
   // Data fetch
   useEffect(() => {
@@ -2618,6 +3099,15 @@ export default function App() {
     };
   }, [data, prev]);
 
+  // Card mode — simplified standalone view for social share screenshot
+  if (cardMode) {
+    return (
+      <div ref={rootRef}>
+        <SocialCardView data={data} prev={prev} sheets={sheets} loading={loading} />
+      </div>
+    );
+  }
+
   return (
     <div ref={rootRef} style={appStyles.root}>
       <HeroStrip sheets={sheets} kpi={kpi} loading={loading} />
@@ -2645,7 +3135,28 @@ export default function App() {
 
       <footer style={appStyles.footer}>
         <span>出典：観光庁「インバウンド消費動向調査」</span>
-        <span style={{ color: T.faint }}>{sheets?.periodLabel}</span>
+        <div style={appStyles.footerActions}>
+          <button
+            onClick={downloadCSV}
+            disabled={loading || !data?.length}
+            style={appStyles.footerLink}
+            title="このページのデータをCSVで保存"
+          >
+            CSVダウンロード
+          </button>
+          <span style={{ color: T.faint }}>·</span>
+          <a
+            href="?card=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={appStyles.footerLink}
+            title="SNS共有用のカードビューを別ウィンドウで開く"
+          >
+            共有カード
+          </a>
+          <span style={{ color: T.faint }}>·</span>
+          <span style={{ color: T.faint }}>{sheets?.periodLabel}</span>
+        </div>
       </footer>
     </div>
   );
@@ -2699,10 +3210,31 @@ const appStyles = {
     padding: '24px',
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
     fontSize: 11,
     color: T.muted,
     borderTop: `1px solid ${T.line}`,
     letterSpacing: '0.02em',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  footerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+  },
+  footerLink: {
+    background: 'none',
+    border: 'none',
+    padding: '2px 0',
+    fontSize: 11,
+    color: T.ink,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    fontFamily: T.sans,
+    letterSpacing: '0.02em',
+    borderBottom: `1px dotted ${T.muted}`,
+    transition: 'color 0.15s, border-color 0.15s',
   },
 };
 
@@ -2776,6 +3308,11 @@ sheet.textContent = `
     .pie-grid {
       grid-template-columns: 1fr !important;
     }
+    /* Highlights: 4 cols -> 2 cols on tablet */
+    .hl-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 24px !important;
+    }
   }
 
   /* ===== MOBILE (600px and below) ===== */
@@ -2821,6 +3358,10 @@ sheet.textContent = `
       grid-template-columns: 100px 1fr 60px !important;
       gap: 8px !important;
     }
+    /* Highlights: 2 cols stays, tighter gap on small screens */
+    .hl-grid {
+      gap: 20px !important;
+    }
   }
 
   /* Focus / hover */
@@ -2831,6 +3372,12 @@ sheet.textContent = `
   select:focus-visible {
     outline: 2px solid ${T.accent};
     outline-offset: 2px;
+  }
+  /* Footer action links hover */
+  footer button:hover,
+  footer a:hover {
+    color: ${T.accent} !important;
+    border-bottom-color: ${T.accent} !important;
   }
 
   /* Number tabular */
