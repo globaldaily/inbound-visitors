@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line, Cell, AreaChart, Area
@@ -65,6 +65,66 @@ const fetchSheet = async (name, retries = 2) => {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json()).values || [];
   } catch (e) { console.error(`Error ${name}:`, e); return []; }
+};
+
+// ============================================================
+// ⭐ iframe 높이 훅 - rootRef 기반, debounce, 초기 재전송
+// ============================================================
+const useIframeHeight = (rootRef, ...deps) => {
+  useEffect(() => {
+    let timeoutId;
+    let lastSent = 0;
+
+    const sendHeight = () => {
+      if (!rootRef.current) return;
+      const h = Math.ceil(rootRef.current.getBoundingClientRect().height);
+      if (h <= 0) return;
+      lastSent = h;
+      window.parent.postMessage({
+        type: 'setHeight',
+        source: 'visitor-dashboard',
+        height: h,
+      }, '*');
+    };
+
+    const debouncedSend = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        requestAnimationFrame(sendHeight);
+      }, 80);
+    };
+
+    // 초기 레이아웃 안정화를 위한 여러 시점 재전송
+    const t1 = setTimeout(sendHeight, 100);
+    const t2 = setTimeout(sendHeight, 400);
+    const t3 = setTimeout(sendHeight, 900);
+
+    // ResizeObserver - 컨텐츠 크기 변화 감지
+    let ro = null;
+    if (rootRef.current && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(debouncedSend);
+      ro.observe(rootRef.current);
+    }
+
+    // WordPress에서 높이 요청하면 즉시 응답
+    const handleMessage = (e) => {
+      if (e.data && e.data.type === 'requestHeight') {
+        sendHeight();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    window.addEventListener('resize', debouncedSend);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(timeoutId);
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('resize', debouncedSend);
+      if (ro) ro.disconnect();
+    };
+  }, deps);
 };
 
 // ============================================================
@@ -722,30 +782,21 @@ export default function App() {
   const [yearlyMonthlyData, setYearlyMonthlyData] = useState([]);
   const [countryYearlyData, setCountryYearlyData] = useState([]);
 
+  // ⭐ iframe 높이 측정용 root ref + 훅
+  const rootRef = useRef(null);
+  useIframeHeight(rootRef, activeTab, loading);
+
+  // ⭐ body/html 스타일 초기화 - 부풀림 방지
   useEffect(() => {
-    const sendHeight = () => {
-      requestAnimationFrame(() => window.parent.postMessage({ type: 'setHeight', height: document.body.scrollHeight }, '*'));
-    };
-    const timer = setTimeout(sendHeight, 500);
-    window.addEventListener('resize', sendHeight);
-    const observer = new MutationObserver(() => setTimeout(sendHeight, 300));
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    // WordPress에서 높이 요청 받으면 응답
-    const handleMessage = (e) => {
-      if (e.data && e.data.type === 'requestHeight') {
-        sendHeight();
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    
-    return () => { 
-      clearTimeout(timer); 
-      window.removeEventListener('resize', sendHeight); 
-      window.removeEventListener('message', handleMessage);
-      observer.disconnect(); 
-    };
-  }, [activeTab, loading]);
+    document.documentElement.style.height = 'auto';
+    document.documentElement.style.minHeight = '0';
+    document.documentElement.style.margin = '0';
+    document.documentElement.style.padding = '0';
+    document.body.style.height = 'auto';
+    document.body.style.minHeight = '0';
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -881,7 +932,7 @@ export default function App() {
   ];
 
   return (
-    <div style={styles.container}>
+    <div ref={rootRef} style={styles.container}>
       <header style={styles.header}>
         <div style={styles.headerInner}>
           <h1 style={styles.title}>訪日外客統計ダッシュボード</h1>
@@ -930,7 +981,8 @@ export default function App() {
 // 스타일 - 그레이스케일 + 레드 포인트 (소비대시보드 톤)
 // ============================================================
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#f5f5f5', fontFamily: '"Noto Sans JP", sans-serif', color: '#1a1a1a', lineHeight: 1.7 },
+  // ⭐ minHeight: '100vh' 제거! — iframe 내부에서 100vh는 부풀림 원인
+  container: { backgroundColor: '#f5f5f5', fontFamily: '"Noto Sans JP", sans-serif', color: '#1a1a1a', lineHeight: 1.7 },
   
   header: { background: '#1a1a1a', color: 'white', padding: '28px 0' },
   headerInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px' },
