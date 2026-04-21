@@ -95,7 +95,7 @@ const ChartTooltip = ({ active, payload, label, suffix = '万人' }) => {
 // ============================================================
 // 탭1: 最新月間 (2026년 3월)
 // ============================================================
-const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, specialData }) => {
+const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData, trendData, specialData }) => {
   const [showAllCountries, setShowAllCountries] = useState(false);
   
   if (!monthlyData || monthlyData.length === 0) return <p>データ読み込み中...</p>;
@@ -200,10 +200,54 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, trendData, special
         </section>
       )}
 
+      {/* 국가별 1-3월 추이 + 누계 비교 */}
+      {countryMonthlyData?.length > 0 && (
+        <section style={styles.section}>
+          <SectionHeader number="02" title="主要市場 2026年推移" subtitle="1-3月の月別推移と累計。前年同期比較。" />
+          <div style={styles.chartWrap}>
+            <div style={styles.chartTitleInline}>
+              <span>TOP 8 市場</span>
+              <span style={styles.chartUnit}>単位: 万人</span>
+            </div>
+            <div style={styles.countryTrendGrid}>
+              {countryMonthlyData.slice(0, 8).map((c, i) => (
+                <div key={c.name} style={styles.countryTrendCard}>
+                  <div style={styles.countryTrendHeader}>
+                    <span style={styles.countryTrendFlag}>{COUNTRY_FLAGS[c.name] || '🌐'}</span>
+                    <span style={styles.countryTrendName}>{c.name}</span>
+                    <span style={{...styles.countryTrendYoy, color: c.totalYoy >= 0 ? '#059669' : '#dc2626'}}>
+                      {c.totalYoy >= 0 ? '▲' : '▼'}{Math.abs(c.totalYoy).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div style={styles.countryTrendBars}>
+                    {['1月', '2月', '3月'].map(m => {
+                      const val = c[m] || 0;
+                      const max = Math.max(c['1月'] || 0, c['2月'] || 0, c['3月'] || 0);
+                      const h = max > 0 ? (val / max) * 60 : 0;
+                      return (
+                        <div key={m} style={styles.countryTrendBarCol}>
+                          <div style={{...styles.countryTrendBar, height: h, background: m === '3月' ? '#e53935' : '#1a1a1a'}} />
+                          <span style={styles.countryTrendBarLabel}>{m.replace('月', '')}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={styles.countryTrendTotal}>
+                    <span style={styles.countryTrendTotalLabel}>累計</span>
+                    <span style={styles.countryTrendTotalValue}>{formatMan(c.total2026)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年1-3月推計値）</p>
+          </div>
+        </section>
+      )}
+
       {/* 월별 추이 */}
       {chartData.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="02" title="月別推移（2017-2026年）" subtitle="月ごとの訪日客数推移。4月・10月が繁忙期、2月・9月が閑散期。" />
+          <SectionHeader number="03" title="月別推移（2017-2026年）" subtitle="月ごとの訪日客数推移。4月・10月が繁忙期、2月・9月が閑散期。" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
               <span>訪日外客数 月別比較</span>
@@ -540,6 +584,10 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
 
       {/* 전체 테이블 */}
       <div style={styles.tableWrap}>
+        <div style={styles.chartTitleInline}>
+          <span>主要15市場 年間推移</span>
+          <span style={styles.chartUnit}>単位: 万人</span>
+        </div>
         <div style={styles.tableScroll}>
           <table style={styles.table}>
             <thead>
@@ -669,6 +717,7 @@ export default function App() {
   const [monthlyData, setMonthlyData] = useState([]);
   const [countryLatestData, setCountryLatestData] = useState([]);
   const [countryLatestTotal, setCountryLatestTotal] = useState(0);
+  const [countryMonthlyData, setCountryMonthlyData] = useState([]); // 1-3월 국가별
   const [annualData, setAnnualData] = useState([]);
   const [longTermData, setLongTermData] = useState([]);
   const [specialData, setSpecialData] = useState([]);
@@ -728,6 +777,38 @@ export default function App() {
           setCountryLatestData(countries);
           setCountryLatestTotal(total || countries.reduce((s, c) => s + c.value, 0));
         }
+        await delay(100);
+
+        // 국가별 1-3월 데이터 (추이용)
+        const [c01, c02, c03] = await Promise.all([
+          fetchSheet('訪日_国別_202601'),
+          fetchSheet('訪日_国別_202602'),
+          fetchSheet('訪日_国別_202603')
+        ]);
+        const monthlyCountries = {};
+        const parseCountrySheet = (data, month) => {
+          if (!data || data.length < 2) return;
+          data.slice(1).forEach(r => {
+            const name = r[0];
+            if (!name || name === '総数') return;
+            if (!monthlyCountries[name]) monthlyCountries[name] = { name };
+            monthlyCountries[name][month] = parseNumber(r[2]);
+            monthlyCountries[name][`${month}yoy`] = parseNumber(r[3]);
+            // 전년 데이터도 저장
+            monthlyCountries[name][`${month}prev`] = parseNumber(r[1]);
+          });
+        };
+        parseCountrySheet(c01, '1月');
+        parseCountrySheet(c02, '2月');
+        parseCountrySheet(c03, '3月');
+        // 누계 계산
+        Object.values(monthlyCountries).forEach(c => {
+          c.total2026 = (c['1月'] || 0) + (c['2月'] || 0) + (c['3月'] || 0);
+          c.total2025 = (c['1月prev'] || 0) + (c['2月prev'] || 0) + (c['3月prev'] || 0);
+          c.totalYoy = c.total2025 > 0 ? ((c.total2026 - c.total2025) / c.total2025 * 100) : 0;
+        });
+        const sortedMonthly = Object.values(monthlyCountries).sort((a, b) => b.total2026 - a.total2026);
+        setCountryMonthlyData(sortedMonthly);
         await delay(100);
         
         // 연간 데이터
@@ -827,7 +908,7 @@ export default function App() {
             <div style={styles.loadingBox}><div style={styles.spinner} /></div>
           ) : (
             <>
-              {activeTab === 'monthly' && <TabMonthly monthlyData={monthlyData} countryData={countryLatestData} countryTotal={countryLatestTotal} trendData={yearlyMonthlyData} specialData={specialData} />}
+              {activeTab === 'monthly' && <TabMonthly monthlyData={monthlyData} countryData={countryLatestData} countryTotal={countryLatestTotal} countryMonthlyData={countryMonthlyData} trendData={yearlyMonthlyData} specialData={specialData} />}
               {activeTab === 'detail' && (
                 <>
                   <TabAnnual annualData={annualData} />
@@ -897,6 +978,21 @@ const styles = {
   chartSubtitle: { fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#1a1a1a' },
   chartSource: { marginTop: 16, paddingTop: 12, borderTop: '1px solid #e0e0e0', fontSize: 11, color: '#999' },
   
+  // Country Trend Cards
+  countryTrendGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 },
+  countryTrendCard: { background: '#f8f8f8', borderRadius: 8, padding: 16, border: '1px solid #e0e0e0' },
+  countryTrendHeader: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 },
+  countryTrendFlag: { fontSize: 20 },
+  countryTrendName: { flex: 1, fontSize: 15, fontWeight: 600, color: '#1a1a1a' },
+  countryTrendYoy: { fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700 },
+  countryTrendBars: { display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 12, height: 80, marginBottom: 12 },
+  countryTrendBarCol: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 },
+  countryTrendBar: { width: 32, borderRadius: 4, transition: 'height 0.3s' },
+  countryTrendBarLabel: { fontSize: 11, color: '#999' },
+  countryTrendTotal: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, borderTop: '1px solid #e0e0e0' },
+  countryTrendTotalLabel: { fontSize: 12, color: '#666' },
+  countryTrendTotalValue: { fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 700, color: '#1a1a1a' },
+
   hbarList: { marginTop: 12 },
   hbarItem: { display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e0e0e0' },
   hbarRank: { width: 28, fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700 },
