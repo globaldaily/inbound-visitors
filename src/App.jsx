@@ -227,7 +227,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
                       <td style={styles.tdFirst}>{COUNTRY_FLAGS[c.name] || '🌐'} {c.name}</td>
                       <td style={styles.td}>{formatNum((c['1月'] || 0) / 10000, 1)}</td>
                       <td style={styles.td}>{formatNum((c['2月'] || 0) / 10000, 1)}</td>
-                      <td style={styles.tdCurrent}>{formatNum((c['3月'] || 0) / 10000, 1)}</td>
+                      <td style={{...styles.td, ...styles.tdCurrent}}>{formatNum((c['3月'] || 0) / 10000, 1)}</td>
                       <td style={{...styles.td, fontWeight: 700}}>{formatNum(c.total2026 / 10000, 1)}</td>
                       <td style={{...styles.td, color: c.totalYoy >= 0 ? '#059669' : '#dc2626', fontWeight: 600}}>
                         {c.totalYoy >= 0 ? '+' : ''}{c.totalYoy.toFixed(1)}%
