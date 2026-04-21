@@ -206,38 +206,36 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
           <SectionHeader number="02" title="主要市場 2026年推移" subtitle="1-3月の月別推移と累計。前年同期比較。" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
-              <span>TOP 8 市場</span>
+              <span>TOP 10 市場</span>
               <span style={styles.chartUnit}>単位: 万人</span>
             </div>
-            <div style={styles.countryTrendGrid}>
-              {countryMonthlyData.slice(0, 8).map((c, i) => (
-                <div key={c.name} style={styles.countryTrendCard}>
-                  <div style={styles.countryTrendHeader}>
-                    <span style={styles.countryTrendFlag}>{COUNTRY_FLAGS[c.name] || '🌐'}</span>
-                    <span style={styles.countryTrendName}>{c.name}</span>
-                    <span style={{...styles.countryTrendYoy, color: c.totalYoy >= 0 ? '#059669' : '#dc2626'}}>
-                      {c.totalYoy >= 0 ? '▲' : '▼'}{Math.abs(c.totalYoy).toFixed(1)}%
-                    </span>
-                  </div>
-                  <div style={styles.countryTrendBars}>
-                    {['1月', '2月', '3月'].map(m => {
-                      const val = c[m] || 0;
-                      const max = Math.max(c['1月'] || 0, c['2月'] || 0, c['3月'] || 0);
-                      const h = max > 0 ? (val / max) * 60 : 0;
-                      return (
-                        <div key={m} style={styles.countryTrendBarCol}>
-                          <div style={{...styles.countryTrendBar, height: h, background: m === '3月' ? '#e53935' : '#1a1a1a'}} />
-                          <span style={styles.countryTrendBarLabel}>{m.replace('月', '')}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div style={styles.countryTrendTotal}>
-                    <span style={styles.countryTrendTotalLabel}>累計</span>
-                    <span style={styles.countryTrendTotalValue}>{formatMan(c.total2026)}</span>
-                  </div>
-                </div>
-              ))}
+            <div style={styles.tableScroll}>
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={{...styles.th, ...styles.thFirst}}>国・地域</th>
+                    <th style={styles.th}>1月</th>
+                    <th style={styles.th}>2月</th>
+                    <th style={{...styles.th, ...styles.thCurrent}}>3月</th>
+                    <th style={styles.th}>累計</th>
+                    <th style={styles.th}>前年比</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {countryMonthlyData.slice(0, 10).map(c => (
+                    <tr key={c.name}>
+                      <td style={styles.tdFirst}>{COUNTRY_FLAGS[c.name] || '🌐'} {c.name}</td>
+                      <td style={styles.td}>{formatNum((c['1月'] || 0) / 10000, 1)}</td>
+                      <td style={styles.td}>{formatNum((c['2月'] || 0) / 10000, 1)}</td>
+                      <td style={styles.tdCurrent}>{formatNum((c['3月'] || 0) / 10000, 1)}</td>
+                      <td style={{...styles.td, fontWeight: 700}}>{formatNum(c.total2026 / 10000, 1)}</td>
+                      <td style={{...styles.td, color: c.totalYoy >= 0 ? '#059669' : '#dc2626', fontWeight: 600}}>
+                        {c.totalYoy >= 0 ? '+' : ''}{c.totalYoy.toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
             <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年1-3月推計値）</p>
           </div>
