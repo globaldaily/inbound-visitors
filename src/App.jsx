@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, LineChart, Line, Cell, AreaChart, Area
+  ResponsiveContainer, LineChart, Line, Cell, AreaChart, Area,
+  PieChart, Pie
 } from 'recharts';
 
 // ============================================================
@@ -23,6 +24,20 @@ const COUNTRY_COLORS = [
   '#1a1a1a', '#333333', '#4a4a4a', '#666666', '#808080', 
   '#999999', '#b3b3b3', '#cccccc', '#e0e0e0', '#f0f0f0'
 ];
+
+// 국가별 고유 색상 (spending 대시보드와 동일 매핑 - 대시보드 간 일관성)
+const COUNTRY_PIE_COLORS = {
+  '中国': '#991b1b', '韓国': '#1e3a8a', '台湾': '#c2410c',
+  '米国': '#0c4a6e', '香港': '#15803d', '豪州': '#0891b2',
+  'タイ': '#a16207', 'シンガポール': '#65a30d',
+  'マレーシア': '#be185d', 'インドネシア': '#7c2d12',
+  'フィリピン': '#db2777', 'ベトナム': '#166534',
+  'インド': '#ca8a04', '英国': '#312e81', 'ドイツ': '#374151',
+  'フランス': '#6d28d9', 'イタリア': '#86198f', 'スペイン': '#b45309',
+  'ロシア': '#4c1d95', 'カナダ': '#0284c7', 'メキシコ': '#9a3412',
+  '中東地域': '#854d0e', '北欧地域': '#475569', 'その他': '#a8a29e'
+};
+const colorOf = (name) => COUNTRY_PIE_COLORS[name] || '#a8a29e';
 
 const YEAR_COLORS = {
   '2026': '#e53935',  // 레드 (현재 강조)
@@ -153,11 +168,250 @@ const ChartTooltip = ({ active, payload, label, suffix = '万人' }) => {
 };
 
 // ============================================================
+// ⭐ 国・地域別 파이 (시계방향) + 비교 테이블
+// ============================================================
+const PieHoverTooltip = ({ active, payload, total }) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0];
+  const pct = total ? (d.value / total) * 100 : 0;
+  return (
+    <div style={{
+      backgroundColor: '#1a1a1a',
+      color: '#fff',
+      padding: '10px 14px',
+      borderRadius: 3,
+      fontSize: 12,
+      boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+      pointerEvents: 'none',
+      fontFamily: '"Noto Sans JP", sans-serif',
+      minWidth: 140,
+    }}>
+      <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>{d.name}</div>
+      <div style={{
+        fontSize: 20, fontWeight: 700,
+        fontFamily: 'Inter, sans-serif',
+        lineHeight: 1,
+      }}>
+        {formatNum(d.value / 10000, 1)}
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginLeft: 3, fontWeight: 500 }}>万人</span>
+      </div>
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 4, fontFamily: 'Inter, sans-serif' }}>
+        構成比 {pct.toFixed(1)}%
+      </div>
+    </div>
+  );
+};
+
+const CountryPie = ({ data, total, label, topN = 15 }) => {
+  const chartData = useMemo(() => {
+    if (!data?.length) return [];
+    const filtered = data.filter(c => c.value > 0).sort((a, b) => b.value - a.value);
+    const top = filtered.slice(0, topN);
+    const rest = filtered.slice(topN);
+    const restSum = rest.reduce((s, c) => s + c.value, 0);
+    const arr = top.map(c => ({ name: c.name, value: c.value, color: colorOf(c.name) }));
+    if (restSum > 0) arr.push({ name: 'その他', value: restSum, color: '#a8a29e' });
+    return arr;
+  }, [data, topN]);
+
+  if (!chartData.length) return null;
+
+  // 상위 5개 세그먼트 안에 국가명 + 인수 + %
+  const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, value, percent, index }) => {
+    if (index >= 5) return null;
+    if (percent < 0.04) return null;
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.55;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    return (
+      <g>
+        <text x={x} y={y - 12} textAnchor="middle"
+              style={{ fontSize: 12, fontWeight: 700, fill: '#fff',
+                       fontFamily: '"Noto Sans JP", sans-serif',
+                       paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.2)', strokeWidth: 0.6 }}>
+          {name}
+        </text>
+        <text x={x} y={y + 2} textAnchor="middle"
+              style={{ fontSize: 11, fontWeight: 700, fill: '#fff',
+                       fontFamily: 'Inter, sans-serif',
+                       paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.2)', strokeWidth: 0.6 }}>
+          {formatNum(value / 10000, 1)}万
+        </text>
+        <text x={x} y={y + 15} textAnchor="middle"
+              style={{ fontSize: 11, fontWeight: 600, fill: 'rgba(255,255,255,0.9)',
+                       fontFamily: 'Inter, sans-serif' }}>
+          {(percent * 100).toFixed(1)}%
+        </text>
+      </g>
+    );
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center', marginBottom: 14 }}>
+        <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+          {label}
+        </div>
+        <div style={{ fontSize: 10, color: '#b0b0b0', marginTop: 6, letterSpacing: '0.05em' }}>
+          セグメントにカーソルを合わせると詳細表示
+        </div>
+      </div>
+
+      <div style={{ position: 'relative', width: '100%', height: 500 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <Pie
+              data={chartData}
+              cx="50%" cy="50%"
+              innerRadius={105}
+              outerRadius={195}
+              paddingAngle={0.5}
+              startAngle={90}
+              endAngle={-270}
+              dataKey="value"
+              labelLine={false}
+              label={renderLabel}
+              isAnimationActive={false}
+            >
+              {chartData.map((e, i) => (
+                <Cell key={i} fill={e.color} stroke="#fff" strokeWidth={1.5} />
+              ))}
+            </Pie>
+            <Tooltip content={<PieHoverTooltip total={total} />}
+                     cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                     wrapperStyle={{ outline: 'none' }} />
+          </PieChart>
+        </ResponsiveContainer>
+        {/* Center total */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)', textAlign: 'center',
+          pointerEvents: 'none',
+        }}>
+          <div style={{ fontSize: 10, color: '#666', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            総数
+          </div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#1a1a1a',
+                        fontFamily: 'Inter, sans-serif', marginTop: 4, lineHeight: 1,
+                        letterSpacing: '-0.02em' }}>
+            {formatNum(total / 10000, 0)}
+          </div>
+          <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>万人</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CountryComparisonTable = ({ data, total, currentLabel = '3月' }) => {
+  const [expanded, setExpanded] = useState(false);
+  const INITIAL = 10;
+
+  const sorted = useMemo(() => {
+    if (!data?.length) return [];
+    return [...data].filter(c => c.value > 0).sort((a, b) => b.value - a.value);
+  }, [data]);
+
+  if (!sorted.length) return null;
+
+  const visible = expanded ? sorted : sorted.slice(0, INITIAL);
+  const hidden = Math.max(0, sorted.length - INITIAL);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{
+        fontSize: 11, fontWeight: 700, color: '#666',
+        textTransform: 'uppercase', letterSpacing: '0.12em',
+        marginBottom: 4,
+      }}>
+        前年同月比較
+      </div>
+
+      {/* Header */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '12px minmax(80px, 1.1fr) 72px 60px 70px',
+        gap: 10, alignItems: 'center',
+        fontSize: 10, fontWeight: 600, color: '#666',
+        textTransform: 'uppercase', letterSpacing: '0.1em',
+        paddingBottom: 10,
+        borderBottom: '2px solid #1a1a1a',
+        marginTop: 8,
+      }}>
+        <span></span>
+        <span>国・地域</span>
+        <span style={{ textAlign: 'right' }}>{currentLabel}</span>
+        <span style={{ textAlign: 'right' }}>構成比</span>
+        <span style={{ textAlign: 'right' }}>前年比</span>
+      </div>
+
+      {/* Rows */}
+      {visible.map((c, i) => {
+        const pct = total ? (c.value / total) * 100 : 0;
+        return (
+          <div key={c.name} style={{
+            display: 'grid',
+            gridTemplateColumns: '12px minmax(80px, 1.1fr) 72px 60px 70px',
+            gap: 10, alignItems: 'center',
+            padding: '8px 0', fontSize: 12,
+            borderBottom: '1px solid #f0f0f0',
+          }}>
+            <span style={{
+              width: 10, height: 10,
+              backgroundColor: colorOf(c.name),
+              borderRadius: 2, display: 'inline-block',
+            }} />
+            <span style={{ fontWeight: 600, color: '#1a1a1a' }}>
+              {COUNTRY_FLAGS[c.name] || '🌐'} {c.name}
+            </span>
+            <span style={{
+              fontFamily: 'Inter, sans-serif',
+              color: '#1a1a1a', fontWeight: 700, textAlign: 'right',
+            }}>
+              {formatNum(c.value / 10000, 1)}
+              <span style={{ fontSize: 10, color: '#666', marginLeft: 2, fontWeight: 500 }}>万</span>
+            </span>
+            <span style={{
+              fontFamily: 'Inter, sans-serif',
+              color: '#1a1a1a', fontWeight: 600, textAlign: 'right',
+            }}>
+              {pct.toFixed(1)}%
+            </span>
+            <span style={{
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 700, textAlign: 'right',
+              color: c.yoy >= 0 ? '#059669' : '#dc2626',
+            }}>
+              {c.yoy >= 0 ? '+' : ''}{c.yoy.toFixed(1)}%
+            </span>
+          </div>
+        );
+      })}
+
+      {hidden > 0 && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          style={{
+            width: '100%', marginTop: 10, padding: '10px 12px',
+            background: 'transparent',
+            border: '1px solid #e0e0e0', borderRadius: 3,
+            fontSize: 11, fontWeight: 600, color: '#333',
+            fontFamily: '"Noto Sans JP", sans-serif',
+            letterSpacing: '0.04em', cursor: 'pointer',
+            textTransform: 'uppercase',
+          }}>
+          {expanded ? '折り畳む ▲' : `残り ${hidden} ヶ国を表示 ▼`}
+        </button>
+      )}
+    </div>
+  );
+};
+
+// ============================================================
 // 탭1: 最新月間 (2026년 3월)
 // ============================================================
 const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData, trendData, specialData }) => {
-  const [showAllCountries, setShowAllCountries] = useState(false);
-  
   if (!monthlyData || monthlyData.length === 0) return <p>データ読み込み中...</p>;
   
   const latest = monthlyData[0];
@@ -216,45 +470,29 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
         )}
       </section>
 
-      {/* 국가별 수평 바 */}
+      {/* 국가별 파이 + 비교 테이블 */}
       {countryData?.length > 0 && (
         <section style={styles.section}>
           <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年3月の市場別構成比" />
-          <div style={styles.chartWrap}>
-            <div style={styles.chartTitleInline}>
-              <span>{showAllCountries ? '全市場' : 'TOP 5'}</span>
-              <span style={styles.chartUnit}>総数: {formatMan(countryTotal)}</span>
+          <div style={{
+            background: '#fff',
+            border: '1px solid #e0e0e0',
+            borderRadius: 8,
+            padding: 24,
+          }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 32,
+              alignItems: 'start',
+            }} className="share-grid">
+              <CountryPie data={countryData} total={countryTotal} label="2026年3月" topN={15} />
+              <CountryComparisonTable
+                data={countryData}
+                total={countryTotal}
+                currentLabel="3月"
+              />
             </div>
-            <div style={styles.hbarList}>
-              {countryData.slice(0, showAllCountries ? 10 : 5).map((c, i) => {
-                const pct = countryTotal > 0 ? ((c.value / countryTotal) * 100).toFixed(1) : 0;
-                const w = (c.value / countryData[0].value) * 100;
-                return (
-                  <div key={c.name} style={styles.hbarItem}>
-                    <span style={{...styles.hbarRank, color: i < 3 ? '#0369a1' : '#94a3b8'}}>{i + 1}</span>
-                    <span style={styles.hbarFlag}>{COUNTRY_FLAGS[c.name] || '🌐'}</span>
-                    <span style={styles.hbarName}>{c.name}</span>
-                    <div style={styles.hbarBarWrap}>
-                      <div style={styles.hbarBar}>
-                        <div style={{...styles.hbarFill, width: `${Math.max(w, 12)}%`, background: COUNTRY_COLORS[i]}}>
-                          <span style={styles.hbarPercent}>{pct}%</span>
-                        </div>
-                      </div>
-                    </div>
-                    <span style={styles.hbarValue}>{formatMan(c.value)}</span>
-                    <span style={{...styles.hbarYoy, color: c.yoy >= 0 ? '#059669' : '#dc2626'}}>
-                      {c.yoy >= 0 ? '▲' : '▼'}{Math.abs(c.yoy).toFixed(1)}%
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <button 
-              onClick={() => setShowAllCountries(!showAllCountries)} 
-              style={styles.expandBtn}
-            >
-              {showAllCountries ? '閉じる' : '6位以下を表示'}
-            </button>
             <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年3月推計値）</p>
           </div>
         </section>
@@ -738,6 +976,24 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
       <div style={{ marginTop: 48 }}>
         <h4 style={styles.chartSubtitle}>コロナ前比 成長率ランキング（2019年→2025年）</h4>
         <div style={styles.chartWrap}>
+          {/* 색상 의미 범례 */}
+          <div style={{
+            display: 'flex',
+            gap: 20,
+            marginBottom: 16,
+            fontSize: 12,
+            color: '#555',
+            flexWrap: 'wrap',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 18, height: 10, background: '#059669', borderRadius: 2 }} />
+              <span>成長（コロナ前比プラス）</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 18, height: 10, background: '#dc2626', borderRadius: 2 }} />
+              <span>減少（コロナ前比マイナス）</span>
+            </div>
+          </div>
           <div style={styles.growthList}>
             {growthData.slice(0, 10).map((item, i) => (
               <div key={item.country} style={styles.growthItem}>
@@ -933,6 +1189,14 @@ export default function App() {
 
   return (
     <div ref={rootRef} style={styles.container}>
+      <style>{`
+        @media (max-width: 768px) {
+          .share-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+        }
+      `}</style>
       <header style={styles.header}>
         <div style={styles.headerInner}>
           <h1 style={styles.title}>訪日外客統計ダッシュボード</h1>
