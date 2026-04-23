@@ -446,7 +446,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
           <div style={styles.compareItem}>
             <span style={styles.compareLabel}>前年同月比</span>
             <div style={styles.compareValue}>
-              <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '▲' : '▼'}</span>
+              <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '+' : '▼'}</span>
               <span style={{...styles.compareNum, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(yoy).toFixed(1)}%</span>
             </div>
             <span style={styles.compareSub}>2025年3月: {formatMan(latest.prevYear)}</span>
@@ -454,7 +454,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
           <div style={styles.compareItem}>
             <span style={styles.compareLabel}>前月比</span>
             <div style={styles.compareValue}>
-              <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '▲' : '▼'}</span>
+              <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '+' : '▼'}</span>
               <span style={{...styles.compareNum, color: mom >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(mom).toFixed(1)}%</span>
             </div>
             <span style={styles.compareSub}>2026年2月: {formatMan(latest.prevMonth)}</span>
