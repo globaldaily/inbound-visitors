@@ -304,7 +304,7 @@ const CountryPie = ({ data, total, label, topN = 15 }) => {
   );
 };
 
-const CountryComparisonTable = ({ data, total, currentLabel = '3月' }) => {
+const CountryComparisonTable = ({ data, total, currentLabel = '4月' }) => {
   const [expanded, setExpanded] = useState(false);
   const INITIAL = 10;
 
@@ -409,7 +409,7 @@ const CountryComparisonTable = ({ data, total, currentLabel = '3月' }) => {
 };
 
 // ============================================================
-// 탭1: 最新月間 (2026년 3월)
+// 탭1: 最新月間 (2026년 4월)
 // ============================================================
 const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData, trendData, specialData }) => {
   if (!monthlyData || monthlyData.length === 0) return <p>データ読み込み中...</p>;
@@ -435,7 +435,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
       {/* Hero Section */}
       <section style={styles.hero}>
         <div style={styles.heroEyebrow}>
-          <span style={styles.heroDate}>2026年3月 訪日外客数</span>
+          <span style={styles.heroDate}>2026年4月 訪日外客数</span>
           <span style={styles.heroBadge}>速報</span>
         </div>
         <div style={styles.heroNumber}>
@@ -449,7 +449,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
               <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '+' : '▼'}</span>
               <span style={{...styles.compareNum, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(yoy).toFixed(1)}%</span>
             </div>
-            <span style={styles.compareSub}>2025年3月: {formatMan(latest.prevYear)}</span>
+            <span style={styles.compareSub}>2025年4月: {formatMan(latest.prevYear)}</span>
           </div>
           <div style={styles.compareItem}>
             <span style={styles.compareLabel}>前月比</span>
@@ -457,7 +457,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
               <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '+' : '▼'}</span>
               <span style={{...styles.compareNum, color: mom >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(mom).toFixed(1)}%</span>
             </div>
-            <span style={styles.compareSub}>2026年2月: {formatMan(latest.prevMonth)}</span>
+            <span style={styles.compareSub}>2026年3月: {formatMan(latest.prevMonth)}</span>
           </div>
         </div>
         {specialData?.[0] && (
@@ -473,7 +473,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
       {/* 국가별 파이 + 비교 테이블 */}
       {countryData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年3月の市場別構成比" />
+          <SectionHeader number="01" title="国・地域別シェア" subtitle="2026年4月の市場別構成比" />
           <div style={{
             background: '#fff',
             border: '1px solid #e0e0e0',
@@ -486,22 +486,22 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
               gap: 32,
               alignItems: 'start',
             }} className="share-grid">
-              <CountryPie data={countryData} total={countryTotal} label="2026年3月" topN={15} />
+              <CountryPie data={countryData} total={countryTotal} label="2026年4月" topN={15} />
               <CountryComparisonTable
                 data={countryData}
                 total={countryTotal}
-                currentLabel="3月"
+                currentLabel="4月"
               />
             </div>
-            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年3月推計値）</p>
+            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年4月推計値）</p>
           </div>
         </section>
       )}
 
-      {/* 국가별 1-3월 추이 + 누계 비교 */}
+      {/* 국가별 1-4월 추이 + 누계 비교 */}
       {countryMonthlyData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="02" title="主要市場 2026年推移" subtitle="1-3月の月別推移と累計。前年同期比較。" />
+          <SectionHeader number="02" title="主要市場 2026年推移" subtitle="1-4月の月別推移と累計。前年同期比較。" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
               <span>TOP 10 市場</span>
@@ -514,7 +514,8 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
                     <th style={{...styles.th, ...styles.thFirst}}>国・地域</th>
                     <th style={styles.th}>1月</th>
                     <th style={styles.th}>2月</th>
-                    <th style={{...styles.th, ...styles.thCurrent}}>3月</th>
+                    <th style={styles.th}>3月</th>
+                    <th style={{...styles.th, ...styles.thCurrent}}>4月</th>
                     <th style={styles.th}>累計</th>
                     <th style={styles.th}>前年比</th>
                   </tr>
@@ -525,7 +526,8 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
                       <td style={styles.tdFirst}>{COUNTRY_FLAGS[c.name] || '🌐'} {c.name}</td>
                       <td style={styles.td}>{formatNum((c['1月'] || 0) / 10000, 1)}</td>
                       <td style={styles.td}>{formatNum((c['2月'] || 0) / 10000, 1)}</td>
-                      <td style={{...styles.td, ...styles.tdCurrent}}>{formatNum((c['3月'] || 0) / 10000, 1)}</td>
+                      <td style={styles.td}>{formatNum((c['3月'] || 0) / 10000, 1)}</td>
+                      <td style={{...styles.td, ...styles.tdCurrent}}>{formatNum((c['4月'] || 0) / 10000, 1)}</td>
                       <td style={{...styles.td, fontWeight: 700}}>{formatNum(c.total2026 / 10000, 1)}</td>
                       <td style={{...styles.td, color: c.totalYoy >= 0 ? '#059669' : '#dc2626', fontWeight: 600}}>
                         {c.totalYoy >= 0 ? '+' : ''}{c.totalYoy.toFixed(1)}%
@@ -535,7 +537,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
                 </tbody>
               </table>
             </div>
-            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年1-3月推計値）</p>
+            <p style={styles.chartSource}>出典：JNTO訪日外客統計（2026年1-4月推計値）</p>
           </div>
         </section>
       )}
@@ -760,7 +762,7 @@ const TabLongTerm = ({ longTermData }) => {
               const is2030 = d.year === '2030';
               return (
                 <div style={styles.tooltip}>
-                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年1-3月' : `${d.year}年`}</p>
+                  <p style={styles.tooltipTitle}>{is2030 ? '2030年目標' : d.year === '2026' ? '2026年1-4月' : `${d.year}年`}</p>
                   <p style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
                     {is2030 ? '目標: ' : ''}{d.totalMan.toLocaleString()}万人{d.year === '2026' ? '（累計）' : ''}
                   </p>
@@ -851,7 +853,7 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
 
   return (
     <section style={styles.section}>
-      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年3月）" />
+      <SectionHeader title="国・地域別 詳細データ" subtitle="主要15市場の年間訪日客数推移（2014年〜2026年4月）" />
       
       {/* 인사이트 카드 */}
       <div style={styles.insightCards}>
@@ -1031,7 +1033,7 @@ export default function App() {
   const [monthlyData, setMonthlyData] = useState([]);
   const [countryLatestData, setCountryLatestData] = useState([]);
   const [countryLatestTotal, setCountryLatestTotal] = useState(0);
-  const [countryMonthlyData, setCountryMonthlyData] = useState([]); // 1-3월 국가별
+  const [countryMonthlyData, setCountryMonthlyData] = useState([]); // 1-4월 국가별
   const [annualData, setAnnualData] = useState([]);
   const [longTermData, setLongTermData] = useState([]);
   const [specialData, setSpecialData] = useState([]);
@@ -1068,12 +1070,12 @@ export default function App() {
         }
         await delay(100);
 
-        // 국가별 2026년 3월
-        const country202603 = await fetchSheet('訪日_国別_202603');
-        if (country202603?.length > 1) {
+        // 국가별 2026년 4월
+        const country202604 = await fetchSheet('訪日_国別_202604');
+        if (country202604?.length > 1) {
           const countries = [];
           let total = 0;
-          country202603.slice(1).forEach(r => {
+          country202604.slice(1).forEach(r => {
             const name = r[0], val = parseNumber(r[2]), yoy = parseNumber(r[3]);
             if (name === '総数') total = val;
             else if (name) countries.push({ name, value: val, yoy });
@@ -1084,11 +1086,12 @@ export default function App() {
         }
         await delay(100);
 
-        // 국가별 1-3월 데이터 (추이용)
-        const [c01, c02, c03] = await Promise.all([
+        // 국가별 1-4월 데이터 (추이용)
+        const [c01, c02, c03, c04] = await Promise.all([
           fetchSheet('訪日_国別_202601'),
           fetchSheet('訪日_国別_202602'),
-          fetchSheet('訪日_国別_202603')
+          fetchSheet('訪日_国別_202603'),
+          fetchSheet('訪日_国別_202604')
         ]);
         const monthlyCountries = {};
         const parseCountrySheet = (data, month) => {
@@ -1106,10 +1109,11 @@ export default function App() {
         parseCountrySheet(c01, '1月');
         parseCountrySheet(c02, '2月');
         parseCountrySheet(c03, '3月');
+        parseCountrySheet(c04, '4月');
         // 누계 계산
         Object.values(monthlyCountries).forEach(c => {
-          c.total2026 = (c['1月'] || 0) + (c['2月'] || 0) + (c['3月'] || 0);
-          c.total2025 = (c['1月prev'] || 0) + (c['2月prev'] || 0) + (c['3月prev'] || 0);
+          c.total2026 = (c['1月'] || 0) + (c['2月'] || 0) + (c['3月'] || 0) + (c['4月'] || 0);
+          c.total2025 = (c['1月prev'] || 0) + (c['2月prev'] || 0) + (c['3月prev'] || 0) + (c['4月prev'] || 0);
           c.totalYoy = c.total2025 > 0 ? ((c.total2026 - c.total2025) / c.total2025 * 100) : 0;
         });
         const sortedMonthly = Object.values(monthlyCountries).sort((a, b) => b.total2026 - a.total2026);
@@ -1140,7 +1144,7 @@ export default function App() {
         if (special?.length > 1) {
           setSpecialData(special.slice(1).map(r => ({
             month: r[0], content: r[1], country: r[2], value: parseNumber(r[3]), note: r[4]
-          })).filter(s => s.month === '2026-03'));
+          })).filter(s => s.month === '2026-04'));
         }
         await delay(100);
 
@@ -1292,7 +1296,6 @@ const styles = {
   chartSubtitle: { fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#1a1a1a' },
   chartSource: { marginTop: 16, paddingTop: 12, borderTop: '1px solid #e0e0e0', fontSize: 11, color: '#999' },
   
-  // Country Trend Cards
   countryTrendGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 },
   countryTrendCard: { background: '#f8f8f8', borderRadius: 8, padding: 16, border: '1px solid #e0e0e0' },
   countryTrendHeader: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 },
@@ -1372,7 +1375,6 @@ const styles = {
   insightCardLabel: { fontSize: 12, color: '#666', marginBottom: 8 },
   insightCardValue: { fontSize: 18, fontWeight: 700, color: '#1a1a1a' },
   
-  // 2030 Target Section
   targetSection: { marginBottom: 32 },
   targetCard: { padding: 32, background: '#1a1a1a', borderRadius: 8, color: 'white' },
   targetLabel: { fontSize: 14, color: '#999', marginBottom: 20, textAlign: 'center' },
@@ -1389,14 +1391,12 @@ const styles = {
   progressText: { fontSize: 13, color: '#999' },
   targetInsight: { textAlign: 'center', marginTop: 20, paddingTop: 20, borderTop: '1px solid #333' },
   
-  // Country Legend
   countryLegend: { display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20, flexWrap: 'wrap' },
   countryLegendItem: { display: 'flex', alignItems: 'center', gap: 6 },
   countryLegendDot: { width: 12, height: 12, borderRadius: '50%' },
   countryLegendFlag: { fontSize: 16 },
   countryLegendName: { fontSize: 13, fontWeight: 500, color: '#666' },
   
-  // Growth List
   growthList: { display: 'flex', flexDirection: 'column', gap: 8 },
   growthItem: { display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e0e0e0' },
   growthRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#999' },
