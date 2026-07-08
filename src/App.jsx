@@ -430,38 +430,107 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
     chartData.push(row);
   }
 
+  // 中国を除く成長率
+  const totalExChina = countryData.reduce((s, c) => s + c.value, 0);
+  const totalExChinaPrev = countryData.reduce((s, c) => {
+    // yoy로 전년 역산: prev = val / (1 + yoy/100)
+    const prev = c.yoy !== -100 ? c.value / (1 + c.yoy / 100) : 0;
+    return s + prev;
+  }, 0);
+  const yoyExChina = totalExChinaPrev > 0
+    ? ((totalExChina - totalExChinaPrev) / totalExChinaPrev * 100)
+    : 0;
+
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero Section — 2列レイアウト */}
       <section style={styles.hero}>
-        <div style={styles.heroEyebrow}>
-          <span style={styles.heroDate}>2026年5月 訪日外客数</span>
-          <span style={styles.heroBadge}>速報</span>
-        </div>
-        <div style={styles.heroNumber}>
-          <span style={styles.heroDigits}>{formatNum(latest.total / 10000, 1)}</span>
-          <span style={styles.heroUnit}>万人</span>
-        </div>
-        <div style={styles.heroCompare}>
-          <div style={styles.compareItem}>
-            <span style={styles.compareLabel}>前年同月比</span>
-            <div style={styles.compareValue}>
-              <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '+' : '▼'}</span>
-              <span style={{...styles.compareNum, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(yoy).toFixed(1)}%</span>
+        <div className="hero-layout" style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
+
+          {/* 左：メイン数字 */}
+          <div style={{ flex: '0 0 auto' }}>
+            <div style={styles.heroEyebrow}>
+              <span style={styles.heroDate}>2026年5月 訪日外客数</span>
+              <span style={styles.heroBadge}>速報</span>
             </div>
-            <span style={styles.compareSub}>2025年5月: {formatMan(latest.prevYear)}</span>
-          </div>
-          <div style={styles.compareItem}>
-            <span style={styles.compareLabel}>前月比</span>
-            <div style={styles.compareValue}>
-              <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '+' : '▼'}</span>
-              <span style={{...styles.compareNum, color: mom >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(mom).toFixed(1)}%</span>
+            <div style={styles.heroNumber}>
+              <span style={styles.heroDigits}>{formatNum(latest.total / 10000, 1)}</span>
+              <span style={styles.heroUnit}>万人</span>
             </div>
-            <span style={styles.compareSub}>2026年4月: {formatMan(latest.prevMonth)}</span>
+            <div style={styles.heroCompare}>
+              <div style={styles.compareItem}>
+                <span style={styles.compareLabel}>前年同月比</span>
+                <div style={styles.compareValue}>
+                  <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '+' : '▼'}</span>
+                  <span style={{...styles.compareNum, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(yoy).toFixed(1)}%</span>
+                </div>
+                <span style={styles.compareSub}>2025年5月: {formatMan(latest.prevYear)}</span>
+              </div>
+              <div style={styles.compareItem}>
+                <span style={styles.compareLabel}>前月比</span>
+                <div style={styles.compareValue}>
+                  <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '+' : '▼'}</span>
+                  <span style={{...styles.compareNum, color: mom >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(mom).toFixed(1)}%</span>
+                </div>
+                <span style={styles.compareSub}>2026年4月: {formatMan(latest.prevMonth)}</span>
+              </div>
+            </div>
           </div>
+
+          {/* 右：ミニKPIパネル */}
+          <div style={{
+            flex: 1,
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gridTemplateRows: 'auto auto',
+            gap: 12,
+            alignSelf: 'center',
+            paddingLeft: 8,
+          }}>
+            {/* ① 中国除き成長率 */}
+            <div style={styles.miniKpi}>
+              <p style={styles.miniKpiLabel}>中国を除く 前年同月比</p>
+              <p style={{
+                ...styles.miniKpiVal,
+                color: yoyExChina >= 0 ? '#059669' : '#dc2626',
+              }}>
+                {yoyExChina >= 0 ? '+' : ''}{yoyExChina.toFixed(1)}%
+              </p>
+              <p style={styles.miniKpiNote}>中国の減少を除けばプラス成長</p>
+            </div>
+
+            {/* ② 過去最高更新市場数 */}
+            <div style={styles.miniKpi}>
+              <p style={styles.miniKpiLabel}>5月として過去最高</p>
+              <p style={styles.miniKpiVal}>
+                <span style={{ color: '#1a1a1a' }}>19</span>
+                <span style={{ fontSize: 18, fontWeight: 500, color: '#666', marginLeft: 4 }}>市場</span>
+              </p>
+              <p style={styles.miniKpiNote}>中東・インドは単月過去最高</p>
+            </div>
+
+            {/* ③ 1〜5月累計 — 全幅 */}
+            <div style={{...styles.miniKpi, gridColumn: '1 / -1',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={styles.miniKpiLabel}>1〜5月 累計</p>
+                <p style={styles.miniKpiVal}>
+                  <span style={{ color: '#1a1a1a' }}>1,793.6</span>
+                  <span style={{ fontSize: 18, fontWeight: 500, color: '#666', marginLeft: 4 }}>万人</span>
+                </p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={styles.miniKpiLabel}>前年同期比</p>
+                <p style={{ fontSize: 22, fontWeight: 700, color: '#dc2626' }}>▼1.1%</p>
+                <p style={styles.miniKpiNote}>中国除きは累計でもプラス推移</p>
+              </div>
+            </div>
+          </div>
+
         </div>
+
         {specialData?.[0] && (
-          <div style={styles.insight}>
+          <div style={{...styles.insight, marginTop: 24}}>
             <p style={styles.insightText}>
               <strong style={styles.insightStrong}>{specialData[0].country}</strong>が
               <mark style={styles.insightMark}>{formatMan(specialData[0].value)}</mark>を記録。{specialData[0].note}
@@ -1203,6 +1272,9 @@ export default function App() {
             grid-template-columns: 1fr !important;
             gap: 24px !important;
           }
+          .hero-layout {
+            flex-direction: column !important;
+          }
         }
       `}</style>
       <header style={styles.header}>
@@ -1290,6 +1362,16 @@ const styles = {
   compareNum: { fontFamily: 'Inter, sans-serif', fontSize: 22, fontWeight: 700 },
   compareSub: { fontSize: 12, color: '#999' },
   insight: { marginTop: 24, padding: 20, background: '#f5f5f5', borderLeft: '3px solid #e53935', borderRadius: 0 },
+  miniKpi: {
+    padding: '16px 20px',
+    background: '#fff',
+    border: '1px solid #e8e8e8',
+    borderRadius: 8,
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+  },
+  miniKpiLabel: { fontSize: 11, fontWeight: 600, color: '#999', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 },
+  miniKpiVal: { fontSize: 32, fontWeight: 800, fontFamily: 'Inter, sans-serif', letterSpacing: '-0.02em', margin: '0 0 4px', color: '#1a1a1a' },
+  miniKpiNote: { fontSize: 11, color: '#aaa', marginTop: 4 },
   insightText: { fontSize: 15, lineHeight: 1.8, color: '#333', margin: 0 },
   insightStrong: { fontWeight: 600, color: '#e53935' },
   insightMark: { background: 'linear-gradient(transparent 50%, #ffebee 50%)', padding: '0 2px' },
