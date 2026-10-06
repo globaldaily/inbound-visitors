@@ -263,7 +263,7 @@ const useIframeHeight = (rootRef, ...deps) => {
 // ============================================================
 const SectionHeader = ({ number, title, subtitle }) => (
   <div style={styles.sectionHeader}>
-    {number && <p style={styles.sectionNumber}>{number}</p>}
+    {number && <p style={styles.sectionNumber}>図{parseInt(number, 10)}<span style={{ fontWeight: 400, color: '#aaa', marginLeft: 10, paddingLeft: 10, borderLeft: '1px solid #ddd' }}>出典：JNTO「訪日外客統計」</span></p>}
     <h2 style={styles.sectionTitle}>{title}</h2>
     {subtitle && <p style={styles.sectionDesc}>{subtitle}</p>}
   </div>
@@ -1017,7 +1017,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
       {/* 시장별 前年同月比 다이버징 바 */}
       {countryData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="03" title="市場別 前年同月比" subtitle="市場ごとの増減率。率が高くても母数が小さい市場は、02の人数ベースと併せて確認。" />
+          <SectionHeader number="03" title="市場別 前年同月比" subtitle="市場ごとの増減率。率が高くても母数が小さい市場は、図2の人数ベースと併せて確認。" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
               <span>増減率ランキング</span>
@@ -1927,7 +1927,7 @@ const styles = {
 
   section: { marginBottom: 64 },
   sectionHeader: { marginBottom: 24 },
-  sectionNumber: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#e53935', letterSpacing: '0.1em', marginBottom: 4 },
+  sectionNumber: { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '0.02em', marginBottom: 6 },
   sectionTitle: { fontSize: 20, fontWeight: 700, margin: '0 0 6px 0', color: '#1a1a1a' },
   sectionDesc: { fontSize: 14, color: '#666', margin: 0 },
 
