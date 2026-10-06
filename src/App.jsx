@@ -32,6 +32,14 @@ const CURRENT = {
   dataStatus: { finalYear: 2025, provisionalThrough: 6 },
   momentumNote: '単月の前年比は祝日・連休の年ズレや航空便・台風の影響を受けやすい（例：タイは前年8月に特別休日による4連休）。',
 };
+// JNTO「訪日外客数の発表予定」より（推計値の発表日）。発表予定が出たら追加する（例 20260916.pdf）
+//   ym＝推計値の対象月 / prov＝同じ日に暫定値になる月
+const JNTO_RELEASES = [
+  { ym: '2026-08', prov: '2026-06', date: '2026-09-16' },
+  { ym: '2026-09', prov: '2026-07', date: '2026-10-21' },
+  { ym: '2026-10', prov: '2026-08', date: '2026-11-18' },
+  { ym: '2026-11', prov: '2026-09', date: '2026-12-16' },
+];
 const CY = CURRENT.year;
 const CM = CURRENT.month;
 const MONTHS = Array.from({ length: CM }, (_, i) => i + 1);
@@ -61,6 +69,31 @@ const rangeStatusText = () => {
   if (P <= 0) return `${CY}年1〜${CM}月推計値`;
   const est = P + 1 === CM ? `${CM}月` : `${P + 1}〜${CM}月`;
   return `${CY}年1〜${P}月暫定値・${est}推計値`;
+};
+// 公表日・次回・最新かどうか（今日の日付で自動判定）
+const releaseInfo = () => {
+  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  const cur = `${CY}-${String(CM).padStart(2, '0')}`;
+  const pub = JNTO_RELEASES.find(r => r.ym === cur) || null;
+  const next = JNTO_RELEASES.filter(r => r.date > today).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
+  const done = JNTO_RELEASES.filter(r => r.date <= today).sort((a, b) => b.date.localeCompare(a.date))[0];
+  return { pub, next, isLatest: !!pub && !!done && done.ym === cur };
+};
+const jaDate = (d, withYear = true) => {
+  const [y, m, dd] = d.split('-').map(Number);
+  return withYear ? `${y}年${m}月${dd}日` : `${m}月${dd}日`;
+};
+const ReleaseLine = () => {
+  const { pub, next, isLatest } = releaseInfo();
+  const [ny, nm] = next ? next.ym.split('-').map(Number) : [];
+  return (
+    <div style={{ fontSize: 11, lineHeight: 1.7, color: '#888', marginTop: 14 }}>
+      <div>出典：JNTO「訪日外客統計」{pub && <>（{jaDate(pub.date)}公表）</>}
+        {isLatest && <span style={{ marginLeft: 6, padding: '0 6px', fontSize: 10, fontWeight: 700, color: '#555', border: '1px solid #bbb', borderRadius: 2 }}>公表済みの最新</span>}
+      </div>
+      <div>次回更新：{next ? <>{ny}年{nm}月分 推計値（{jaDate(next.date, false)}予定）</> : '毎月中旬（JNTO発表に合わせて更新）'}</div>
+    </div>
+  );
 };
 const L = {
   ym: `${CY}年${CM}月`,
@@ -860,6 +893,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
                 <span style={styles.compareSub}>{L.prevMonthYm}: {formatMan(latest.prevMonth)}</span>
               </div>
             </div>
+            <ReleaseLine />
           </div>
           {/* 右：ミニKPIパネル */}
           <div style={{
@@ -1660,6 +1694,9 @@ export default function App() {
         const [jCurRaw, jPrevRaw] = await Promise.all([fetchSheet(`JNTO_${CY}`), fetchSheet(`JNTO_${CY - 1}`)]);
         const jCur = parseJnto(jCurRaw);
         const jPrev = parseJnto(jPrevRaw);
+        if (!jCurRaw.length && !jPrevRaw.length) {
+          throw new Error('Googleシートに接続できません（ネットワーク・APIキーの制限を確認）');
+        }
         if (!jCur['総数']?.[CM] || !jPrev['総数']?.[CM]) {
           throw new Error(`JNTO_${CY} / JNTO_${CY - 1} タブに${CM}月のデータがありません`);
         }
