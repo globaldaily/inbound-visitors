@@ -21,16 +21,16 @@ const API_KEY = 'AIzaSyAs_UERCv_a4ZCfrZI2XvThGMFPFRkStO0';
 // ============================================================
 const CURRENT = {
   year: 2026,
-  month: 8,
+  month: 9,
   // PDF1ページ「N月として過去最高」の市場（注記の並び順）
-  recordMarkets: ['韓国', '台湾', '香港', 'マレーシア', 'インドネシア', 'インド', '米国', 'メキシコ', 'フランス', 'イタリア', 'スペイン', 'ロシア', '北欧地域', '中東地域'],
+  recordMarkets: ['韓国', '台湾', 'シンガポール', 'インド', 'メキシコ', 'ロシア', '中東地域'],
   // うち「単月過去最高」
-  singleMonthRecords: ['イタリア', 'スペイン'],
+  singleMonthRecords: [],
   // モメンタム表の注記（単月の前年比がブレた主因。PDF「地域別概況」から）
   // データ区分（JNTO月別Excelの注記・斜体で判定。毎月更新）
   //   finalYear 以前＝確定値 / 当年 1〜provisionalThrough月＝暫定値 / それ以降＝推計値
-  dataStatus: { finalYear: 2025, provisionalThrough: 6 },
-  momentumNote: '単月の前年比は祝日・連休の年ズレや航空便・台風の影響を受けやすい（例：タイは前年8月に特別休日による4連休）。',
+  dataStatus: { finalYear: 2025, provisionalThrough: 7 },
+  momentumNote: '単月の前年比は祝日・連休の年ズレや航空便・台風の影響を受けやすい（例：9月は中東情勢による航空券価格の上昇と減便、台風による欠航が多くの市場に影響）。',
 };
 // JNTO「訪日外客数の発表予定」より（推計値の発表日）。発表予定が出たら追加する（例 20260916.pdf）
 //   ym＝推計値の対象月 / prov＝同じ日に暫定値になる月
