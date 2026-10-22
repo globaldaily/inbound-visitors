@@ -115,19 +115,17 @@ const COUNTRY_COLORS = [
   '#1a1a1a', '#333333', '#4a4a4a', '#666666', '#808080',
   '#999999', '#b3b3b3', '#cccccc', '#e0e0e0', '#f0f0f0'
 ];
-// 국가별 고유 색상 (spending 대시보드와 동일 매핑 - 대시보드 간 일관성)
+// 国・地域の色 — 市場レポート（PDF・編集用PPT）・Webの宿泊マップ・旅行消費額ダッシュボードと共通。
+// 変えるときは全部そろえて変える（inbound-report-kit の CC と同じ値）
 const COUNTRY_PIE_COLORS = {
-  '中国': '#991b1b', '韓国': '#1e3a8a', '台湾': '#c2410c',
-  '米国': '#0c4a6e', '香港': '#15803d', '豪州': '#0891b2',
-  'タイ': '#a16207', 'シンガポール': '#65a30d',
-  'マレーシア': '#be185d', 'インドネシア': '#7c2d12',
-  'フィリピン': '#db2777', 'ベトナム': '#166534',
-  'インド': '#ca8a04', '英国': '#312e81', 'ドイツ': '#374151',
-  'フランス': '#6d28d9', 'イタリア': '#86198f', 'スペイン': '#b45309',
-  'ロシア': '#4c1d95', 'カナダ': '#0284c7', 'メキシコ': '#9a3412',
-  '中東地域': '#854d0e', '北欧地域': '#475569', 'その他': '#a8a29e'
+  '韓国': '#2f6db5', '中国': '#c0463f', '台湾': '#2f8f5b', '香港': '#8a4fb0', '米国': '#1f7f8f', 'タイ': '#d27a1f',
+  'マレーシア': '#a88a12', 'インドネシア': '#a0522d', 'ベトナム': '#b8467e', 'シンガポール': '#5b8c3a', 'フィリピン': '#6d5a8e',
+  '豪州': '#3f6f9e', 'カナダ': '#9b6b43', '英国': '#4a5a7a', 'フランス': '#7a8fb0', 'ドイツ': '#5a5a5a', 'イタリア': '#4f8a7a', 'スペイン': '#b07a3a',
+  'インド': '#d98c5f', 'ロシア': '#5e3c6d', 'メキシコ': '#8a9a2f', '中東地域': '#9a7b4f', '北欧地域': '#6c8a99',
+  'その他': '#c9d0db',
 };
-const colorOf = (name) => COUNTRY_PIE_COLORS[name] || '#a8a29e';
+const COUNTRY_ALIAS = { 'オーストラリア': '豪州', '中東': '中東地域', '北欧': '北欧地域' };
+const colorOf = (name) => COUNTRY_PIE_COLORS[COUNTRY_ALIAS[name] || name] || '#9aa3b2';
 const YEAR_COLORS = {
   '2026': '#e53935',  // 레드 (현재 강조)
   '2025': '#1a1a1a',  // 블랙 (최신 완료 연도)
@@ -385,7 +383,7 @@ const CountryPie = ({ data, total, label, topN = 15 }) => {
     const rest = filtered.slice(topN);
     const restSum = rest.reduce((s, c) => s + c.value, 0);
     const arr = top.map(c => ({ name: c.name, value: c.value, color: colorOf(c.name) }));
-    if (restSum > 0) arr.push({ name: 'その他', value: restSum, color: '#a8a29e' });
+    if (restSum > 0) arr.push({ name: 'その他', value: restSum, color: colorOf('その他') });
     return arr;
   }, [data, topN]);
   if (!chartData.length) return null;
