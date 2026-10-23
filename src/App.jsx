@@ -87,9 +87,9 @@ const ReleaseLine = () => {
   const { pub, next, isLatest } = releaseInfo();
   const [ny, nm] = next ? next.ym.split('-').map(Number) : [];
   return (
-    <div style={{ fontSize: 11, lineHeight: 1.7, color: '#888', marginTop: 14 }}>
+    <div style={{ fontSize: 13, lineHeight: 1.7, color: '#555', marginTop: 14 }}>
       <div>出典：JNTO「訪日外客統計」{pub && <>（{jaDate(pub.date)}公表）</>}
-        {isLatest && <span style={{ marginLeft: 6, padding: '0 6px', fontSize: 10, fontWeight: 700, color: '#555', border: '1px solid #bbb', borderRadius: 2 }}>公表済みの最新</span>}
+        {isLatest && <span style={{ marginLeft: 6, padding: '0 6px', fontSize: 12, fontWeight: 700, color: '#555', border: '1px solid #777', borderRadius: 2 }}>公表済みの最新</span>}
       </div>
       <div>次回更新：{next ? <>{ny}年{nm}月分 推計値（{jaDate(next.date, false)}予定）</> : '毎月中旬（JNTO発表に合わせて更新）'}</div>
     </div>
@@ -261,7 +261,7 @@ const useIframeHeight = (rootRef, ...deps) => {
 // ============================================================
 const SectionHeader = ({ number, title, subtitle }) => (
   <div style={styles.sectionHeader}>
-    {number && <p style={styles.sectionNumber}>図{parseInt(number, 10)}<span style={{ fontWeight: 400, color: '#aaa', marginLeft: 10, paddingLeft: 10, borderLeft: '1px solid #ddd' }}>出典：JNTO「訪日外客統計」</span></p>}
+    {number && <p style={styles.sectionNumber}>図{parseInt(number, 10)}<span style={{ fontWeight: 400, color: '#777', marginLeft: 10, paddingLeft: 10, borderLeft: '1px solid #ddd' }}>出典：JNTO「訪日外客統計」</span></p>}
     <h2 style={styles.sectionTitle}>{title}</h2>
     {subtitle && <p style={styles.sectionDesc}>{subtitle}</p>}
   </div>
@@ -323,7 +323,7 @@ const MarketDivergingBar = ({ countryData }) => {
               borderBottom: '1px solid #f4f4f4',
             }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {COUNTRY_FLAGS[d.name] || '🌐'} {d.name}
+                {d.name}
               </span>
               <div style={{ display: 'flex', justifyContent: 'flex-end', borderRight: '1px solid #d0d0d0' }}>
                 {neg && <div style={{ width: `${w}%`, height: 13, background: DIVERGE_NEG, borderRadius: '2px 0 0 2px' }} />}
@@ -367,9 +367,9 @@ const PieHoverTooltip = ({ active, payload, total }) => {
         lineHeight: 1,
       }}>
         {formatNum(d.value / 10000, 1)}
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginLeft: 3, fontWeight: 500 }}>万人</span>
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginLeft: 3, fontWeight: 500 }}>万人</span>
       </div>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 4, fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 4, fontFamily: 'Inter, sans-serif' }}>
         構成比 {pct.toFixed(1)}%
       </div>
     </div>
@@ -404,13 +404,13 @@ const CountryPie = ({ data, total, label, topN = 15 }) => {
           {name}
         </text>
         <text x={x} y={y + 2} textAnchor="middle"
-              style={{ fontSize: 11, fontWeight: 700, fill: '#fff',
+              style={{ fontSize: 13, fontWeight: 700, fill: '#fff',
                        fontFamily: 'Inter, sans-serif',
                        paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.2)', strokeWidth: 0.6 }}>
           {formatNum(value / 10000, 1)}万
         </text>
         <text x={x} y={y + 15} textAnchor="middle"
-              style={{ fontSize: 11, fontWeight: 600, fill: 'rgba(255,255,255,0.9)',
+              style={{ fontSize: 13, fontWeight: 600, fill: 'rgba(255,255,255,0.9)',
                        fontFamily: 'Inter, sans-serif' }}>
           {(percent * 100).toFixed(1)}%
         </text>
@@ -423,18 +423,18 @@ const CountryPie = ({ data, total, label, topN = 15 }) => {
         <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', letterSpacing: '-0.01em', lineHeight: 1.1 }}>
           {label}
         </div>
-        <div style={{ fontSize: 10, color: '#b0b0b0', marginTop: 6, letterSpacing: '0.05em' }}>
+        <div style={{ fontSize: 12, color: '#b0b0b0', marginTop: 6, letterSpacing: '0.05em' }}>
           セグメントにカーソルを合わせると詳細表示
         </div>
       </div>
-      <div style={{ position: 'relative', width: '100%', height: 500 }}>
+      <div className="pie-box" style={{ position: 'relative', width: '100%', height: 500 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
             <Pie
               data={chartData}
               cx="50%" cy="50%"
-              innerRadius={105}
-              outerRadius={195}
+              innerRadius="46%"
+              outerRadius="85%"
               paddingAngle={0.5}
               startAngle={90}
               endAngle={-270}
@@ -458,7 +458,7 @@ const CountryPie = ({ data, total, label, topN = 15 }) => {
           transform: 'translate(-50%, -50%)', textAlign: 'center',
           pointerEvents: 'none',
         }}>
-          <div style={{ fontSize: 10, color: '#666', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 12, color: '#666', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             総数
           </div>
           <div style={{ fontSize: 30, fontWeight: 700, color: '#1a1a1a',
@@ -466,7 +466,7 @@ const CountryPie = ({ data, total, label, topN = 15 }) => {
                         letterSpacing: '-0.02em' }}>
             {formatNum(total / 10000, 0)}
           </div>
-          <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>万人</div>
+          <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>万人</div>
         </div>
       </div>
     </div>
@@ -485,7 +485,7 @@ const CountryComparisonTable = ({ data, total, currentLabel = '6月' }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{
-        fontSize: 11, fontWeight: 700, color: '#666',
+        fontSize: 13, fontWeight: 700, color: '#666',
         textTransform: 'uppercase', letterSpacing: '0.12em',
         marginBottom: 4,
       }}>
@@ -496,7 +496,7 @@ const CountryComparisonTable = ({ data, total, currentLabel = '6月' }) => {
         display: 'grid',
         gridTemplateColumns: '12px minmax(80px, 1.1fr) 72px 60px 70px',
         gap: 10, alignItems: 'center',
-        fontSize: 10, fontWeight: 600, color: '#666',
+        fontSize: 12, fontWeight: 600, color: '#666',
         textTransform: 'uppercase', letterSpacing: '0.1em',
         paddingBottom: 10,
         borderBottom: '2px solid #1a1a1a',
@@ -525,14 +525,14 @@ const CountryComparisonTable = ({ data, total, currentLabel = '6月' }) => {
               borderRadius: 2, display: 'inline-block',
             }} />
             <span style={{ fontWeight: 600, color: '#1a1a1a' }}>
-              {COUNTRY_FLAGS[c.name] || '🌐'} {c.name}
+              {c.name}
             </span>
             <span style={{
               fontFamily: 'Inter, sans-serif',
               color: '#1a1a1a', fontWeight: 700, textAlign: 'right',
             }}>
               {formatNum(c.value / 10000, 1)}
-              <span style={{ fontSize: 10, color: '#666', marginLeft: 2, fontWeight: 500 }}>万</span>
+              <span style={{ fontSize: 12, color: '#666', marginLeft: 2, fontWeight: 500 }}>万</span>
             </span>
             <span style={{
               fontFamily: 'Inter, sans-serif',
@@ -557,7 +557,7 @@ const CountryComparisonTable = ({ data, total, currentLabel = '6月' }) => {
             width: '100%', marginTop: 10, padding: '10px 12px',
             background: 'transparent',
             border: '1px solid #e0e0e0', borderRadius: 3,
-            fontSize: 11, fontWeight: 600, color: '#333',
+            fontSize: 13, fontWeight: 600, color: '#333',
             fontFamily: '"Noto Sans JP", sans-serif',
             letterSpacing: '0.04em', cursor: 'pointer',
             textTransform: 'uppercase',
@@ -586,7 +586,7 @@ const DataStatusStrip = ({ compact = false }) => {
     <div style={{ marginTop: compact ? 8 : 16, padding: compact ? 0 : '10px 14px', background: compact ? 'transparent' : '#fff',
                   border: compact ? 'none' : '1px solid #e8e8e8', borderRadius: 6 }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#999' }}>データ区分</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#666' }}>データ区分</span>
         {items.map(x => (
           <span key={x.s} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#333' }}>
             <StatusChip s={x.s} /> {x.t}
@@ -594,7 +594,7 @@ const DataStatusStrip = ({ compact = false }) => {
         ))}
       </div>
       {!compact && (
-        <p style={{ fontSize: 11, color: '#999', margin: '6px 0 0' }}>
+        <p style={{ fontSize: 13, color: '#666', margin: '6px 0 0' }}>
           JNTOの推計値・暫定値は、後日公表される暫定値・確定値で修正されます。本ダッシュボードも公表に合わせて毎月更新します。
         </p>
       )}
@@ -623,7 +623,7 @@ const ContributionBars = ({ countryData, total, prevTotal }) => {
     return (
       <div style={{ display: 'grid', gridTemplateColumns: '104px 1fr 1fr 76px', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid #f4f4f4' }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {COUNTRY_FLAGS[r.name] || '🌐'} {r.name}
+          {r.name}
         </span>
         <div style={{ display: 'flex', justifyContent: 'flex-end', borderRight: '1px solid #d0d0d0' }}>
           {neg && <div style={{ width: `${w}%`, minWidth: 2, height: 13, background: DIVERGE_NEG, borderRadius: '2px 0 0 2px' }} />}
@@ -646,21 +646,9 @@ const ContributionBars = ({ countryData, total, prevTotal }) => {
           差し引きで総数は<span style={{ fontWeight: 700, color: net >= 0 ? DIVERGE_POS : DIVERGE_NEG }}>{signMan(net)}人</span>。
         </p>
       )}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 18 }} className="contrib-kpis">
-        {[
-          { k: '増加市場の合計', v: plusSum, c: DIVERGE_POS },
-          { k: '減少市場の合計', v: minusSum, c: DIVERGE_NEG },
-          { k: '総数の増減', v: net, c: net >= 0 ? DIVERGE_POS : DIVERGE_NEG },
-        ].map(x => (
-          <div key={x.k} style={{ background: '#fafafa', border: '1px solid #eee', borderRadius: 6, padding: '10px 14px' }}>
-            <div style={{ fontSize: 11, color: '#999', fontWeight: 600 }}>{x.k}</div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 22, fontWeight: 800, color: x.c }}>{signMan(x.v)}<span style={{ fontSize: 12, color: '#999', marginLeft: 2 }}>人</span></div>
-          </div>
-        ))}
-      </div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '0.08em', margin: '4px 0' }}>増加寄与 TOP{Math.min(7, plus.length)}</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#666', letterSpacing: '0.08em', margin: '4px 0' }}>増加寄与 TOP{Math.min(7, plus.length)}</div>
       {plus.slice(0, 7).map(r => <Row key={r.name} r={r} />)}
-      {minus.length > 0 && <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '0.08em', margin: '14px 0 4px' }}>減少寄与 TOP{Math.min(5, minus.length)}</div>}
+      {minus.length > 0 && <div style={{ fontSize: 13, fontWeight: 700, color: '#666', letterSpacing: '0.08em', margin: '14px 0 4px' }}>減少寄与 TOP{Math.min(5, minus.length)}</div>}
       {minus.slice(0, 5).map(r => <Row key={r.name} r={r} />)}
     </div>
   );
@@ -687,12 +675,12 @@ const ExChinaTrend = ({ series }) => {
       <LineChart data={data} margin={{ top: 24, right: 24, left: 0, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
         <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-        <YAxis domain={[lo, hi]} ticks={ticks} tickFormatter={v => `${v}%`} tick={{ fontSize: 11 }} />
-        <ReferenceLine y={0} stroke="#999" />
+        <YAxis domain={[lo, hi]} ticks={ticks} tickFormatter={v => `${v}%`} tick={{ fontSize: 13 }} />
+        <ReferenceLine y={0} stroke="#666" />
         <Tooltip content={<ChartTooltip suffix="%" />} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         <Line type="monotone" dataKey="中国を除く" stroke="#1a1a1a" strokeWidth={3} dot={{ r: 4, fill: '#1a1a1a' }}
-              label={{ position: 'top', fontSize: 11, fontWeight: 700, fill: '#1a1a1a', formatter: pctLabel }} />
+              label={{ position: 'top', fontSize: 13, fontWeight: 700, fill: '#1a1a1a', formatter: pctLabel }} />
         <Line type="monotone" dataKey="総数" stroke="#9e9e9e" strokeWidth={2} strokeDasharray="5 4" dot={{ r: 3, fill: '#9e9e9e' }} />
         <Line type="monotone" dataKey="中国" stroke={COUNTRY_PIE_COLORS['中国']} strokeWidth={2} dot={{ r: 3, fill: COUNTRY_PIE_COLORS['中国'] }} />
       </LineChart>
@@ -737,12 +725,12 @@ const MomentumTable = ({ rows }) => {
           <tbody>
             {data.map(d => (
               <tr key={d.name}>
-                <td style={styles.tdFirst}>{COUNTRY_FLAGS[d.name] || '🌐'} {d.name}</td>
+                <td style={styles.tdFirst}>{d.name}</td>
                 <td style={styles.td}>{pc(d.ytd)}</td>
                 <td style={{ ...styles.td, ...styles.tdCurrent }}>{pc(d.cur)}</td>
                 <td style={{ ...styles.td, color: '#555' }}>{d.gap >= 0 ? '+' : ''}{d.gap.toFixed(1)}pt</td>
                 <td style={styles.td}>
-                  <span style={{ ...chip[d.state], fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 10, whiteSpace: 'nowrap' }}>
+                  <span style={{ ...chip[d.state], fontSize: 13, fontWeight: 700, padding: '2px 10px', borderRadius: 10, whiteSpace: 'nowrap' }}>
                     {d.state === '加速' ? '▲ ' : d.state === '減速' ? '▼ ' : ''}{d.state}
                   </span>
                 </td>
@@ -751,7 +739,7 @@ const MomentumTable = ({ rows }) => {
           </tbody>
         </table>
       </div>
-      {CURRENT.momentumNote && <p style={{ fontSize: 11, color: '#999', marginTop: 10 }}>※{CURRENT.momentumNote}</p>}
+      {CURRENT.momentumNote && <p style={{ fontSize: 13, color: '#666', marginTop: 10 }}>※{CURRENT.momentumNote}</p>}
     </div>
   );
 };
@@ -785,7 +773,7 @@ const MonthlyMarketTable = ({ rows }) => {
               {MONTHS.map(m => (
                 <th key={m} style={{ ...styles.th, ...(m === CM ? styles.thCurrent : {}) }}>
                   {m}月
-                  <div style={{ fontSize: 9, fontWeight: 600, color: m === CM ? 'inherit' : statusOf(CY, m) === '推計' ? '#c2410c' : '#999', opacity: m === CM ? 0.8 : 1, fontStyle: statusOf(CY, m) === '推計' ? 'italic' : 'normal' }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: m === CM ? 'inherit' : statusOf(CY, m) === '推計' ? '#c2410c' : '#666', opacity: m === CM ? 0.8 : 1, fontStyle: statusOf(CY, m) === '推計' ? 'italic' : 'normal' }}>
                     {statusOf(CY, m)}
                   </div>
                 </th>
@@ -797,7 +785,7 @@ const MonthlyMarketTable = ({ rows }) => {
           <tbody>
             {rows.filter(c => c.name !== 'その他').slice(0, 10).map(c => (
               <tr key={c.name}>
-                <td style={styles.tdFirst}>{COUNTRY_FLAGS[c.name] || '🌐'} {c.name}</td>
+                <td style={styles.tdFirst}>{c.name}</td>
                 {MONTHS.map(m => {
                   const cur = { ...(m === CM ? styles.tdCurrent : {}), ...(statusOf(CY, m) === '推計' ? { fontStyle: 'italic' } : {}) };
                   if (view === 'num') {
@@ -806,7 +794,7 @@ const MonthlyMarketTable = ({ rows }) => {
                   const v = c[`${m}月yoy`];
                   const ok = Number.isFinite(v) && (c[`${m}月prev`] || 0) > 0;
                   return (
-                    <td key={m} style={{ ...styles.td, ...cur, background: ok ? heatBg(v) : 'transparent', color: !ok ? '#bbb' : v >= 0 ? '#263238' : '#b91c1c', fontWeight: 600 }}>
+                    <td key={m} style={{ ...styles.td, ...cur, background: ok ? heatBg(v) : 'transparent', color: !ok ? '#777' : v >= 0 ? '#263238' : '#b91c1c', fontWeight: 600 }}>
                       {ok ? `${v >= 0 ? '+' : ''}${v.toFixed(0)}` : '—'}
                     </td>
                   );
@@ -820,14 +808,237 @@ const MonthlyMarketTable = ({ rows }) => {
           </tbody>
         </table>
       </div>
-      {view === 'yoy' && <p style={{ fontSize: 11, color: '#999', marginTop: 8 }}>色の濃さ＝増減幅（グレー＝増加／レッド＝減少）</p>}
+      {view === 'yoy' && <p style={{ fontSize: 13, color: '#666', marginTop: 8 }}>色の濃さ＝増減幅（グレー＝増加／レッド＝減少）</p>}
     </div>
+  );
+};
+const fmtPct = (v) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}%`;
+const Num = ({ v }) => (
+  <b style={{ whiteSpace: 'nowrap', fontFamily: 'Inter, sans-serif', fontSize: '1.15em', color: v < 0 ? '#c62828' : '#111' }}>{fmtPct(v)}</b>
+);
+// ヒーロー右：月別 訪日外客数（今年＝濃い棒／前年＝薄い棒、最新月に数値）
+const YearBarChart = ({ data }) => {
+  const [hov, setHov] = useState(null);
+  const [W, setW] = useState(640);
+  const box = useRef(null);
+  useEffect(() => {
+    if (!box.current || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([e]) => setW(Math.max(280, Math.round(e.contentRect.width))));
+    setW(Math.max(280, Math.round(box.current.getBoundingClientRect().width)));
+    ro.observe(box.current);
+    return () => ro.disconnect();
+  }, []);
+  if (!data?.length) return null;
+  const sp = W < 480;
+  const H = sp ? 250 : 310, pl = 40, pr = 4, pt = 58, pb = 28;
+  const max = Math.max(...data.map(d => Math.max(d.cur, d.prev)));
+  const top = Math.ceil(max / 1e6) * 1e6;
+  const y = v => pt + (H - pt - pb) * (1 - v / top);
+  const gw = (W - pl - pr) / 12, bw = gw * 0.34;
+  const ticks = Array.from({ length: top / 1e6 + 1 }, (_, i) => i * 1e6);
+  const active = hov ?? CM;
+  const a = data[active - 1];
+  return (
+    <div ref={box} style={{ minWidth: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
+        <p style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>月別の訪日外客数</p>
+        <p style={{ fontSize: 14, color: '#333', margin: 0, display: 'flex', gap: 16 }}>
+          <span><i style={{ display: 'inline-block', width: 12, height: 12, background: '#1a1a1a', marginRight: 6, verticalAlign: -1 }} />{CY}年</span>
+          <span><i style={{ display: 'inline-block', width: 12, height: 12, background: '#c4c4c4', marginRight: 6, verticalAlign: -1 }} />{CY - 1}年</span>
+        </p>
+      </div>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', marginTop: 6, maxWidth: '100%' }} onMouseLeave={() => setHov(null)}>
+        {ticks.map(t => (
+          <g key={t}>
+            <line x1={pl} x2={W - pr} y1={y(t)} y2={y(t)} stroke={t === 0 ? '#1a1a1a' : '#e2e2e2'} />
+            <text x={pl - 8} y={y(t) + 4} textAnchor="end" fontSize="12" fill="#555">{t / 1e4}{t === top ? '万' : ''}</text>
+          </g>
+        ))}
+        {data.map(d => {
+          const x0 = pl + gw * (d.m - 1) + (gw - bw * 2 - 2) / 2;
+          const on = d.m === active;
+          return (
+            <g key={d.m} onMouseEnter={() => setHov(d.m)} style={{ cursor: 'default' }}>
+              <rect x={pl + gw * (d.m - 1)} y={pt} width={gw} height={H - pt - pb} fill={on ? '#ececec' : 'transparent'} />
+              <rect x={x0} y={y(d.prev)} width={bw} height={y(0) - y(d.prev)} fill="#c4c4c4" />
+              {d.cur > 0 && <rect x={x0 + bw + 2} y={y(d.cur)} width={bw} height={y(0) - y(d.cur)} fill="#1a1a1a" />}
+              <text x={pl + gw * (d.m - 0.5)} y={H - 10} textAnchor="middle" fontSize={sp ? 11 : 13} fontWeight={on ? 700 : 400} fill={on ? '#111' : '#555'}>{sp ? d.m : `${d.m}月`}</text>
+            </g>
+          );
+        })}
+        {a && (() => {
+          const cx = pl + gw * (a.m - 0.5);
+          const v = a.cur || a.prev;
+          const tx = Math.min(Math.max(cx, pl + 75), W - pr - 75);
+          return (
+            <g pointerEvents="none">
+              <line x1={cx} x2={cx} y1={40} y2={y(Math.max(a.cur, a.prev)) - 3} stroke="#111" strokeWidth="1" />
+              <text x={tx} y={16} textAnchor="middle" fontSize="15" fontWeight="700" fill="#111">
+                {a.m}月 {a.cur > 0 ? `${formatNum(a.cur / 1e4, 1)}万人` : `${CY}年は未公表`}
+              </text>
+              <text x={tx} y={34} textAnchor="middle" fontSize="12.5" fill="#333">
+                前年 {formatNum(a.prev / 1e4, 1)}万{a.cur > 0 && a.prev > 0 ? `（${fmtPct((a.cur - a.prev) / a.prev * 100)}）` : ''}
+              </text>
+            </g>
+          );
+        })()}
+      </svg>
+    </div>
+  );
+};
+// ============================================================
+// 図1 右：市場別 人数（今年＝市場色／前年＝グレー）＋前年比
+// ============================================================
+const ShareBars = ({ data, topN = 10 }) => {
+  const [open, setOpen] = useState(false);
+  const rows = useMemo(() => (data || []).filter(c => c.value > 0 && c.name !== 'その他').sort((a, b) => b.value - a.value), [data]);
+  if (!rows.length) return null;
+  const list = open ? rows : rows.slice(0, topN);
+  const max = Math.max(...rows.map(r => Math.max(r.value, r.prev || 0)));
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 16, fontSize: 13, color: '#333', marginBottom: 10, flexWrap: 'wrap' }}>
+        <span>太い棒＝{L.ym}（市場の色）</span>
+        <span><i style={{ display: 'inline-block', width: 14, height: 4, background: '#bdbdbd', marginRight: 6, verticalAlign: 3 }} />細い棒＝{L.prevYearYm}</span>
+      </div>
+      {list.map(r => (
+        <div key={r.name} className="sb-row" style={{ display: 'grid', gridTemplateColumns: '92px 1fr 112px', alignItems: 'center', columnGap: 10, padding: '7px 0', borderBottom: '1px solid #eee' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</span>
+          <div>
+            <div style={{ height: 12, width: `${r.value / max * 100}%`, background: colorOf(r.name) }} />
+            <div style={{ height: 4, width: `${(r.prev || 0) / max * 100}%`, background: '#bdbdbd', marginTop: 3 }} />
+          </div>
+          <span style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+            <b style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#111' }}>{formatNum(r.value / 1e4, 1)}</b><span style={{ fontSize: 12, color: '#444' }}>万</span>
+            <b style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, marginLeft: 8, color: r.yoy < 0 ? '#c62828' : '#111' }}>{fmtPct(r.yoy)}</b>
+          </span>
+        </div>
+      ))}
+      {rows.length > topN && (
+        <button onClick={() => setOpen(!open)} style={{ marginTop: 12, width: '100%', padding: '10px', fontSize: 14, fontWeight: 700, color: '#1a1a1a', background: '#fff', border: '1px solid #ccc', borderRadius: 4, cursor: 'pointer' }}>
+          {open ? '上位10市場に戻す' : `残り${rows.length - topN}市場を表示`}
+        </button>
+      )}
+    </div>
+  );
+};
+// ============================================================
+// 図4 市場モメンタム：○＝1〜N月累計の前年比 → ●＝当月の前年比
+// ============================================================
+const MomentumArrows = ({ rows }) => {
+  const data = useMemo(() => (rows || [])
+    .filter(c => c.name !== 'その他' && c.total2025 > 0 && c[L.m] > 0 && c[`${L.m}prev`] > 0)
+    .map(c => ({ name: c.name, ytd: c.totalYoy, cur: c[`${L.m}yoy`] }))
+    .sort((a, b) => b.cur - a.cur), [rows]);
+  if (!data.length) return null;
+  const vals = data.flatMap(d => [d.ytd, d.cur]);
+  const lo = Math.floor(Math.min(0, ...vals) / 20) * 20, hi = Math.ceil(Math.max(0, ...vals) / 20) * 20;
+  const x = v => (v - lo) / (hi - lo) * 100;
+  const ticks = []; for (let t = lo; t <= hi; t += 20) ticks.push(t);
+  const up = data.filter(d => d.cur - d.ytd >= 5).length, down = data.filter(d => d.cur - d.ytd <= -5).length;
+  return (
+    <div>
+      <p style={{ fontSize: 15, color: '#222', margin: '0 0 6px', lineHeight: 1.8 }}>
+        {L.m}の前年比が{L.rangeJa}累計を5pt以上上回った市場は<b>{up}</b>、下回った市場は<b>{down}</b>。
+      </p>
+      <div style={{ display: 'flex', gap: 18, fontSize: 13, color: '#333', margin: '0 0 12px', flexWrap: 'wrap' }}>
+        <span><svg width="12" height="12" style={{ verticalAlign: -1, marginRight: 6 }}><circle cx="6" cy="6" r="5" fill="#fff" stroke="#555" strokeWidth="1.5" /></svg>{L.rangeJa}累計の前年比</span>
+        <span><svg width="12" height="12" style={{ verticalAlign: -1, marginRight: 6 }}><circle cx="6" cy="6" r="5.5" fill="#1a1a1a" /></svg>{L.m}単月の前年比</span>
+      </div>
+      <div className="mo-grid" style={{ display: 'grid', gridTemplateColumns: '100px 1fr 120px', columnGap: 10 }}>
+        <span />
+        <div style={{ position: 'relative', height: 20 }}>
+          {ticks.map(t => <span key={t} className={t % 40 ? 'mo-tk' : ''} style={{ position: 'absolute', left: `${x(t)}%`, transform: 'translateX(-50%)', fontSize: 12, color: '#555' }}>{t > 0 ? '+' : ''}{t}%</span>)}
+        </div>
+        <span />
+        {data.map(d => {
+          const a = x(d.ytd), b = x(d.cur);
+          const col = d.cur < 0 ? '#c62828' : '#1a1a1a';
+          return (
+            <React.Fragment key={d.name}>
+              <span className="mo-nm" style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', padding: '6px 0', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>{d.name}</span>
+              <div style={{ position: 'relative', borderBottom: '1px solid #eee' }}>
+                {ticks.map(t => <div key={t} style={{ position: 'absolute', left: `${x(t)}%`, top: 0, bottom: 0, width: 1, background: t === 0 ? '#888' : '#ececec' }} />)}
+                <div style={{ position: 'absolute', top: '50%', left: `${Math.min(a, b)}%`, width: `${Math.abs(b - a)}%`, height: 2, marginTop: -1, background: '#9e9e9e' }} />
+                <div title={`累計 ${fmtPct(d.ytd)}`} style={{ position: 'absolute', top: '50%', left: `${a}%`, width: 10, height: 10, margin: '-5px 0 0 -5px', borderRadius: '50%', background: '#fff', border: '1.5px solid #555', boxSizing: 'border-box' }} />
+                <div title={`${L.m} ${fmtPct(d.cur)}`} style={{ position: 'absolute', top: '50%', left: `${b}%`, width: 12, height: 12, margin: '-6px 0 0 -6px', borderRadius: '50%', background: col }} />
+              </div>
+              <span style={{ textAlign: 'right', padding: '6px 0', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
+                <b style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: col }}>{fmtPct(d.cur)}</b>
+                <span className="mo-sub" style={{ fontSize: 12, color: '#555', marginLeft: 6 }}>累計{fmtPct(d.ytd)}</span>
+              </span>
+            </React.Fragment>
+          );
+        })}
+      </div>
+      {CURRENT.momentumNote && <p style={{ fontSize: 13, color: '#555', marginTop: 12 }}>※{CURRENT.momentumNote}</p>}
+    </div>
+  );
+};
+// ============================================================
+// 図5 主要市場の月別推移：市場ごとの小さな棒グラフ（今年＝市場色／前年＝グレー）
+// ============================================================
+const MarketMultiples = ({ rows, n = 10 }) => {
+  const data = useMemo(() => (rows || []).filter(c => c.name !== 'その他' && c.total2026 > 0).slice(0, n), [rows, n]);
+  if (!data.length) return null;
+  const W = 240, H = 92, gw = W / 12, bw = gw * 0.62;
+  return (
+    <div>
+      <p style={{ fontSize: 13, color: '#333', margin: '0 0 14px' }}>
+        色の棒＝{CY}年
+        <i style={{ display: 'inline-block', width: 12, height: 12, background: '#dcdcdc', margin: '0 6px 0 16px', verticalAlign: -1 }} />{CY - 1}年
+        <span style={{ marginLeft: 16, color: '#555' }}>縦の目盛りは市場ごとに異なります</span>
+      </p>
+      <div className="mm-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '24px 24px' }}>
+        {data.map(c => {
+          const vals = Array.from({ length: 12 }, (_, i) => ({ m: i + 1, cur: c[`${i + 1}月`] || 0, prev: c[`${i + 1}月prev`] || 0 }));
+          const max = Math.max(...vals.map(v => Math.max(v.cur, v.prev)), 1);
+          return (
+            <div key={c.name} style={{ borderTop: '2px solid #1a1a1a', paddingTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <b style={{ fontSize: 15, color: '#111' }}>{c.name}</b>
+                <b style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: c.totalYoy < 0 ? '#c62828' : '#111' }}>{fmtPct(c.totalYoy)}</b>
+              </div>
+              <p style={{ fontSize: 13, color: '#333', margin: '2px 0 6px' }}>{L.rangeJa}累計 {formatNum(c.total2026 / 1e4, 1)}万人</p>
+              <svg viewBox={`0 0 ${W} ${H + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+                {vals.map(v => {
+                  const x0 = gw * (v.m - 1) + (gw - bw) / 2;
+                  return (
+                    <g key={v.m}>
+                      <title>{`${v.m}月 ${CY}年 ${formatNum(v.cur / 1e4, 1)}万 ／ ${CY - 1}年 ${formatNum(v.prev / 1e4, 1)}万`}</title>
+                      <rect x={x0} y={H - v.prev / max * H} width={bw} height={v.prev / max * H} fill="#dcdcdc" />
+                      {v.cur > 0 && <rect x={x0 + bw * 0.22} y={H - v.cur / max * H} width={bw * 0.56} height={v.cur / max * H} fill={colorOf(c.name)} />}
+                    </g>
+                  );
+                })}
+                <line x1="0" x2={W} y1={H} y2={H} stroke="#1a1a1a" />
+              </svg>
+              <div style={{ position: 'relative', height: 18, fontSize: 12, color: '#444' }}>
+                {[1, CM, 12].map(m => <span key={m} style={{ position: 'absolute', left: `${(m - 0.5) / 12 * 100}%`, transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>{m}月</span>)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+// ヒーロー下の出典・データ区分（1段落の注記。チップ・バッジは使わない）
+const HeroNote = () => {
+  const { pub, next } = releaseInfo();
+  const [ny, nm] = next ? next.ym.split('-').map(Number) : [];
+  return (
+    <p style={{ fontSize: 13, lineHeight: 1.8, color: '#555', margin: '20px 0 0' }}>
+      出典：JNTO「訪日外客統計」{pub && `（${jaDate(pub.date)}公表）`}。
+      {CURRENT.dataStatus.finalYear}年以前は確定値、{rangeStatusText()}で、後日の公表に合わせて修正します。
+      次回更新：{next ? `${ny}年${nm}月分（${jaDate(next.date, false)}予定）` : '毎月中旬'}
+    </p>
   );
 };
 // ============================================================
 // 탭1: 最新月間
 // ============================================================
-const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData, trendData, specialData, monthlySeries, ytd }) => {
+const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData, trendData, specialData, monthlySeries, ytd, yearBars }) => {
   if (!monthlyData || monthlyData.length === 0) return <p>データ読み込み中...</p>;
 
   const latest = monthlyData[0];
@@ -859,117 +1070,43 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
   const singles = CURRENT.singleMonthRecords || [];
   return (
     <>
-      {/* Hero Section — 2列レイアウト */}
+      {/* Hero — 左：数字と文章／右：月別棒グラフ（今年と前年） */}
       <section style={styles.hero}>
-        <div className="hero-layout" style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
-          {/* 左：メイン数字 */}
-          <div style={{ flex: '0 0 auto' }}>
-            <div style={styles.heroEyebrow}>
-              <span style={styles.heroDate}>{L.ym} 訪日外客数</span>
-              <span style={styles.heroBadge}>速報</span>
-              <StatusChip s={statusOf(CY, CM)} size={11} />
+        <div className="gh-top" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 5fr) minmax(0, 7fr)', columnGap: 48, alignItems: 'start' }}>
+          <div>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>{L.ym}の訪日外客数</p>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 76, fontWeight: 700, lineHeight: 1.05, letterSpacing: '-0.01em', color: '#111' }}>{formatNum(latest.total / 10000, 1)}</span>
+              <span style={{ fontSize: 22, fontWeight: 500, color: '#333' }}>万人</span>
             </div>
-            <div style={styles.heroNumber}>
-              <span style={styles.heroDigits}>{formatNum(latest.total / 10000, 1)}</span>
-              <span style={styles.heroUnit}>万人</span>
+            <div style={{ fontSize: 17, lineHeight: 2, color: '#222', marginTop: 14 }}>
+              <div>前年同月比 <Num v={yoy} /><span style={{ fontSize: 15, color: '#444', marginLeft: 6 }}>（{L.prevYearYm} {formatMan(latest.prevYear)}人）</span></div>
+              <div>前月比 <Num v={mom} /><span style={{ fontSize: 15, color: '#444', marginLeft: 6 }}>（{L.prevMonthYm} {formatMan(latest.prevMonth)}人）</span></div>
+              <div>中国を除く市場の前年同月比 <Num v={yoyExChina} /></div>
             </div>
-            <div style={styles.heroCompare}>
-              <div style={styles.compareItem}>
-                <span style={styles.compareLabel}>前年同月比</span>
-                <div style={styles.compareValue}>
-                  <span style={{...styles.arrow, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{yoy >= 0 ? '+' : '▼'}</span>
-                  <span style={{...styles.compareNum, color: yoy >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(yoy).toFixed(1)}%</span>
-                </div>
-                <span style={styles.compareSub}>{L.prevYearYm}: {formatMan(latest.prevYear)}</span>
-              </div>
-              <div style={styles.compareItem}>
-                <span style={styles.compareLabel}>前月比</span>
-                <div style={styles.compareValue}>
-                  <span style={{...styles.arrow, color: mom >= 0 ? '#059669' : '#dc2626'}}>{mom >= 0 ? '+' : '▼'}</span>
-                  <span style={{...styles.compareNum, color: mom >= 0 ? '#059669' : '#dc2626'}}>{Math.abs(mom).toFixed(1)}%</span>
-                </div>
-                <span style={styles.compareSub}>{L.prevMonthYm}: {formatMan(latest.prevMonth)}</span>
-              </div>
-            </div>
-            <ReleaseLine />
-          </div>
-          {/* 右：ミニKPIパネル */}
-          <div style={{
-            flex: 1,
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gridTemplateRows: 'auto auto',
-            gap: 12,
-            alignSelf: 'center',
-            paddingLeft: 8,
-          }}>
-            {/* ① 中国除き成長率 */}
-            <div style={styles.miniKpi}>
-              <p style={styles.miniKpiLabel}>中国を除く 前年同月比</p>
-              <p style={{
-                ...styles.miniKpiVal,
-                color: yoyExChina >= 0 ? '#059669' : '#dc2626',
-              }}>
-                {yoyExChina >= 0 ? '+' : ''}{yoyExChina.toFixed(1)}%
-              </p>
-              <p style={styles.miniKpiNote}>{yoyExChina >= 0 ? '中国の減少を除けばプラス成長' : '中国を除いてもマイナス'}</p>
-            </div>
-            {/* ② 過去最高更新市場数 */}
-            <div style={styles.miniKpi}>
-              <p style={styles.miniKpiLabel}>{L.m}として過去最高</p>
-              <p style={styles.miniKpiVal}>
-                <span style={{ color: '#1a1a1a' }}>{CURRENT.recordMarkets.length}</span>
-                <span style={{ fontSize: 18, fontWeight: 500, color: '#666', marginLeft: 4 }}>市場</span>
-              </p>
-              <p style={styles.miniKpiNote}>{singles.length ? `★ ${singles.join('・')}は単月過去最高` : `${CURRENT.recordMarkets.length}市場が${L.m}として最高`}</p>
-            </div>
-            {/* ③ 1〜N月累計 — 全幅（JNTO_当年タブの累計列） */}
-            <div style={{...styles.miniKpi, gridColumn: '1 / -1',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={styles.miniKpiLabel}>{L.rangeJa} 累計</p>
-                <p style={styles.miniKpiVal}>
-                  <span style={{ color: '#1a1a1a' }}>{formatNum(ytd.total / 10000, 1)}</span>
-                  <span style={{ fontSize: 18, fontWeight: 500, color: '#666', marginLeft: 4 }}>万人</span>
-                </p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={styles.miniKpiLabel}>前年同期比</p>
-                <p style={{ fontSize: 22, fontWeight: 700, color: ytd.yoy >= 0 ? '#059669' : '#dc2626' }}>{ytd.yoy >= 0 ? '+' : '▼'}{Math.abs(ytd.yoy).toFixed(1)}%</p>
-                {ytd.exChinaYoy != null && (
-                  <p style={styles.miniKpiNote}>中国を除く累計 {ytd.exChinaYoy >= 0 ? '+' : ''}{ytd.exChinaYoy.toFixed(1)}%</p>
-                )}
-              </div>
+            <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid #d6d6d6', fontSize: 16, color: '#222', lineHeight: 1.8 }}>
+              {L.rangeJa}の累計 <b style={{ fontFamily: 'Inter, sans-serif', fontSize: 22 }}>{formatNum(ytd.total / 10000, 1)}</b>万人
+              <span style={{ marginLeft: 8 }}>前年同期比 <Num v={ytd.yoy} /></span>
             </div>
           </div>
+          <YearBarChart data={yearBars} />
         </div>
-        {specialData?.[0] && (
-          <div style={{...styles.insight, marginTop: 24}}>
-            <p style={styles.insightText}>
-              <strong style={styles.insightStrong}>{specialData[0].country}</strong>が
-              <mark style={styles.insightMark}>{formatMan(specialData[0].value)}</mark>を記録。{specialData[0].note}
-            </p>
-          </div>
-        )}
         {CURRENT.recordMarkets.length > 0 && (
-          <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#999', marginRight: 4 }}>{L.m}として過去最高</span>
-            {CURRENT.recordMarkets.map(n => {
-              const single = singles.includes(n);
-              return (
-                <span key={n} style={{
-                  fontSize: 12, padding: '3px 10px', borderRadius: 12, whiteSpace: 'nowrap',
-                  border: `1px solid ${single ? '#1a1a1a' : '#e0e0e0'}`,
-                  background: single ? '#1a1a1a' : '#fff', color: single ? '#fff' : '#333',
-                }}>
-                  {COUNTRY_FLAGS[n] || ''} {n}{single ? ' ★' : ''}
-                </span>
-              );
-            })}
-            {singles.length > 0 && <span style={{ fontSize: 11, color: '#999', marginLeft: 4 }}>★＝単月過去最高</span>}
+          <div style={{ marginTop: 28, paddingTop: 18, borderTop: '1px solid #d6d6d6', display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 16, rowGap: 4 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{L.m}として過去最高 {CURRENT.recordMarkets.length}市場</span>
+            <span style={{ fontSize: 16, color: '#222' }}>
+              {CURRENT.recordMarkets.map((n, i) => (
+                <span key={n}>{i > 0 && '、'}{singles.includes(n) ? <b>{n}（単月過去最高）</b> : n}</span>
+              ))}
+            </span>
           </div>
         )}
-        <DataStatusStrip />
+        {specialData?.[0] && (
+          <p style={{ fontSize: 16, lineHeight: 1.8, color: '#222', margin: '20px 0 0' }}>
+            <b>{specialData[0].country}</b>が{formatMan(specialData[0].value)}人を記録。{specialData[0].note}
+          </p>
+        )}
+        <HeroNote />
       </section>
       {/* 국가별 파이 + 비교 테이블 */}
       {countryData?.length > 0 && (
@@ -988,11 +1125,7 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
               alignItems: 'start',
             }} className="share-grid">
               <CountryPie data={countryData} total={countryTotal} label={L.ym} topN={15} />
-              <CountryComparisonTable
-                data={countryData}
-                total={countryTotal}
-                currentLabel={L.m}
-              />
+              <ShareBars data={countryData} />
             </div>
             <p style={styles.chartSource}>出典：JNTO訪日外客統計（{L.ym}{statusOf(CY, CM)}値・前年同月は{statusOf(CY - 1, CM)}値）</p>
           </div>
@@ -1012,24 +1145,10 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
           </div>
         </section>
       )}
-      {/* 시장별 前年同月比 다이버징 바 */}
-      {countryData?.length > 0 && (
-        <section style={styles.section}>
-          <SectionHeader number="03" title="市場別 前年同月比" subtitle="市場ごとの増減率。率が高くても母数が小さい市場は、図2の人数ベースと併せて確認。" />
-          <div style={styles.chartWrap}>
-            <div style={styles.chartTitleInline}>
-              <span>増減率ランキング</span>
-              <span style={styles.chartUnit}>単位: % (前年同月比)</span>
-            </div>
-            <MarketDivergingBar countryData={countryData} />
-            <p style={styles.chartSource}>出典：JNTO訪日外客統計（{L.ym}{statusOf(CY, CM)}値・前年同月は{statusOf(CY - 1, CM)}値）</p>
-          </div>
-        </section>
-      )}
       {/* NEW 中国を除いた実勢 */}
       {monthlySeries?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="04" title="中国を除いた実勢" subtitle={`総数・中国・中国を除く市場の前年同月比（${CY}年${L.range}）。総数の弱さが中国要因かどうかを判別。`} />
+          <SectionHeader number="03" title="中国を除いた実勢" subtitle={`総数・中国・中国を除く市場の前年同月比（${CY}年${L.range}）。総数の弱さが中国要因かどうかを判別。`} />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
               <span>前年同月比の推移</span>
@@ -1043,29 +1162,27 @@ const TabMonthly = ({ monthlyData, countryData, countryTotal, countryMonthlyData
       {/* NEW 市場モメンタム */}
       {countryMonthlyData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="05" title="市場モメンタム" subtitle={`${L.rangeJa}累計の前年比と${L.m}単月の前年比を比較し、勢いの変化を判定。`} />
+          <SectionHeader number="04" title={`市場別 前年同月比と勢い`} subtitle={`○が${L.rangeJa}累計、●が${L.m}単月の前年比。●が右にあるほど${L.m}は勢いが強い。`} />
           <div style={styles.chartWrap}>
-            <MomentumTable rows={countryMonthlyData} />
+            <MomentumArrows rows={countryMonthlyData} />
+            <p style={styles.chartSource}>出典：JNTO訪日外客統計（{rangeStatusText()}、{CY - 1}年確定値）より算出</p>
           </div>
         </section>
       )}
       {/* 국가별 1-N월 추이 + 누계 비교 */}
       {countryMonthlyData?.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="06" title={`主要市場 ${CY}年推移`} subtitle={`${L.range}の月別推移と累計。前年比ヒートマップに切替可能。`} />
+          <SectionHeader number="05" title={`主要市場の月別推移`} subtitle={`${L.rangeJa}累計の上位10市場。月ごとの人数を前年と重ねて表示。`} />
           <div style={styles.chartWrap}>
-            <div style={styles.chartTitleInline}>
-              <span>TOP 10 市場</span>
-            </div>
-            <MonthlyMarketTable rows={countryMonthlyData} />
-            <p style={styles.chartSource}>出典：JNTO訪日外客統計（{rangeStatusText()}）　斜体＝推計値</p>
+            <MarketMultiples rows={countryMonthlyData} />
+            <p style={styles.chartSource}>出典：JNTO訪日外客統計（{rangeStatusText()}、{CY - 1}年確定値）。数値はグラフにカーソルを合わせると表示</p>
           </div>
         </section>
       )}
       {/* 월별 추이 */}
       {chartData.length > 0 && (
         <section style={styles.section}>
-          <SectionHeader number="07" title="月別推移（2019-2026年）" subtitle="月ごとの訪日客数推移。4月・10月が繁忙期、2月・9月が閑散期。" />
+          <SectionHeader number="06" title="月別推移（2019-2026年）" subtitle="月ごとの訪日客数推移。4月・10月が繁忙期、2月・9月が閑散期。" />
           <div style={styles.chartWrap}>
             <div style={styles.chartTitleInline}>
               <span>訪日外客数 月別比較</span>
@@ -1153,8 +1270,8 @@ const TabAnnual = ({ annualData, trendData, countryMonthlyData, ytd }) => {
               ...styles.yearBtn, ...(active ? styles.yearBtnActive : {}),
               ...(cur && !active ? { borderColor: '#f97316', color: '#c2410c' } : {}),
             }}>
-              {y}年{cur && <span style={{ fontSize: 10, marginLeft: 4, opacity: 0.85 }}>{L.range}</span>}
-              <span style={{ fontSize: 9, marginLeft: 5, opacity: 0.7, fontStyle: cur ? 'italic' : 'normal' }}>
+              {y}年{cur && <span style={{ fontSize: 12, marginLeft: 4, opacity: 0.85 }}>{L.range}</span>}
+              <span style={{ fontSize: 13, marginLeft: 5, opacity: 0.7, fontStyle: cur ? 'italic' : 'normal' }}>
                 {cur ? '暫定・推計' : statusOf(y)}
               </span>
             </button>
@@ -1182,7 +1299,7 @@ const TabAnnual = ({ annualData, trendData, countryMonthlyData, ytd }) => {
                 {ytd.exChinaYoy >= 0 ? '+' : ''}{ytd.exChinaYoy.toFixed(1)}%</span></span>
             )}
           </p>
-          <p style={{ fontSize: 12, color: '#999', marginTop: 6 }}>
+          <p style={{ fontSize: 12, color: '#666', marginTop: 6 }}>
             比較：{CY - 1}年{L.rangeJa} {formatNum(prevPart, 0)}万人 ／ {CY - 1}年通年 {formatNum((annualData.find(d => d.year === String(CY - 1))?.total || 0) / 10000, 0)}万人
           </p>
         </div>
@@ -1250,7 +1367,7 @@ const TabAnnual = ({ annualData, trendData, countryMonthlyData, ytd }) => {
                         {formatNum(d.part, 0)}
                       </span>
                     ) : partH > 22 && (
-                      <span style={{ marginTop: 4, fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: '#fff' }}>
+                      <span style={{ marginTop: 4, fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#fff' }}>
                         {formatNum(d.part, 0)}
                       </span>
                     )}
@@ -1259,8 +1376,8 @@ const TabAnnual = ({ annualData, trendData, countryMonthlyData, ytd }) => {
                 {/* ラベル領域（高さ固定） */}
                 <div style={{ height: 66, textAlign: 'center', paddingTop: 10 }}>
                   <div style={{ fontSize: 13, fontWeight: sel ? 700 : 500, color: sel ? '#1a1a1a' : '#666' }}>{d.year}年</div>
-                  {d.isCovidPre && <div style={{ fontSize: 10, color: '#ff8f00' }}>コロナ前</div>}
-                  {d.isYtd && <div style={{ fontSize: 10, color: '#c2410c', fontWeight: 700 }}>{L.range}累計</div>}
+                  {d.isCovidPre && <div style={{ fontSize: 12, color: '#ff8f00' }}>コロナ前</div>}
+                  {d.isYtd && <div style={{ fontSize: 12, color: '#c2410c', fontWeight: 700 }}>{L.range}累計</div>}
                   <div style={{ marginTop: 3 }}>
                     {d.isYtd ? <StatusChip s="推計" suffix="含む" size={9} /> : <StatusChip s={statusOf(d.year)} size={9} />}
                   </div>
@@ -1286,17 +1403,17 @@ const TabAnnual = ({ annualData, trendData, countryMonthlyData, ytd }) => {
               const move = isYtd && prevRank > 0 ? prevRank - rank : 0;
               return (
                 <div key={country} style={{ display: 'flex', alignItems: 'center', padding: '14px 0', borderBottom: rank < top5.length ? '1px solid #e0e0e0' : 'none' }}>
-                  <span style={{ width: 28, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: rank === 1 ? '#e53935' : '#999' }}>{rank}</span>
-                  <span style={{ fontSize: 20, marginRight: 12 }}>{COUNTRY_FLAGS[country] || '🌐'}</span>
+                  <span style={{ width: 28, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: rank === 1 ? '#e53935' : '#666' }}>{rank}</span>
+                  
                   <span style={{ width: 80, fontSize: 14, fontWeight: 600 }}>{country}</span>
                   {isYtd && (
-                    <span title={`${CY - 1}年同期 ${prevRank}位`} style={{ width: 46, fontSize: 11, fontWeight: 700, color: move > 0 ? '#059669' : move < 0 ? '#dc2626' : '#aaa' }}>
+                    <span title={`${CY - 1}年同期 ${prevRank}位`} style={{ width: 46, fontSize: 13, fontWeight: 700, color: move > 0 ? '#059669' : move < 0 ? '#dc2626' : '#777' }}>
                       {move > 0 ? `▲${move}` : move < 0 ? `▼${-move}` : '—'}
                     </span>
                   )}
                   <div style={{ flex: 1, height: 24, background: '#f0f0f0', borderRadius: 4, margin: '0 16px', overflow: 'hidden' }}>
                     <div style={{ width: `${barWidth}%`, height: '100%', background: barColors[rank - 1], borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8, minWidth: 50 }}>
-                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: 'white' }}>{top5Total ? ((value / top5Total) * 100).toFixed(1) : '—'}%</span>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: 'white' }}>{top5Total ? ((value / top5Total) * 100).toFixed(1) : '—'}%</span>
                     </div>
                   </div>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700, width: 80, textAlign: 'right' }}>{formatMan(value)}</span>
@@ -1381,7 +1498,7 @@ const TabLongTerm = ({ longTermData, ytd }) => {
               </pattern>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+            <XAxis dataKey="label" tick={{ fontSize: 12 }} />
             <YAxis domain={[0, 6500]} tickFormatter={v => v.toLocaleString()} label={{ value: '万人', position: 'top', offset: 10 }} />
             <Tooltip content={({ active, payload }) => {
               if (!active || !payload?.[0]) return null;
@@ -1398,7 +1515,7 @@ const TabLongTerm = ({ longTermData, ytd }) => {
             }} />
             <Bar dataKey="totalMan" radius={[4, 4, 0, 0]}
               label={({ x, y, width, index }) => (chartData[index]?.year === String(CY) ? (
-                <text x={x + width / 2} y={y - 8} textAnchor="middle" style={{ fontSize: 10, fontWeight: 700, fill: '#c2410c' }}>
+                <text x={x + width / 2} y={y - 8} textAnchor="middle" style={{ fontSize: 12, fontWeight: 700, fill: '#c2410c' }}>
                   {L.rangeJa}累計
                 </text>
               ) : null)}>
@@ -1430,7 +1547,7 @@ const TabLongTerm = ({ longTermData, ytd }) => {
             <p style={styles.phaseLabel}>2030年目標</p>
           </div>
         </div>
-        <p style={{ fontSize: 11, color: '#999', marginTop: 8 }}>
+        <p style={{ fontSize: 13, color: '#666', marginTop: 8 }}>
           ※{CY}年は{L.rangeJa}の累計値（{formatNum((ytd?.total || 0) / 10000, 1)}万人、{rangeStatusText()}）。通年値ではないため、前年との棒の高さは比較できません。
         </p>
 
@@ -1456,6 +1573,69 @@ const TabLongTerm = ({ longTermData, ytd }) => {
         </div>
       </div>
     </section>
+  );
+};
+// ============================================================
+// 詳細：主要15市場の年間推移（市場ごとの小さな棒グラフ＋CSV）
+// ============================================================
+const YearMultiples = ({ rows, years }) => {
+  if (!rows?.length) return null;
+  const W = 260, H = 96, n = years.length, gw = W / n, bw = gw * 0.7;
+  const csv = () => {
+    const head = ['国・地域', ...years.map(y => y === `${CY}年` ? `${CY}年${L.rangeJa}累計` : y)];
+    const body = rows.map(r => [r.country, ...years.map(y => r[y] || '')]);
+    const text = '\ufeff' + [head, ...body].map(l => l.join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' }));
+    a.download = `訪日外客数_国別年間_${CY}${String(CM).padStart(2, '0')}.csv`;
+    a.click();
+  };
+  const over = rows.filter(r => (r['2025年'] || 0) > (r['2019年'] || 0)).length;
+  return (
+    <div style={styles.chartWrap}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
+        <p style={{ fontSize: 15, color: '#222', margin: 0 }}>2025年にコロナ前（2019年）を上回った市場は <b>{rows.length}市場中{over}市場</b>。</p>
+        <button onClick={csv} style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', background: '#fff', border: '1px solid #1a1a1a', borderRadius: 4, padding: '7px 14px', cursor: 'pointer' }}>数値をCSVでダウンロード</button>
+      </div>
+      <p style={{ fontSize: 13, color: '#333', margin: '0 0 16px' }}>
+        棒＝各年の訪日客数（{years[0].replace('年', '')}〜{CY}年）　点線＝2019年の水準　白抜き＝{CY}年{L.rangeJa}累計　薄い棒＝2020・21年
+      </p>
+      <div className="mm-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '24px 24px' }}>
+        {rows.map(r => {
+          const max = Math.max(...years.map(y => r[y] || 0), 1);
+          const v19 = r['2019年'] || 0, v25 = r['2025年'] || 0;
+          const g = v19 > 0 ? (v25 - v19) / v19 * 100 : null;
+          const col = colorOf(r.country);
+          return (
+            <div key={r.country} style={{ borderTop: '2px solid #1a1a1a', paddingTop: 8 }}>
+              <b style={{ fontSize: 15, color: '#111', whiteSpace: 'nowrap' }}>{r.country}</b>
+              <p style={{ fontSize: 13, color: '#333', margin: '2px 0 6px', lineHeight: 1.6 }}>
+                2025年 {formatNum(v25 / 1e4, 1)}万人
+                {g != null && <span style={{ whiteSpace: 'nowrap', display: 'inline-block', marginLeft: 6 }}>2019年比 <b style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: g < 0 ? '#c62828' : '#111' }}>{fmtPct(g)}</b></span>}
+              </p>
+              <svg viewBox={`0 0 ${W} ${H + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+                {years.map((y, i) => {
+                  const v = r[y] || 0, h = v / max * H, x0 = gw * i + (gw - bw) / 2;
+                  const covid = y === '2020年' || y === '2021年', cur = y === `${CY}年`;
+                  return (
+                    <g key={y}>
+                      <title>{`${y}${cur ? `（${L.rangeJa}累計）` : ''} ${formatNum(v / 1e4, 1)}万人`}</title>
+                      <rect x={x0} y={H - h} width={bw} height={h} fill={cur ? '#fff' : col} fillOpacity={covid ? 0.3 : 1} stroke={cur ? col : 'none'} strokeWidth="1.5" />
+                    </g>
+                  );
+                })}
+                <line x1="0" x2={W} y1={H - v19 / max * H} y2={H - v19 / max * H} stroke="#1a1a1a" strokeDasharray="3 3" />
+                <line x1="0" x2={W} y1={H} y2={H} stroke="#1a1a1a" />
+              </svg>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#444', marginTop: 3 }}>
+                <span>{years[0].replace('年', '')}</span><span>2019</span><span>{CY}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p style={styles.chartSource}>出典：JNTO訪日外客統計（{CY}年は{rangeStatusText()}）</p>
+    </div>
   );
 };
 // ============================================================
@@ -1485,169 +1665,9 @@ const TabCountry = ({ countryYearlyData, latestCountryData }) => {
   });
   return (
     <section style={styles.section}>
-      <SectionHeader title="国・地域別 詳細データ" subtitle={`主要15市場の年間訪日客数推移（2014年〜${L.ym}）`} />
+      <SectionHeader title="国・地域別 年間推移" subtitle={`主要15市場の年間訪日客数（2014年〜${L.ym}）。数値の一覧はCSVで取得できます。`} />
 
-      {/* 인사이트 카드 */}
-      <div style={styles.insightCards}>
-        <div style={styles.insightCard}>
-          <p style={styles.insightCardLabel}>🚀 2019年→2025年 成長率TOP</p>
-          <p style={styles.insightCardValue}>
-            {COUNTRY_FLAGS[growthData[0]?.country]} {growthData[0]?.country}
-            <span style={{ color: '#059669', marginLeft: 8 }}>+{growthData[0]?.growth.toFixed(0)}%</span>
-          </p>
-        </div>
-        <div style={styles.insightCard}>
-          <p style={styles.insightCardLabel}>👑 2025年 訪日客数1位</p>
-          <p style={styles.insightCardValue}>
-            {COUNTRY_FLAGS[countryYearlyData[0]?.country]} {countryYearlyData[0]?.country}
-            <span style={{ color: '#0369a1', marginLeft: 8 }}>{formatMan(countryYearlyData[0]?.['2025年'])}</span>
-          </p>
-        </div>
-        <div style={styles.insightCard}>
-          <p style={styles.insightCardLabel}>📈 コロナ前超え市場数</p>
-          <p style={styles.insightCardValue}>
-            <span style={{ color: '#8b5cf6' }}>{countryYearlyData.filter(c => (c['2025年'] || 0) > (c['2019年'] || 0)).length}</span>
-            <span style={{ color: '#64748b', fontSize: 14 }}> / 15市場</span>
-          </p>
-        </div>
-      </div>
-      {/* 전체 테이블 */}
-      <div style={styles.tableWrap}>
-        <div style={styles.chartTitleInline}>
-          <span>主要15市場 年間推移</span>
-          <span style={styles.chartUnit}>単位: 万人</span>
-        </div>
-        <div style={styles.tableScroll}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={{...styles.th, ...styles.thFirst}}>国・地域</th>
-                {allYears.map(y => {
-                  const isCovid = y === '2020年' || y === '2021年';
-                  const is2026 = y === '2026年';
-                  return (
-                    <th key={y} style={{...styles.th, ...(isCovid ? styles.thCovid : {}), ...(is2026 ? styles.thCurrent : {})}}>
-                      {is2026 ? <>26累計<div style={{ fontSize: 9, fontWeight: 600, fontStyle: 'italic', color: '#c2410c' }}>暫定・推計</div></> : y.replace('年', '')}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {countryYearlyData.slice(0, 15).map(row => (
-                <tr key={row.country}>
-                  <td style={styles.tdFirst}>{COUNTRY_FLAGS[row.country] || '🌐'} {row.country}</td>
-                  {allYears.map(y => {
-                    const val = row[y];
-                    const isCovid = y === '2020年' || y === '2021年';
-                    const is2026 = y === '2026年';
-                    return (
-                      <td key={y} style={{...styles.td, ...(isCovid ? styles.tdCovid : {}), ...(is2026 ? styles.tdCurrent : {})}}>
-                        {val > 0 ? formatNum(val / 10000, 1) : '—'}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {/* 주요 5개국 트렌드 차트 - 범례 포함 */}
-      <div style={{ marginTop: 48 }}>
-        <h4 style={styles.chartSubtitle}>主要5市場の推移（2014-2025年）</h4>
-        <div style={styles.chartWrap}>
-          {/* 범례 */}
-          <div style={styles.countryLegend}>
-            {top5Countries.map((c, i) => (
-              <div key={c.country} style={styles.countryLegendItem}>
-                <span style={{...styles.countryLegendDot, background: top5Colors[i]}} />
-                <span style={styles.countryLegendFlag}>{COUNTRY_FLAGS[c.country]}</span>
-                <span style={styles.countryLegendName}>{c.country}</span>
-              </div>
-            ))}
-          </div>
-
-          <ResponsiveContainer width="100%" height={380}>
-            <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-              <YAxis tickFormatter={v => v.toFixed(0)} label={{ value: '万人', position: 'top', offset: 10 }} />
-              <Tooltip content={({ active, payload, label }) => {
-                if (!active || !payload) return null;
-                return (
-                  <div style={styles.tooltip}>
-                    <p style={styles.tooltipTitle}>{label}年</p>
-                    {payload.map((p, i) => (
-                      <p key={i} style={{ color: p.color, fontSize: 13, margin: '4px 0', fontWeight: 600 }}>
-                        {COUNTRY_FLAGS[p.name]} {p.name}: {p.value.toFixed(1)}万人
-                      </p>
-                    ))}
-                  </div>
-                );
-              }} />
-              {top5Countries.map((c, i) => (
-                <Line
-                  key={c.country}
-                  type="monotone"
-                  dataKey={c.country}
-                  stroke={top5Colors[i]}
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: top5Colors[i] }}
-                  activeDot={{ r: 6 }}
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
-
-          <p style={styles.chartSource}>出典：JNTO ※2020-2021年はコロナ影響により除外</p>
-        </div>
-      </div>
-
-      {/* 시장별 성장률 비교 */}
-      <div style={{ marginTop: 48 }}>
-        <h4 style={styles.chartSubtitle}>コロナ前比 成長率ランキング（2019年→2025年）</h4>
-        <div style={styles.chartWrap}>
-          {/* 색상 의미 범례 */}
-          <div style={{
-            display: 'flex',
-            gap: 20,
-            marginBottom: 16,
-            fontSize: 12,
-            color: '#555',
-            flexWrap: 'wrap',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ width: 18, height: 10, background: '#059669', borderRadius: 2 }} />
-              <span>成長（コロナ前比プラス）</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ width: 18, height: 10, background: '#dc2626', borderRadius: 2 }} />
-              <span>減少（コロナ前比マイナス）</span>
-            </div>
-          </div>
-          <div style={styles.growthList}>
-            {growthData.slice(0, 10).map((item, i) => (
-              <div key={item.country} style={styles.growthItem}>
-                <span style={styles.growthRank}>{i + 1}</span>
-                <span style={styles.growthFlag}>{COUNTRY_FLAGS[item.country]}</span>
-                <span style={styles.growthName}>{item.country}</span>
-                <div style={styles.growthBarWrap}>
-                  <div style={{
-                    ...styles.growthBar,
-                    width: `${Math.min(Math.max(item.growth, 0) / growthData[0].growth * 100, 100)}%`,
-                    background: item.growth >= 0 ? '#059669' : '#dc2626'
-                  }} />
-                </div>
-                <span style={{...styles.growthValue, color: item.growth >= 0 ? '#059669' : '#dc2626'}}>
-                  {item.growth >= 0 ? '+' : ''}{item.growth.toFixed(0)}%
-                </span>
-              </div>
-            ))}
-          </div>
-          <p style={styles.chartSource}>※コロナ前(2019年)と2025年の訪日客数を比較</p>
-        </div>
-      </div>
+      <YearMultiples rows={countryYearlyData.slice(0, 15)} years={allYears} />
     </section>
   );
 };
@@ -1669,6 +1689,7 @@ export default function App() {
   const [yearlyMonthlyData, setYearlyMonthlyData] = useState([]);
   const [countryYearlyData, setCountryYearlyData] = useState([]);
   const [monthlySeries, setMonthlySeries] = useState([]);
+  const [yearBars, setYearBars] = useState([]);
   const [ytdBase, setYtdBase] = useState({ total: 0, prev: 0 });
   // ⭐ iframe 높이 측정용 root ref + 훅
   const rootRef = useRef(null);
@@ -1745,6 +1766,7 @@ export default function App() {
           };
         }).filter(d => d.total > 0 && d.prev > 0);
         setMonthlySeries(series);
+        setYearBars(Array.from({ length: 12 }, (_, i) => ({ m: i + 1, cur: i + 1 <= CM ? val(jCur, '総数', i + 1) : 0, prev: val(jPrev, '総数', i + 1) })));
         // 累計: 当年はJNTO公式「累計」列（最新月が設定月と一致する場合）、前年は同期間の合算
         const latestInSheet = Math.max(...Object.keys(jCur['総数']).filter(k => k !== 'total').map(Number));
         if (latestInSheet !== CM) console.warn(`[JNTO] シートの最新月(${latestInSheet})と CURRENT.month(${CM}) が不一致`);
@@ -1855,20 +1877,19 @@ export default function App() {
             grid-template-columns: 1fr !important;
             gap: 24px !important;
           }
-          .hero-layout {
-            flex-direction: column !important;
-          }
+          .gh-top { grid-template-columns: 1fr !important; row-gap: 20px; }
+          .pie-box { height: 300px !important; }
+          .sb-row { grid-template-columns: 1fr auto !important; row-gap: 4px; }
+          .sb-row > div { grid-column: 1 / -1; grid-row: 2; }
+          .mm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+          .mo-grid { grid-template-columns: 86px 1fr 62px !important; }
+          .mo-grid > span:first-child, .mo-nm { font-size: 13px !important; }
+          .mo-sub, .mo-tk { display: none; }
           .contrib-kpis {
             grid-template-columns: 1fr !important;
           }
         }
       `}</style>
-      <header style={styles.header}>
-        <div style={styles.headerInner}>
-          <h1 style={styles.title}>訪日外客統計ダッシュボード</h1>
-          <p style={styles.tagline}>JNTO公式データに基づく訪日外国人旅行者統計</p>
-        </div>
-      </header>
       <nav style={styles.nav}>
         <div style={styles.navInner}>
           {tabs.map(tab => (
@@ -1885,7 +1906,7 @@ export default function App() {
             <div style={styles.loadingBox}><div style={styles.spinner} /></div>
           ) : (
             <>
-              {activeTab === 'monthly' && <TabMonthly monthlyData={monthlyData} countryData={countryLatestData} countryTotal={countryLatestTotal} countryMonthlyData={countryMonthlyData} trendData={yearlyMonthlyData} specialData={specialData} monthlySeries={monthlySeries} ytd={ytd} />}
+              {activeTab === 'monthly' && <TabMonthly monthlyData={monthlyData} countryData={countryLatestData} countryTotal={countryLatestTotal} countryMonthlyData={countryMonthlyData} trendData={yearlyMonthlyData} specialData={specialData} monthlySeries={monthlySeries} ytd={ytd} yearBars={yearBars} />}
               {activeTab === 'detail' && (
                 <>
                   <TabAnnual annualData={annualData} trendData={yearlyMonthlyData} countryMonthlyData={countryMonthlyData} ytd={ytd} />
@@ -1913,7 +1934,7 @@ const styles = {
   header: { background: '#1a1a1a', color: 'white', padding: '28px 0' },
   headerInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px' },
   title: { fontSize: 22, fontWeight: 700, letterSpacing: '0.02em', margin: 0 },
-  tagline: { fontSize: 13, fontWeight: 400, color: '#999', marginTop: 4 },
+  tagline: { fontSize: 13, fontWeight: 400, color: '#666', marginTop: 4 },
 
   nav: { background: 'white', borderBottom: '1px solid #e0e0e0', position: 'sticky', top: 0, zIndex: 100, overflowX: 'auto' },
   navInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 8 },
@@ -1925,24 +1946,24 @@ const styles = {
 
   section: { marginBottom: 64 },
   sectionHeader: { marginBottom: 24 },
-  sectionNumber: { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '0.02em', marginBottom: 6 },
+  sectionNumber: { fontSize: 13, fontWeight: 700, color: '#666', letterSpacing: '0.02em', marginBottom: 6 },
   sectionTitle: { fontSize: 20, fontWeight: 700, margin: '0 0 6px 0', color: '#1a1a1a' },
   sectionDesc: { fontSize: 14, color: '#666', margin: 0 },
 
   hero: { paddingBottom: 40, borderBottom: '1px solid #e0e0e0', marginBottom: 40 },
   heroEyebrow: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 },
   heroDate: { fontSize: 15, fontWeight: 500, color: '#666' },
-  heroBadge: { fontSize: 10, fontWeight: 600, padding: '4px 10px', borderRadius: 4, background: '#e53935', color: 'white' },
+  heroBadge: { fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 4, background: '#e53935', color: 'white' },
   heroNumber: { display: 'flex', alignItems: 'baseline', margin: '12px 0 20px' },
   heroDigits: { fontFamily: 'Inter, sans-serif', fontSize: 80, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em', color: '#1a1a1a' },
-  heroUnit: { fontSize: 24, fontWeight: 500, color: '#999', marginLeft: 8 },
+  heroUnit: { fontSize: 24, fontWeight: 500, color: '#666', marginLeft: 8 },
   heroCompare: { display: 'flex', gap: 40 },
   compareItem: { display: 'flex', flexDirection: 'column', gap: 4 },
-  compareLabel: { fontSize: 11, fontWeight: 500, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  compareLabel: { fontSize: 13, fontWeight: 500, color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em' },
   compareValue: { display: 'flex', alignItems: 'center', gap: 4 },
   arrow: { fontSize: 12 },
   compareNum: { fontFamily: 'Inter, sans-serif', fontSize: 22, fontWeight: 700 },
-  compareSub: { fontSize: 12, color: '#999' },
+  compareSub: { fontSize: 12, color: '#666' },
   insight: { marginTop: 24, padding: 20, background: '#f5f5f5', borderLeft: '3px solid #e53935', borderRadius: 0 },
   miniKpi: {
     padding: '16px 20px',
@@ -1951,18 +1972,18 @@ const styles = {
     borderRadius: 8,
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
-  miniKpiLabel: { fontSize: 11, fontWeight: 600, color: '#999', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 },
+  miniKpiLabel: { fontSize: 13, fontWeight: 600, color: '#666', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 },
   miniKpiVal: { fontSize: 32, fontWeight: 800, fontFamily: 'Inter, sans-serif', letterSpacing: '-0.02em', margin: '0 0 4px', color: '#1a1a1a' },
-  miniKpiNote: { fontSize: 11, color: '#aaa', marginTop: 4 },
+  miniKpiNote: { fontSize: 13, color: '#777', marginTop: 4 },
   insightText: { fontSize: 15, lineHeight: 1.8, color: '#333', margin: 0 },
   insightStrong: { fontWeight: 600, color: '#e53935' },
   insightMark: { background: 'linear-gradient(transparent 50%, #ffebee 50%)', padding: '0 2px' },
 
   chartWrap: { background: 'white', border: '1px solid #e0e0e0', borderRadius: 8, padding: 24 },
   chartTitleInline: { fontSize: 14, fontWeight: 600, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#1a1a1a' },
-  chartUnit: { fontSize: 12, fontWeight: 500, color: '#666', background: '#f5f5f5', padding: '4px 10px', borderRadius: 4 },
+  chartUnit: { fontSize: 13, fontWeight: 400, color: '#555' },
   chartSubtitle: { fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#1a1a1a' },
-  chartSource: { marginTop: 16, paddingTop: 12, borderTop: '1px solid #e0e0e0', fontSize: 11, color: '#999' },
+  chartSource: { marginTop: 16, paddingTop: 12, borderTop: '1px solid #e0e0e0', fontSize: 13, color: '#666' },
 
   countryTrendGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 },
   countryTrendCard: { background: '#f8f8f8', borderRadius: 8, padding: 16, border: '1px solid #e0e0e0' },
@@ -1973,7 +1994,7 @@ const styles = {
   countryTrendBars: { display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 12, height: 80, marginBottom: 12 },
   countryTrendBarCol: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 },
   countryTrendBar: { width: 32, borderRadius: 4, transition: 'height 0.3s' },
-  countryTrendBarLabel: { fontSize: 11, color: '#999' },
+  countryTrendBarLabel: { fontSize: 13, color: '#666' },
   countryTrendTotal: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, borderTop: '1px solid #e0e0e0' },
   countryTrendTotalLabel: { fontSize: 12, color: '#666' },
   countryTrendTotalValue: { fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 700, color: '#1a1a1a' },
@@ -1985,7 +2006,7 @@ const styles = {
   hbarBarWrap: { flex: 1, margin: '0 12px' },
   hbarBar: { height: 24, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden' },
   hbarFill: { height: '100%', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8, minWidth: 40 },
-  hbarPercent: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.3)' },
+  hbarPercent: { fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.3)' },
   hbarValue: { width: 70, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: '#1a1a1a' },
   hbarYoy: { width: 65, textAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600 },
 
@@ -1998,7 +2019,7 @@ const styles = {
   otherFlag: { fontSize: 16 },
   otherName: { flex: 1, fontSize: 13, fontWeight: 500, color: '#333' },
   otherValue: { fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#1a1a1a' },
-  otherYoy: { fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 },
+  otherYoy: { fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600 },
 
   trendLegend: { display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20, flexWrap: 'wrap' },
   legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#666' },
@@ -2009,7 +2030,7 @@ const styles = {
 
   phaseRow: { display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' },
   phaseItem: { flex: 1, minWidth: 90, padding: '12px 0 12px 12px', borderLeft: '3px solid' },
-  phaseLabel: { fontSize: 11, fontWeight: 600, color: '#666', margin: 0 },
+  phaseLabel: { fontSize: 13, fontWeight: 600, color: '#666', margin: 0 },
 
   milestoneSection: { marginTop: 40 },
   milestoneTitle: { fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#1a1a1a' },
@@ -2027,7 +2048,7 @@ const styles = {
   annualLabel: { fontSize: 14, color: '#666', marginBottom: 8 },
   annualNumber: { display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 },
   annualDigits: { fontFamily: 'Inter, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: '#1a1a1a' },
-  annualUnit: { fontSize: 28, fontWeight: 600, color: '#999' },
+  annualUnit: { fontSize: 28, fontWeight: 600, color: '#666' },
   annualGrowth: { fontSize: 16, color: '#666', marginTop: 12 },
   rankingSection: { marginTop: 24 },
   rankingTitle: { fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#1a1a1a' },
@@ -2044,18 +2065,18 @@ const styles = {
 
   targetSection: { marginBottom: 32 },
   targetCard: { padding: 32, background: '#1a1a1a', borderRadius: 8, color: 'white' },
-  targetLabel: { fontSize: 14, color: '#999', marginBottom: 20, textAlign: 'center' },
+  targetLabel: { fontSize: 14, color: '#666', marginBottom: 20, textAlign: 'center' },
   targetRow: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 32, marginBottom: 24 },
   targetItem: { textAlign: 'center' },
-  targetItemLabel: { fontSize: 13, color: '#999', marginBottom: 8 },
+  targetItemLabel: { fontSize: 13, color: '#666', marginBottom: 8 },
   targetItemValue: { fontSize: 18, marginBottom: 12 },
   targetCurrent: { fontSize: 36, fontWeight: 800, color: '#ff9800' },
   targetArrow: { color: '#666', margin: '0 8px' },
   targetGoal: { fontSize: 36, fontWeight: 800, color: '#4caf50' },
-  targetUnit: { fontSize: 16, color: '#999', marginLeft: 4 },
+  targetUnit: { fontSize: 16, color: '#666', marginLeft: 4 },
   progressBar: { height: 6, background: '#333', borderRadius: 3, overflow: 'hidden', marginBottom: 8 },
   progressFill: { height: '100%', background: 'linear-gradient(90deg, #ff9800, #4caf50)', borderRadius: 3, transition: 'width 1s ease' },
-  progressText: { fontSize: 13, color: '#999' },
+  progressText: { fontSize: 13, color: '#666' },
   targetInsight: { textAlign: 'center', marginTop: 20, paddingTop: 20, borderTop: '1px solid #333' },
 
   countryLegend: { display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20, flexWrap: 'wrap' },
@@ -2066,7 +2087,7 @@ const styles = {
 
   growthList: { display: 'flex', flexDirection: 'column', gap: 8 },
   growthItem: { display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e0e0e0' },
-  growthRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#999' },
+  growthRank: { width: 24, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#666' },
   growthFlag: { fontSize: 18, marginRight: 8 },
   growthName: { width: 100, fontSize: 14, fontWeight: 500, color: '#1a1a1a' },
   growthBarWrap: { flex: 1, height: 20, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden', marginRight: 12 },
@@ -2076,7 +2097,7 @@ const styles = {
   tableWrap: { marginTop: 24 },
   tableScroll: { overflowX: 'auto', WebkitOverflowScrolling: 'touch' },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
-  th: { padding: '12px 10px', textAlign: 'right', fontSize: 11, fontWeight: 600, color: '#666', borderBottom: '2px solid #e0e0e0', whiteSpace: 'nowrap', background: '#f5f5f5' },
+  th: { padding: '12px 10px', textAlign: 'right', fontSize: 13, fontWeight: 600, color: '#666', borderBottom: '2px solid #e0e0e0', whiteSpace: 'nowrap', background: '#f5f5f5' },
   thFirst: { textAlign: 'left', position: 'sticky', left: 0, background: '#f5f5f5', zIndex: 2 },
   thCovid: { color: '#e53935', opacity: 0.5 },
   thCurrent: { color: 'white', background: '#1a1a1a' },
@@ -2089,5 +2110,5 @@ const styles = {
   spinner: { width: 40, height: 40, border: '3px solid #e0e0e0', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
   errorBox: { padding: 16, background: '#ffebee', border: '1px solid #ffcdd2', borderRadius: 8, color: '#c62828', fontSize: 14 },
 
-  footer: { maxWidth: 1100, margin: '0 auto', padding: 24, borderTop: '1px solid #e0e0e0', textAlign: 'center', fontSize: 11, color: '#999' }
+  footer: { maxWidth: 1100, margin: '0 auto', padding: 24, borderTop: '1px solid #e0e0e0', textAlign: 'center', fontSize: 13, color: '#666' }
 };
