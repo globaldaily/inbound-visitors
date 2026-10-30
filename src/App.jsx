@@ -1872,6 +1872,10 @@ export default function App() {
   return (
     <div ref={rootRef} style={styles.container}>
       <style>{`
+        .idx-tab:focus { outline: none; }
+        .idx-tab:focus-visible { outline: 2px solid #1a1a1a; outline-offset: 2px; }
+        .idx-tab[aria-selected="false"]:hover { background: #dedcd7 !important; }
+        @media (max-width: 1148px) { .idx-nav-inner { margin: 0 24px !important; } }
         @media (max-width: 768px) {
           .share-grid {
             grid-template-columns: 1fr !important;
@@ -1891,9 +1895,9 @@ export default function App() {
         }
       `}</style>
       <nav style={styles.nav}>
-        <div style={styles.navInner}>
+        <div style={styles.navInner} className="idx-nav-inner">
           {tabs.map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{...styles.navLink, ...(activeTab === tab.id ? styles.navLinkActive : {})}}>
+            <button key={tab.id} role="tab" aria-selected={activeTab === tab.id} className="idx-tab" onClick={() => setActiveTab(tab.id)} style={{...styles.navLink, ...(activeTab === tab.id ? styles.navLinkActive : {})}}>
               {tab.label}
             </button>
           ))}
@@ -1936,10 +1940,10 @@ const styles = {
   title: { fontSize: 22, fontWeight: 700, letterSpacing: '0.02em', margin: 0 },
   tagline: { fontSize: 13, fontWeight: 400, color: '#666', marginTop: 4 },
 
-  nav: { background: 'white', borderBottom: '1px solid #e0e0e0', position: 'sticky', top: 0, zIndex: 100, overflowX: 'auto' },
-  navInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 8 },
-  navLink: { padding: '14px 16px', fontSize: 13, fontWeight: 500, color: '#666', border: 'none', borderBottom: '2px solid transparent', background: 'transparent', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' },
-  navLinkActive: { color: '#1a1a1a', borderBottomColor: '#e53935', fontWeight: 600 },
+  nav: { background: '#f5f5f5', position: 'sticky', top: 0, zIndex: 100, padding: '14px 0 0' },
+  navInner: { maxWidth: 1100, margin: '0 auto', display: 'flex', gap: 4, borderBottom: '1px solid #1a1a1a', overflowX: 'auto' },
+  navLink: { flex: 'none', marginBottom: -1, padding: '11px 22px 10px', fontSize: 15, fontWeight: 400, color: '#333', border: '1px solid #cfcfcf', borderBottom: '1px solid #1a1a1a', borderRadius: '3px 3px 0 0', background: '#e9e8e4', cursor: 'pointer', whiteSpace: 'nowrap' },
+  navLinkActive: { position: 'relative', zIndex: 1, paddingTop: 9, color: '#1a1a1a', fontWeight: 700, borderColor: '#1a1a1a', borderTop: '4px solid #1a1a1a', borderBottom: '1px solid #f5f5f5', background: '#f5f5f5' },
 
   main: { padding: '48px 0 80px' },
   mainInner: { maxWidth: 1100, margin: '0 auto', padding: '0 24px' },
